@@ -1,0 +1,23 @@
+{
+  "name": "@open-mova/cli",
+  "version": "0.1.0",
+  "description": "CLI para crear y mantener aplicaciones Open Mova",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "mova": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.3"
+  }
+}

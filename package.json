@@ -1,0 +1,14 @@
+{
+  "name": "open-mova",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "npm --prefix open-mova-shell run start",
+    "start:first": "npm --prefix open-mova-shell run start:first",
+    "start:second": "npm --prefix open-mova-shell run start:second",
+    "start:cli": "npm --prefix open-mova-cli run start",
+    "build:shell": "npm --prefix open-mova-shell run build",
+    "build:cli": "npm --prefix open-mova-cli run build",
+    "typecheck": "npm --prefix open-mova-shell run typecheck && npm --prefix open-mova-cli run typecheck"
+  }
+}
