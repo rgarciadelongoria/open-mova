@@ -1,0 +1,166 @@
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import type {
+  MicrofrontendConfiguration,
+  OpenMovaApplicationConfiguration,
+} from '../types.js';
+
+export const APPLICATION_CONFIGURATION_FILE = 'mova.config.json';
+
+export function findApplicationRoot(startDirectory: string): string | undefined {
+  let currentDirectory = resolve(startDirectory);
+
+  while (true) {
+    if (existsSync(join(currentDirectory, APPLICATION_CONFIGURATION_FILE))) {
+      return currentDirectory;
+    }
+
+    const parentDirectory = dirname(currentDirectory);
+
+    if (parentDirectory === currentDirectory) {
+      return undefined;
+    }
+
+    currentDirectory = parentDirectory;
+  }
+}
+
+export function requireApplicationRoot(startDirectory: string): string {
+  const applicationRoot = findApplicationRoot(startDirectory);
+
+  if (!applicationRoot) {
+    throw new Error(
+      `No se ha encontrado ${APPLICATION_CONFIGURATION_FILE}. Ejecuta este comando desde una aplicación Open Mova.`,
+    );
+  }
+
+  return applicationRoot;
+}
+
+export function readApplicationConfiguration(
+  applicationRoot: string,
+): OpenMovaApplicationConfiguration {
+  const configurationPath = join(applicationRoot, APPLICATION_CONFIGURATION_FILE);
+
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(configurationPath, 'utf8'));
+    return validateApplicationConfiguration(parsed, configurationPath);
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+
+    throw new Error(`No se ha podido leer ${configurationPath}.`);
+  }
+}
+
+export function writeApplicationConfiguration(
+  applicationRoot: string,
+  configuration: OpenMovaApplicationConfiguration,
+): void {
+  const configurationPath = join(applicationRoot, APPLICATION_CONFIGURATION_FILE);
+  const content = `${JSON.stringify(configuration, null, 2)}\n`;
+
+  writeFileSync(configurationPath, content, 'utf8');
+}
+
+export function addMicrofrontend(
+  configuration: OpenMovaApplicationConfiguration,
+  microfrontend: MicrofrontendConfiguration,
+): OpenMovaApplicationConfiguration {
+  const routeInUse = configuration.microfrontends.some(
+    (entry) => entry.route === microfrontend.route,
+  );
+  const nameInUse = configuration.microfrontends.some(
+    (entry) => entry.name === microfrontend.name,
+  );
+  const remoteInUse = configuration.microfrontends.some(
+    (entry) => entry.remoteName === microfrontend.remoteName,
+  );
+  const remoteEntryInUse = configuration.microfrontends.some(
+    (entry) => entry.developmentRemoteEntry === microfrontend.developmentRemoteEntry,
+  );
+
+  if (nameInUse || routeInUse || remoteInUse || remoteEntryInUse) {
+    throw new Error(
+      `El microfrontal "${microfrontend.name}" entra en conflicto con una entrada existente. ` +
+        'El nombre, la ruta, el remoto y la URL de desarrollo deben ser únicos.',
+    );
+  }
+
+  return {
+    ...configuration,
+    microfrontends: [...configuration.microfrontends, microfrontend],
+  };
+}
+
+function validateApplicationConfiguration(
+  value: unknown,
+  configurationPath: string,
+): OpenMovaApplicationConfiguration {
+  if (!isRecord(value)) {
+    throw new Error(`${configurationPath} no contiene un objeto JSON válido.`);
+  }
+
+  if (value.schemaVersion !== 1 || typeof value.name !== 'string') {
+    throw new Error(`${configurationPath} no tiene el formato de Open Mova esperado.`);
+  }
+
+  if (!Array.isArray(value.microfrontends)) {
+    throw new Error(`${configurationPath} debe contener una lista de microfrontales.`);
+  }
+
+  const microfrontends = value.microfrontends.map((entry) =>
+    validateMicrofrontend(entry, configurationPath),
+  );
+
+  return {
+    schemaVersion: 1,
+    name: value.name,
+    microfrontends,
+  };
+}
+
+function validateMicrofrontend(
+  value: unknown,
+  configurationPath: string,
+): MicrofrontendConfiguration {
+  if (!isRecord(value)) {
+    throw new Error(`${configurationPath} contiene un microfrontal no válido.`);
+  }
+
+  const requiredStrings = [
+    value.name,
+    value.route,
+    value.remoteName,
+    value.exposedModule,
+    value.developmentRemoteEntry,
+  ];
+
+  if (requiredStrings.some((entry) => typeof entry !== 'string')) {
+    throw new Error(`${configurationPath} contiene un microfrontal incompleto.`);
+  }
+
+  if (value.exposedModule !== './Routes') {
+    throw new Error(
+      `${configurationPath} solo admite "./Routes" como módulo expuesto por el momento.`,
+    );
+  }
+
+  if (value.sourcePath !== undefined && typeof value.sourcePath !== 'string') {
+    throw new Error(`${configurationPath} contiene una ruta de origen no válida.`);
+  }
+
+  return {
+    name: value.name as string,
+    route: value.route as string,
+    remoteName: value.remoteName as string,
+    exposedModule: './Routes',
+    developmentRemoteEntry: value.developmentRemoteEntry as string,
+    ...(value.sourcePath === undefined ? {} : { sourcePath: value.sourcePath }),
+  };
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}

@@ -1,16 +1,33 @@
-import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import type { Command } from 'commander';
+import {
+  findApplicationRoot,
+  readApplicationConfiguration,
+} from '../application/configuration.js';
 
 export function registerInfoCommand(program: Command): void {
   program
     .command('info')
-    .description('Comprueba si la carpeta actual contiene una aplicación Open Mova')
+    .description('Muestra la aplicación Open Mova encontrada desde la carpeta actual')
     .action(() => {
       const currentDirectory = resolve(process.cwd());
-      const angularWorkspace = existsSync(resolve(currentDirectory, 'angular.json'));
+      const applicationRoot = findApplicationRoot(currentDirectory);
 
-      console.log(`Directorio: ${currentDirectory}`);
-      console.log(`Workspace Angular: ${angularWorkspace ? 'sí' : 'no'}`);
+      console.log(`Directorio actual: ${currentDirectory}`);
+
+      if (!applicationRoot) {
+        console.log('Aplicación Open Mova: no encontrada');
+        return;
+      }
+
+      const configuration = readApplicationConfiguration(applicationRoot);
+
+      console.log(`Aplicación Open Mova: ${configuration.name}`);
+      console.log(`Raíz de la aplicación: ${applicationRoot}`);
+      console.log(`Microfrontales registrados: ${configuration.microfrontends.length}`);
+
+      for (const microfrontend of configuration.microfrontends) {
+        console.log(`- ${microfrontend.name} → /${microfrontend.route}`);
+      }
     });
 }

@@ -1,6 +1,6 @@
 # Open Mova
 
-Monorepo privado de Open Mova. Reúne las piezas que se distribuyen y evolucionan juntas, manteniendo cada proyecto independiente.
+Monorepo de Open Mova. Reúne las piezas que se distribuyen y evolucionan juntas, manteniendo cada proyecto independiente.
 
 ## Proyectos
 
@@ -8,7 +8,7 @@ Monorepo privado de Open Mova. Reúne las piezas que se distribuyen y evoluciona
 - `open-mova-core/`: librería base del framework. Actualmente está vacía y preparada para contratos reutilizables.
 - `open-mova-mf-first/`: primer microfrontal independiente.
 - `open-mova-mf-second/`: segundo microfrontal independiente.
-- `open-mova-cli/`: CLI que, en las siguientes iteraciones, creará y mantendrá aplicaciones basadas en el framework.
+- `open-mova-cli/`: CLI para crear aplicaciones y registrar o generar sus microfrontales.
 
 La raíz no contiene código Angular ni código del CLI: solo coordina comandos y documentación. Los proyectos no comparten dependencias ni lockfiles.
 
@@ -47,7 +47,12 @@ npm run build:second
 npm run build:cli
 ```
 
-## Añadir un nuevo microfrontal
+## Añadir un nuevo microfrontal manualmente
+
+La forma recomendada es usar `mova mf create` o `mova mf add`, explicados al
+final de este README. Esta sección se conserva como referencia para entender
+los ficheros que el CLI genera y para casos en que se quiera configurar un MF
+manualmente.
 
 Esta guía muestra cómo añadir un tercer microfrontal llamado `open-mova-mf-third`. Los nombres `third` y `third-microfrontend` son ejemplos: puedes sustituirlos por el nombre real de tu proyecto, pero debes mantenerlos coherentes en todos los ficheros.
 
@@ -63,7 +68,9 @@ open-mova/
 └── open-mova-mf-third/
 ```
 
-Actualmente no existe una plantilla automática. Para empezar, toma `open-mova-mf-first` como referencia y copia únicamente los ficheros del proyecto, sin copiar `node_modules`, `dist` ni `.angular`. El nuevo proyecto debe tener, como mínimo:
+Como alternativa al CLI, toma `open-mova-mf-first` como referencia y copia
+únicamente los ficheros del proyecto, sin copiar `node_modules`, `dist` ni
+`.angular`. El nuevo proyecto debe tener, como mínimo:
 
 ```text
 open-mova-mf-third/
@@ -314,3 +321,145 @@ Si aparece una pantalla vacía, revisa en este orden:
 6. Que `src/app/app.routes.ts` exporta `routes`.
 
 No hay que editar `node_modules`, `dist`, `.angular` ni los `package-lock.json` a mano. Son dependencias y artefactos generados de cada proyecto.
+
+## Usar el CLI de Open Mova
+
+El CLI se instala como una herramienta de terminal y trabaja sobre una
+aplicación concreta. La aplicación se identifica por su fichero
+`mova.config.json`; la shell no se modifica manualmente para añadir
+microfrontales.
+
+### Preparar el CLI durante el desarrollo
+
+```bash
+cd open-mova-cli
+npm install
+npm run build
+npm link
+```
+
+Después de `npm link`, el comando `mova` estará disponible desde cualquier
+directorio de tu máquina. El enlace es local y no publica el CLI en npm.
+
+### Crear una aplicación
+
+Desde el directorio donde quieras crear el proyecto:
+
+```bash
+mova create mi-aplicacion
+```
+
+La aplicación resultante contiene la shell en `src/`, su configuración en
+`mova.config.json` y un microfrontal inicial en `mfs/home`:
+
+```text
+mi-aplicacion/
+├── src/                         # Shell técnica
+├── mfs/
+│   └── home/                    # MF inicial independiente
+├── mova.config.json
+├── angular.json
+└── package.json
+```
+
+Cada proyecto es autónomo, por lo que hay que instalar sus dependencias por
+separado:
+
+```bash
+cd mi-aplicacion
+npm install
+npm --prefix mfs/home install
+```
+
+Para crear una shell sin el MF inicial se puede usar `--empty`:
+
+```bash
+mova create mi-aplicacion --empty
+```
+
+### Crear un microfrontal nuevo
+
+Desde la raíz de la aplicación:
+
+```bash
+mova mf create catalog
+```
+
+El CLI crea `mfs/catalog`, le asigna el primer puerto disponible desde el
+`4300` y registra automáticamente la ruta `/catalog`. También actualiza el
+manifiesto de Native Federation y la configuración de rutas de la shell.
+
+Para elegir otra ubicación, ruta o puerto:
+
+```bash
+mova mf create catalog \
+  --directory ../provider-mf-catalog \
+  --route productos \
+  --port 4500
+```
+
+El MF generado ofrece dos rutas internas sencillas:
+
+```text
+/productos/first-route
+/productos/second-route
+```
+
+### Vincular un microfrontal existente
+
+Si el proyecto ya existe localmente:
+
+```bash
+mova mf add ../provider-mf-catalog
+```
+
+El CLI intenta descubrir el nombre remoto y el puerto en `federation.config.js`
+y `angular.json`. Se pueden indicar manualmente si hiciera falta:
+
+```bash
+mova mf add ../provider-mf-catalog \
+  --name catalog \
+  --route productos \
+  --remote catalog-microfrontend \
+  --port 4500
+```
+
+Si el MF ya está desplegado, no hace falta tener su código fuente:
+
+```bash
+mova mf add \
+  --name catalog \
+  --route productos \
+  --remote catalog-microfrontend \
+  --remote-entry https://cdn.example.com/catalog/remoteEntry.json
+```
+
+Una URL Git identifica el repositorio de código; `remoteEntry.json` es la URL
+que la shell carga en tiempo de ejecución.
+
+### Arrancar, compilar e inspeccionar
+
+Desde la raíz de la aplicación:
+
+```bash
+mova start
+mova build
+mova info
+```
+
+`mova start` inicia los MF locales registrados y después la shell. Para iniciar
+solo la shell se puede usar:
+
+```bash
+mova start --shell-only
+```
+
+`mova build` compila primero los MF locales y después la shell. `mova info`
+puede ejecutarse incluso desde el directorio de un MF: busca `mova.config.json`
+hacia arriba y muestra la aplicación a la que pertenece.
+
+Por ahora el CLI no gestiona Capacitor, Android, iOS, plugins nativos ni la
+clonación de un MF desde una URL Git. Para un MF existente se usa una copia
+local del repositorio o su `remoteEntry.json` ya publicado. Esas capacidades se
+incorporarán en la siguiente fase, cuando definamos el host móvil de cada
+aplicación.

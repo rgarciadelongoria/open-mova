@@ -1,0 +1,78 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "projects": {
+    "__MF_PROJECT_NAME__": {
+      "projectType": "application",
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "mova",
+      "architect": {
+        "build": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {},
+          "configurations": {
+            "production": {
+              "target": "__MF_PROJECT_NAME__:application:production"
+            },
+            "development": {
+              "target": "__MF_PROJECT_NAME__:application:development",
+              "dev": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-architects/native-federation:build",
+          "options": {
+            "target": "__MF_PROJECT_NAME__:serve-application:development",
+            "rebuildDelay": 500,
+            "dev": true,
+            "cacheExternalArtifacts": false,
+            "port": 0
+          }
+        },
+        "application": {
+          "builder": "@angular/build:application",
+          "options": {
+            "outputPath": "dist",
+            "index": "src/index.html",
+            "browser": "src/main.ts",
+            "polyfills": [
+              "es-module-shims"
+            ],
+            "tsConfig": "tsconfig.app.json",
+            "assets": []
+          },
+          "configurations": {
+            "production": {},
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve-application": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "__MF_PROJECT_NAME__:application:production"
+            },
+            "development": {
+              "buildTarget": "__MF_PROJECT_NAME__:application:development"
+            }
+          },
+          "defaultConfiguration": "development",
+          "options": {
+            "port": __MF_PORT__
+          }
+        }
+      }
+    }
+  },
+  "cli": {
+    "analytics": false
+  }
+}
