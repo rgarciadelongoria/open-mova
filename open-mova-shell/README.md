@@ -4,9 +4,12 @@ La shell es el host técnico de Open Mova. Carga los microfrontales mediante
 Native Federation y ofrece el punto de integración para capacidades comunes del
 framework.
 
-No contiene lógica de negocio ni una interfaz de usuario propia. Su plantilla
+No contiene lógica de negocio ni una interfaz de usuario propia. Su componente
 solo incluye un `router-outlet`, que es el lugar donde se montan las rutas de
 los microfrontales.
+
+Este directorio es la fuente de la shell que el CLI descarga desde los tags
+estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 
 ## Responsabilidades
 
@@ -42,8 +45,8 @@ del remoto y `exposedModule` indica el módulo de rutas que se carga:
 
 ```ts
 {
-  path: 'first',
-  remote: 'first-microfrontend',
+  path: 'demo',
+  remote: 'demo-microfrontend',
   exposedModule: './Routes',
 }
 ```
@@ -52,7 +55,7 @@ El manifiesto relaciona ese remoto con su servidor:
 
 ```json
 {
-  "first-microfrontend": "http://localhost:4300/remoteEntry.json"
+  "demo-microfrontend": "http://localhost:4300/remoteEntry.json"
 }
 ```
 
@@ -78,11 +81,10 @@ npm run build
 
 La shell se sirve en [http://localhost:4200](http://localhost:4200). Para ver
 los microfrontales cargados hay que iniciar también sus proyectos. Desde la
-raíz del monorepo, se pueden usar tres terminales:
+raíz del monorepo, se pueden usar dos terminales:
 
 ```bash
-npm run start:first
-npm run start:second
+npm run start:demo
 npm start
 ```
 

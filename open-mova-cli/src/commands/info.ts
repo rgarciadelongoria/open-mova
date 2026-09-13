@@ -24,6 +24,9 @@ export function registerInfoCommand(program: Command): void {
 
       console.log(`Aplicación Open Mova: ${configuration.name}`);
       console.log(`Raíz de la aplicación: ${applicationRoot}`);
+      if (configuration.shell) {
+        console.log(`Shell: ${configuration.shell.version} (${configuration.shell.commit.slice(0, 7)})`);
+      }
       console.log(`Microfrontales registrados: ${configuration.microfrontends.length}`);
 
       for (const microfrontend of configuration.microfrontends) {

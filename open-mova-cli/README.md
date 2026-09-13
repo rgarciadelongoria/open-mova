@@ -5,9 +5,10 @@ ejecuta desde el terminal con el comando `mova`.
 
 ## Qué gestiona
 
-El CLI crea una aplicación host con una shell técnica y mantiene su composición
-de microfrontales. No añade lógica de negocio a la shell ni modifica los
-microfrontales existentes fuera de su configuración de registro.
+El CLI crea una aplicación host descargando `open-mova-shell/` desde un tag del
+repositorio público y mantiene su composición de microfrontales. Descarga
+también `open-mova-mf-template/` para crear los MF y `open-mova-core/` cuando
+el perfil demo lo necesita. No contiene plantillas de código propias.
 
 La fuente de configuración es `mova.config.json`. Al crear o registrar un
 microfrontal, el CLI actualiza también estos ficheros de la shell:
@@ -85,15 +86,33 @@ Ejecuta el comando desde el directorio donde quieras crear el proyecto:
 mova create mi-aplicacion
 ```
 
+Requiere Git y acceso al repositorio. El CLI consulta los tags estables
+`vMAJOR.MINOR.PATCH` y usa el más reciente por número de versión. No utiliza
+la rama `main`. Para verlos o elegir uno:
+
+```bash
+mova shell versions
+mova create mi-aplicacion --shell-version v0.1.3
+```
+
+La app guarda en `mova.config.json` la URL del repositorio, el tag y el commit
+exacto de la shell descargada. El número de versión de la propia app en
+`package.json` es independiente de la versión de la shell. El CLI no modifica
+aplicaciones ya creadas cuando aparece un tag nuevo.
+
 La aplicación creada contiene la shell en su propia raíz y un microfrontal
-inicial llamado `home` dentro de `mfs/home`:
+inicial llamado `home` dentro de `mfs/home`. Ambos proceden del mismo tag;
+el CLI descarga también `core` para que los ejemplos nativos puedan compilar:
 
 ```text
 mi-aplicacion/
 ├── src/                         # Shell técnica
 ├── mfs/
 │   └── home/                    # Microfrontal inicial independiente
+├── packages/
+│   └── core/                    # Contrato nativo usado por la demo
 ├── mova.config.json             # Configuración de la composición
+├── capacitor.config.ts          # Si la versión de shell incluye Capacitor
 ├── angular.json
 └── package.json
 ```
@@ -103,6 +122,8 @@ Antes de arrancar hay que instalar las dependencias de cada proyecto:
 ```bash
 cd mi-aplicacion
 npm install
+npm --prefix packages/core install
+npm --prefix packages/core run build
 npm --prefix mfs/home install
 ```
 
@@ -128,7 +149,10 @@ mova mf create catalog
 ```
 
 Por defecto se crea en `mfs/catalog`, se registra en la aplicación bajo la
-ruta `/catalog` y utiliza el primer puerto libre desde el `4300`.
+ruta `/catalog` y utiliza el primer puerto libre desde el `4300`. El perfil
+predeterminado es mínimo: una ruta inicial sin ejemplos ni dependencia de core.
+El CLI descarga `open-mova-mf-template` desde el tag estable más reciente, o
+desde el tag elegido con `--template-version vX.Y.Z`.
 
 Se puede personalizar su ubicación, ruta o puerto:
 
@@ -139,13 +163,17 @@ mova mf create catalog \
   --port 4500
 ```
 
-Las rutas internas del microfrontal son siempre `first-route` y
-`second-route` al crearlo. En el ejemplo anterior sus URLs finales serían:
+La ruta inicial del ejemplo anterior estaría en:
 
 ```text
-/productos/first-route
-/productos/second-route
+/productos
 ```
+
+Para crear otro microfrontal con los ejemplos `inicio`, `device` y `camera`,
+usa `mova mf create catalog --demo`. Si la aplicación aún no tiene
+`packages/core`, el CLI lo descarga del mismo tag. Antes de instalar ese MF,
+ejecuta `npm --prefix packages/core install` y
+`npm --prefix packages/core run build`.
 
 ### Registrar un microfrontal existente
 
@@ -218,8 +246,8 @@ aplicación a la que pertenece.
 
 ## Límites actuales
 
-Esta primera versión no gestiona todavía Capacitor, plataformas iOS/Android,
-plugins nativos, publicación de microfrontales ni clonación desde una URL Git.
-Para registrar código existente, utiliza por ahora una copia local del
-repositorio o registra directamente un `remoteEntry.json` ya desplegado. Esas
-capacidades se añadirán cuando quede definido el host móvil de cada aplicación.
+El CLI prepara Android/iOS cuando la versión de shell elegida incluye
+Capacitor (`v0.1.2` en adelante). Los tags anteriores pueden crearse como
+aplicaciones web, pero no disponen de los comandos móviles. El CLI aún no
+actualiza automáticamente la shell de una aplicación existente ni publica
+microfrontales.

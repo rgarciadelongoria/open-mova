@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Command } from 'commander';
 import { createMicrofrontend, inspectExistingMicrofrontend } from '../application/microfrontend.js';
@@ -9,12 +10,15 @@ import {
 } from '../application/configuration.js';
 import { synchronizeShellConfiguration } from '../application/shell-configuration.js';
 import { normalizeName } from '../utils/names.js';
+import { downloadTaggedProject, listShellVersions } from '../application/shell-repository.js';
 
 interface CreateMicrofrontendCommandOptions {
   readonly directory?: string;
   readonly route?: string;
   readonly port?: number;
   readonly productionRemoteEntry?: string;
+  readonly templateVersion?: string;
+  readonly demo?: boolean;
 }
 
 interface AddMicrofrontendCommandOptions {
@@ -38,10 +42,19 @@ export function registerMicrofrontendCommands(program: Command): void {
     .option('--route <path>', 'ruta pública en la shell')
     .option('--port <number>', 'puerto de desarrollo', parsePort)
     .option('--production-remote-entry <url>', 'URL HTTPS del remoto publicado')
+    .option('--template-version <tag>', 'tag del proyecto de microfrontal')
+    .option('--demo', 'usar el perfil con ejemplos en vez del mínimo')
     .action((name: string, options: CreateMicrofrontendCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
       const normalizedName = normalizeName(name, 'El nombre del microfrontal');
+      const templateVersion = options.templateVersion ?? listShellVersions()[0];
+      if (!templateVersion) {
+        throw new Error('No hay tags estables disponibles para crear el microfrontal.');
+      }
+      if (options.demo && !existsSync(join(applicationRoot, 'packages/core'))) {
+        downloadTaggedProject('open-mova-core', join(applicationRoot, 'packages/core'), templateVersion);
+      }
       const microfrontendConfiguration = createMicrofrontend(
         applicationRoot,
         configuration,
@@ -51,6 +64,8 @@ export function registerMicrofrontendCommands(program: Command): void {
           route: options.route,
           port: options.port,
           productionRemoteEntry: options.productionRemoteEntry,
+          templateVersion,
+          profile: options.demo ? 'demo' : 'minimal',
         },
       );
       const updatedConfiguration = addMicrofrontend(

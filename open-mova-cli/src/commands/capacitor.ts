@@ -47,6 +47,9 @@ function parsePlatform(value: string): Platform {
 }
 
 function buildMobileShell(root: string): void {
+  if (!existsSync(join(root, 'capacitor.config.ts'))) {
+    throw new Error('Esta versión de shell no incluye Capacitor. Usa una shell v0.1.2 o posterior.');
+  }
   const configuration = readApplicationConfiguration(root);
   const manifest = createProductionManifest(configuration);
   run(root, 'npm', ['run', 'build']);
@@ -87,6 +90,9 @@ function isHttpsUrl(value: string): boolean {
 }
 
 function runCapacitor(root: string, args: string[]): void {
+  if (!existsSync(join(root, 'capacitor.config.ts'))) {
+    throw new Error('Esta versión de shell no incluye Capacitor. Usa una shell v0.1.2 o posterior.');
+  }
   const binary = join(root, 'node_modules', '.bin', 'cap');
   if (!existsSync(binary)) {
     throw new Error('Instala las dependencias de la aplicación con npm install.');

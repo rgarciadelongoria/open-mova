@@ -1,131 +1,79 @@
 # Open Mova
 
-Open Mova es un framework para construir aplicaciones web y móviles con
-Angular y Native Federation. El repositorio es un monorepo: reúne las piezas
-del framework, pero mantiene cada proyecto autónomo y con sus propias
-dependencias.
+Framework para aplicaciones web y móviles con Angular, Native Federation y
+Capacitor. Cada aplicación tiene una shell técnica y carga microfrontales
+**remotos**; no se empaquetan dentro de la shell. Este repositorio es un
+monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
-## Arquitectura
-
-Una aplicación Open Mova está formada por una shell técnica y varios
-microfrontales independientes:
-
-```text
-Aplicación final
-├── Shell                 # Contenedor y capacidades comunes
-└── Microfrontales        # Funcionalidad de cada proveedor
-```
-
-La shell no contiene lógica de negocio ni pantallas propias. Su responsabilidad
-es cargar los microfrontales mediante Native Federation y ofrecer capacidades
-nativas mediante Capacitor.
-
-## Proyectos del monorepo
+## Proyectos
 
 ```text
 open-mova/
-├── open-mova-core/       # Contratos y piezas reutilizables
-├── open-mova-shell/      # Shell Angular del framework
-├── open-mova-mf-first/   # Microfrontal de demostración
-├── open-mova-mf-second/  # Microfrontal de demostración
-└── open-mova-cli/        # Herramienta de terminal de Open Mova
+├── open-mova-shell/        # Contenedor y capacidades nativas
+├── open-mova-core/         # Contratos reutilizables, sin Angular
+├── open-mova-mf-template/  # Única fuente de microfrontal y demo local
+└── open-mova-cli/          # Comandos mova
 ```
 
-- `open-mova-core` es independiente de Angular, Capacitor y de cualquier
-  microfrontal concreto.
-- `open-mova-shell` contiene únicamente la shell técnica.
-- `open-mova-mf-first` y `open-mova-mf-second` son proyectos de ejemplo
-  autónomos para probar la integración.
-- `open-mova-cli` crea aplicaciones y registra microfrontales. Sus comandos y
-  plantillas están documentados en [`open-mova-cli/README.md`](open-mova-cli/README.md).
+La shell y el microfrontal de referencia se descargan desde los tags estables
+`vX.Y.Z` del repositorio al crear proyectos con el CLI. El perfil **demo**
+incluye rutas `inicio`, `device` y `camera`; el perfil **minimal** deja solo
+una ruta inicial. No hay plantillas Angular duplicadas dentro del CLI.
 
-## Requisitos
+## Preparación
 
-- Node.js 22 (Capacitor 8 requiere Node 22 o posterior; el build se verifica con Node 22).
-- npm.
-
-Cada proyecto instala sus propias dependencias. La raíz no tiene dependencias
-compartidas ni un `node_modules` común.
-
-## Instalación
-
-Desde la raíz del monorepo:
+Requiere Node.js 22, npm y Git. Desde la raíz:
 
 ```bash
 npm --prefix open-mova-core install
+npm run build:core
+npm --prefix open-mova-mf-template install
 npm --prefix open-mova-shell install
-npm --prefix open-mova-mf-first install
-npm --prefix open-mova-mf-second install
 npm --prefix open-mova-cli install
 ```
 
-## Comandos de coordinación
+El `package.json` raíz solo coordina comandos; no tiene dependencias ni
+`node_modules` propios.
 
-El `package.json` de la raíz solo contiene atajos para coordinar los proyectos.
-No sustituye al `package.json` de cada proyecto ni comparte sus dependencias.
+## Demostración local
 
-| Comando | Función |
-| --- | --- |
-| `npm start` | Inicia la shell en el puerto `4200`. |
-| `npm run start:first` | Inicia el primer MF en el puerto `4300`. |
-| `npm run start:second` | Inicia el segundo MF en el puerto `4400`. |
-| `npm run start:cli` | Ejecuta el CLI en modo desarrollo. |
-| `npm run typecheck` | Comprueba el tipado de todos los proyectos. |
-| `npm run build:core` | Compila `open-mova-core`. |
-| `npm run build:shell` | Compila `open-mova-shell`. |
-| `npm run build:first` | Compila `open-mova-mf-first`. |
-| `npm run build:second` | Compila `open-mova-mf-second`. |
-| `npm run build:cli` | Compila `open-mova-cli`. |
-
-## Ejecutar la demostración
-
-Abre tres terminales en la raíz del monorepo y ejecuta un comando en cada una:
+Inicia el microfrontal y la shell en terminales distintas:
 
 ```bash
-npm run start:first
-```
-
-```bash
-npm run start:second
+npm run start:demo
 ```
 
 ```bash
 npm start
 ```
 
-La shell estará disponible en [http://localhost:4200](http://localhost:4200).
-Los microfrontales se pueden comprobar directamente en:
+Abre `http://localhost:4200/demo/inicio`, `/demo/device` o `/demo/camera`.
+El remoto publica `remoteEntry.json` en el puerto 4300. La shell lee la URL
+desde `open-mova-shell/src/assets/federation.manifest.json` y la ruta desde
+`open-mova-shell/src/app/application.config.ts`. Esas entradas son solo para
+el desarrollo de este monorepo; una app creada por el CLI recibe su propia
+configuración en `mova.config.json`.
 
-- [http://localhost:4300](http://localhost:4300)
-- [http://localhost:4400](http://localhost:4400)
+## Comandos de coordinación
 
-Desde la shell, las rutas de demostración son:
+| Comando | Función |
+| --- | --- |
+| `npm start` | Iniciar shell en 4200. |
+| `npm run start:demo` | Iniciar remoto en 4300. |
+| `npm run start:cli` | Ejecutar CLI en desarrollo. |
+| `npm run typecheck` | Comprobar tipado de todos los proyectos. |
+| `npm run build:core` | Compilar contratos. |
+| `npm run build:shell` | Compilar shell. |
+| `npm run build:demo` | Compilar microfrontal de referencia. |
+| `npm run build:cli` | Compilar CLI. |
 
-- `/first/first-route`
-- `/first/second-route`
-- `/second/first-route`
-- `/second/second-route`
+Consulta los README de cada proyecto para sus comandos y responsabilidades.
+Para crear una aplicación o un microfrontal, empieza por
+[`open-mova-cli/README.md`](open-mova-cli/README.md).
 
-La shell obtiene la ubicación de cada remoto desde
-`open-mova-shell/src/assets/federation.manifest.json` y obtiene la ruta
-pública desde `open-mova-shell/src/app/application.config.ts`.
+## Publicación de versiones
 
-## Verificación completa
-
-```bash
-npm run typecheck
-npm run build:core
-npm run build:shell
-npm run build:first
-npm run build:second
-npm run build:cli
-```
-
-## Estado del proyecto
-
-Angular y Native Federation están integrados en la shell y en los
-microfrontales de demostración. Capacitor está integrado en la shell y la
-plantilla de aplicaciones; `open-mova-core` define el contrato de Device y
-Camera. Los microfrontales son siempre remotos, también en móvil. El CLI
-prepara Android/iOS y exige URLs HTTPS para los remotos al sincronizar una app.
-Autenticación queda para una fase posterior.
+El CLI solo consume tags publicados. Tras modificar la shell, core o el
+microfrontal de referencia, hay que publicar un nuevo tag estable para que
+`mova create` y `mova mf create` puedan descargar ese código. Cada MF
+generado registra el tag y commit de su origen en `mova.config.json`.

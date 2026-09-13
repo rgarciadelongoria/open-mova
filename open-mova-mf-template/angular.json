@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "projects": {
-    "open-mova-mf-first": {
+    "open-mova-mf-template": {
       "projectType": "application",
       "root": "",
       "sourceRoot": "src",
@@ -13,10 +13,10 @@
           "options": {},
           "configurations": {
             "production": {
-              "target": "open-mova-mf-first:application:production"
+              "target": "open-mova-mf-template:application:production"
             },
             "development": {
-              "target": "open-mova-mf-first:application:development",
+              "target": "open-mova-mf-template:application:development",
               "dev": true
             }
           },
@@ -25,7 +25,7 @@
         "serve": {
           "builder": "@angular-architects/native-federation:build",
           "options": {
-            "target": "open-mova-mf-first:serve-application:development",
+            "target": "open-mova-mf-template:serve-application:development",
             "rebuildDelay": 500,
             "dev": true,
             "cacheExternalArtifacts": false,
@@ -58,10 +58,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "open-mova-mf-first:application:production"
+              "buildTarget": "open-mova-mf-template:application:production"
             },
             "development": {
-              "buildTarget": "open-mova-mf-first:application:development"
+              "buildTarget": "open-mova-mf-template:application:development"
             }
           },
           "defaultConfiguration": "development",

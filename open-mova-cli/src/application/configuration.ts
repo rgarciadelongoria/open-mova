@@ -110,6 +110,24 @@ function validateApplicationConfiguration(
     throw new Error(`${configurationPath} debe contener una lista de microfrontales.`);
   }
 
+  let shell: OpenMovaApplicationConfiguration['shell'];
+  if (value.shell !== undefined) {
+    if (
+      !isRecord(value.shell) ||
+      typeof value.shell.repository !== 'string' ||
+      typeof value.shell.version !== 'string' ||
+      typeof value.shell.commit !== 'string'
+    ) {
+      throw new Error(`${configurationPath} contiene una versión de shell no válida.`);
+    }
+
+    shell = {
+      repository: value.shell.repository,
+      version: value.shell.version,
+      commit: value.shell.commit,
+    };
+  }
+
   const microfrontends = value.microfrontends.map((entry) =>
     validateMicrofrontend(entry, configurationPath),
   );
@@ -117,6 +135,7 @@ function validateApplicationConfiguration(
   return {
     schemaVersion: 1,
     name: value.name,
+    ...(shell ? { shell } : {}),
     microfrontends,
   };
 }
@@ -158,6 +177,17 @@ function validateMicrofrontend(
     throw new Error(`${configurationPath} contiene una URL de producción no válida.`);
   }
 
+  if (value.template !== undefined && (
+    !isRecord(value.template) ||
+    typeof value.template.repository !== 'string' ||
+    typeof value.template.version !== 'string' ||
+    typeof value.template.commit !== 'string' ||
+    value.template.project !== 'open-mova-mf-template' ||
+    (value.template.profile !== 'minimal' && value.template.profile !== 'demo')
+  )) {
+    throw new Error(`${configurationPath} contiene una plantilla de microfrontal no válida.`);
+  }
+
   return {
     name: value.name as string,
     route: value.route as string,
@@ -168,6 +198,7 @@ function validateMicrofrontend(
       ? {}
       : { productionRemoteEntry: value.productionRemoteEntry }),
     ...(value.sourcePath === undefined ? {} : { sourcePath: value.sourcePath }),
+    ...(value.template === undefined ? {} : { template: value.template as MicrofrontendConfiguration['template'] }),
   };
 }
 

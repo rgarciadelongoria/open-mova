@@ -1,16 +1,12 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import type {
   MicrofrontendConfiguration,
   OpenMovaApplicationConfiguration,
 } from '../types.js';
-import {
-  normalizeName,
-  toDisplayName,
-  toPascalCase,
-  toRemoteName,
-} from '../utils/names.js';
-import { copyTemplate } from '../utils/templates.js';
+import { normalizeName, toRemoteName } from '../utils/names.js';
+import { configureDownloadedMicrofrontend, type MicrofrontendProfile } from './microfrontend-profile.js';
+import { downloadTaggedProject, type ShellVersion } from './shell-repository.js';
 
 export interface CreateMicrofrontendOptions {
   readonly name: string;
@@ -18,6 +14,8 @@ export interface CreateMicrofrontendOptions {
   readonly route?: string;
   readonly port?: number;
   readonly productionRemoteEntry?: string;
+  readonly profile?: MicrofrontendProfile;
+  readonly templateVersion?: string;
 }
 
 export interface ExistingMicrofrontendOptions {
@@ -46,14 +44,17 @@ export function createMicrofrontend(
   const port = options.port ?? findAvailablePort(configuration);
   validatePort(port);
 
-  copyTemplate('microfrontend', destination, {
-    '__MF_NAME__': name,
-    '__MF_DISPLAY_NAME__': toDisplayName(name),
-    '__MF_CLASS_NAME__': toPascalCase(name),
-    '__MF_PROJECT_NAME__': `mova-mf-${name}`,
-    '__MF_REMOTE_NAME__': toRemoteName(name),
-    '__MF_PORT__': String(port),
-  });
+  const profile = options.profile ?? 'minimal';
+  let template: ShellVersion;
+  try {
+    template = downloadTaggedProject(
+      'open-mova-mf-template', destination, options.templateVersion,
+    );
+    configureDownloadedMicrofrontend(destination, applicationRoot, name, port, profile);
+  } catch (error) {
+    rmSync(destination, { recursive: true, force: true });
+    throw error;
+  }
 
   return {
     name,
@@ -65,6 +66,7 @@ export function createMicrofrontend(
       ? { productionRemoteEntry: options.productionRemoteEntry }
       : {}),
     sourcePath: toConfigurationPath(applicationRoot, destination),
+    template: { ...template, project: 'open-mova-mf-template', profile },
   };
 }
 

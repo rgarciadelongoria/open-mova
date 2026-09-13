@@ -5,6 +5,7 @@
 - `open-mova-shell/` contiene únicamente el workspace Angular y la shell técnica.
 - `open-mova-core/` contiene la librería base y sus contratos reutilizables.
 - `open-mova-cli/` contiene el CLI de Open Mova.
+- `open-mova-mf-template/` es la única fuente del microfrontal de referencia; el CLI aplica un perfil demo o mínimo.
 - La raíz contiene solo configuración compartida del monorepo, documentación y automatizaciones comunes.
 
 ## Principios
@@ -14,6 +15,8 @@
 - Mantener las dependencias y los comandos específicos dentro del proyecto que los necesita.
 - No introducir lógica Angular en la raíz ni lógica de la shell en el CLI.
 - Mantener el core independiente de Angular, Capacitor y de cualquier microfrontal concreto.
+- La shell de `open-mova-shell/` es la única fuente de su código; el CLI la descarga de tags estables del repositorio y no mantiene una plantilla de shell.
+- Al crear una aplicación, guardar el tag y el commit de la shell para que su origen quede identificado.
 - Open Mova siempre utilizará microfrontales remotos mediante Native Federation.
 - No implementar un modo monolítico ni empaquetar los microfrontales dentro de la shell.
 - En aplicaciones Capacitor, la shell seguirá cargando los microfrontales desde sus URLs remotas.

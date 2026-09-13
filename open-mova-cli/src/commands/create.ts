@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { Command } from 'commander';
 import { createMicrofrontend } from '../application/microfrontend.js';
@@ -7,13 +7,18 @@ import {
   writeApplicationConfiguration,
 } from '../application/configuration.js';
 import { synchronizeShellConfiguration } from '../application/shell-configuration.js';
+import {
+  configureDownloadedShell,
+  downloadShell,
+  downloadTaggedProject,
+} from '../application/shell-repository.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { normalizeName } from '../utils/names.js';
-import { copyTemplate } from '../utils/templates.js';
 
 interface CreateCommandOptions {
   readonly directory?: string;
   readonly empty?: boolean;
+  readonly shellVersion?: string;
 }
 
 export function registerCreateCommand(program: Command): void {
@@ -22,6 +27,7 @@ export function registerCreateCommand(program: Command): void {
     .description('Crea una aplicación Open Mova con una shell y un microfrontal inicial')
     .option('-d, --directory <path>', 'directorio donde crear la aplicación')
     .option('--empty', 'no crear el microfrontal inicial')
+    .option('--shell-version <tag>', 'tag de la shell, por ejemplo v0.1.3')
     .action((name: string, options: CreateCommandOptions) => {
       const applicationName = normalizeName(name, 'El nombre de la aplicación');
       const applicationRoot = resolve(
@@ -33,39 +39,61 @@ export function registerCreateCommand(program: Command): void {
       }
 
       mkdirSync(dirname(applicationRoot), { recursive: true });
-      copyTemplate('application', applicationRoot, {
-        '__APPLICATION_NAME__': applicationName,
-        '__APPLICATION_PACKAGE_NAME__': applicationName.replaceAll('-', ''),
-      });
+      const temporaryApplication = mkdtempSync(
+        join(dirname(applicationRoot), '.mova-create-'),
+      );
 
-      let configuration: OpenMovaApplicationConfiguration = {
-        schemaVersion: 1,
-        name: applicationName,
-        microfrontends: [],
-      };
+      let shellVersion: string;
 
-      if (!options.empty) {
-        const starterMicrofrontend = createMicrofrontend(
-          applicationRoot,
-          configuration,
-          {
-            name: 'home',
-            directory: join('mfs', 'home'),
-          },
-        );
+      try {
+        const shell = downloadShell(temporaryApplication, options.shellVersion);
+        shellVersion = shell.version;
+        configureDownloadedShell(temporaryApplication, applicationName);
 
-        configuration = addMicrofrontend(configuration, starterMicrofrontend);
+        let configuration: OpenMovaApplicationConfiguration = {
+          schemaVersion: 1,
+          name: applicationName,
+          shell,
+          microfrontends: [],
+        };
+
+        if (!options.empty) {
+          downloadTaggedProject(
+            'open-mova-core',
+            join(temporaryApplication, 'packages/core'),
+            shell.version,
+          );
+          const starterMicrofrontend = createMicrofrontend(
+            temporaryApplication,
+            configuration,
+            {
+              name: 'home',
+              directory: join('mfs', 'home'),
+              profile: 'demo',
+              templateVersion: shell.version,
+            },
+          );
+
+          configuration = addMicrofrontend(configuration, starterMicrofrontend);
+        }
+
+        writeApplicationConfiguration(temporaryApplication, configuration);
+        synchronizeShellConfiguration(temporaryApplication, configuration);
+        if (existsSync(applicationRoot)) {
+          throw new Error(`Ya existe un directorio en ${applicationRoot}.`);
+        }
+        renameSync(temporaryApplication, applicationRoot);
+      } finally {
+        rmSync(temporaryApplication, { recursive: true, force: true });
       }
 
-      writeApplicationConfiguration(applicationRoot, configuration);
-      synchronizeShellConfiguration(applicationRoot, configuration);
-
-      console.log(`Aplicación creada en ${applicationRoot}`);
+      console.log(`Aplicación creada en ${applicationRoot} con shell ${shellVersion}.`);
       console.log('Instala las dependencias antes de iniciar el desarrollo:');
       console.log(`  cd ${applicationRoot}`);
       console.log('  npm install');
 
       if (!options.empty) {
+        console.log('  npm --prefix packages/core install && npm --prefix packages/core run build');
         console.log('  npm --prefix mfs/home install');
       }
     });
