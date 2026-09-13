@@ -17,8 +17,8 @@ Aplicación final
 ```
 
 La shell no contiene lógica de negocio ni pantallas propias. Su responsabilidad
-es cargar los microfrontales mediante Native Federation y ofrecer el punto de
-integración para futuras capacidades del framework.
+es cargar los microfrontales mediante Native Federation y ofrecer capacidades
+nativas mediante Capacitor.
 
 ## Proyectos del monorepo
 
@@ -41,7 +41,7 @@ open-mova/
 
 ## Requisitos
 
-- Node.js 20 o posterior.
+- Node.js 22 (Capacitor 8 requiere Node 22 o posterior; el build se verifica con Node 22).
 - npm.
 
 Cada proyecto instala sus propias dependencias. La raíz no tiene dependencias
@@ -124,6 +124,8 @@ npm run build:cli
 ## Estado del proyecto
 
 Angular y Native Federation están integrados en la shell y en los
-microfrontales de demostración. `open-mova-core` está preparado para recibir
-contratos reutilizables. Capacitor, autenticación y plugins nativos quedan
-para una fase posterior.
+microfrontales de demostración. Capacitor está integrado en la shell y la
+plantilla de aplicaciones; `open-mova-core` define el contrato de Device y
+Camera. Los microfrontales son siempre remotos, también en móvil. El CLI
+prepara Android/iOS y exige URLs HTTPS para los remotos al sincronizar una app.
+Autenticación queda para una fase posterior.

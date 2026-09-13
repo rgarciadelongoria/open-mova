@@ -14,6 +14,7 @@ interface CreateMicrofrontendCommandOptions {
   readonly directory?: string;
   readonly route?: string;
   readonly port?: number;
+  readonly productionRemoteEntry?: string;
 }
 
 interface AddMicrofrontendCommandOptions {
@@ -22,6 +23,7 @@ interface AddMicrofrontendCommandOptions {
   readonly remote?: string;
   readonly remoteEntry?: string;
   readonly port?: number;
+  readonly productionRemoteEntry?: string;
 }
 
 export function registerMicrofrontendCommands(program: Command): void {
@@ -35,6 +37,7 @@ export function registerMicrofrontendCommands(program: Command): void {
     .option('-d, --directory <path>', 'ruta relativa a la raíz de la aplicación')
     .option('--route <path>', 'ruta pública en la shell')
     .option('--port <number>', 'puerto de desarrollo', parsePort)
+    .option('--production-remote-entry <url>', 'URL HTTPS del remoto publicado')
     .action((name: string, options: CreateMicrofrontendCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
@@ -47,6 +50,7 @@ export function registerMicrofrontendCommands(program: Command): void {
           directory: options.directory ?? join('mfs', normalizedName),
           route: options.route,
           port: options.port,
+          productionRemoteEntry: options.productionRemoteEntry,
         },
       );
       const updatedConfiguration = addMicrofrontend(
@@ -70,6 +74,7 @@ export function registerMicrofrontendCommands(program: Command): void {
     .option('--remote <name>', 'nombre definido en federation.config.js')
     .option('--remote-entry <url>', 'URL del remoteEntry.json')
     .option('--port <number>', 'puerto de desarrollo para un proyecto local', parsePort)
+    .option('--production-remote-entry <url>', 'URL HTTPS del remoto publicado')
     .action((sourcePath: string | undefined, options: AddMicrofrontendCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
@@ -80,6 +85,7 @@ export function registerMicrofrontendCommands(program: Command): void {
         remoteName: options.remote,
         remoteEntry: options.remoteEntry,
         port: options.port,
+        productionRemoteEntry: options.productionRemoteEntry,
       });
       const updatedConfiguration = addMicrofrontend(
         configuration,

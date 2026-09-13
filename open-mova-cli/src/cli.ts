@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { registerBuildCommand } from './commands/build.js';
+import { registerCapacitorCommands } from './commands/capacitor.js';
 import { registerCreateCommand } from './commands/create.js';
 import { registerInfoCommand } from './commands/info.js';
 import { registerMicrofrontendCommands } from './commands/microfrontend.js';
@@ -12,12 +13,13 @@ const program = new Command();
 program
   .name('mova')
   .description('Herramientas de desarrollo para aplicaciones Open Mova')
-  .version('0.1.0');
+  .version('0.1.2');
 
 registerCreateCommand(program);
 registerMicrofrontendCommands(program);
 registerStartCommand(program);
 registerBuildCommand(program);
+registerCapacitorCommands(program);
 registerInfoCommand(program);
 
 try {

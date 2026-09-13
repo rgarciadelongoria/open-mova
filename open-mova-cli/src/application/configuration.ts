@@ -151,12 +151,22 @@ function validateMicrofrontend(
     throw new Error(`${configurationPath} contiene una ruta de origen no válida.`);
   }
 
+  if (
+    value.productionRemoteEntry !== undefined &&
+    typeof value.productionRemoteEntry !== 'string'
+  ) {
+    throw new Error(`${configurationPath} contiene una URL de producción no válida.`);
+  }
+
   return {
     name: value.name as string,
     route: value.route as string,
     remoteName: value.remoteName as string,
     exposedModule: './Routes',
     developmentRemoteEntry: value.developmentRemoteEntry as string,
+    ...(value.productionRemoteEntry === undefined
+      ? {}
+      : { productionRemoteEntry: value.productionRemoteEntry }),
     ...(value.sourcePath === undefined ? {} : { sourcePath: value.sourcePath }),
   };
 }

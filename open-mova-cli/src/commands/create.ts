@@ -35,6 +35,7 @@ export function registerCreateCommand(program: Command): void {
       mkdirSync(dirname(applicationRoot), { recursive: true });
       copyTemplate('application', applicationRoot, {
         '__APPLICATION_NAME__': applicationName,
+        '__APPLICATION_PACKAGE_NAME__': applicationName.replaceAll('-', ''),
       });
 
       let configuration: OpenMovaApplicationConfiguration = {

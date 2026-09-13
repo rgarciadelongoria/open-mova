@@ -17,6 +17,7 @@ export interface CreateMicrofrontendOptions {
   readonly directory: string;
   readonly route?: string;
   readonly port?: number;
+  readonly productionRemoteEntry?: string;
 }
 
 export interface ExistingMicrofrontendOptions {
@@ -25,6 +26,7 @@ export interface ExistingMicrofrontendOptions {
   readonly route?: string;
   readonly remoteName?: string;
   readonly remoteEntry?: string;
+  readonly productionRemoteEntry?: string;
   readonly port?: number;
 }
 
@@ -59,6 +61,9 @@ export function createMicrofrontend(
     remoteName: toRemoteName(name),
     exposedModule: './Routes',
     developmentRemoteEntry: `http://localhost:${port}/remoteEntry.json`,
+    ...(options.productionRemoteEntry
+      ? { productionRemoteEntry: options.productionRemoteEntry }
+      : {}),
     sourcePath: toConfigurationPath(applicationRoot, destination),
   };
 }
@@ -109,6 +114,9 @@ export function inspectExistingMicrofrontend(
     remoteName: resolvedRemoteName,
     exposedModule: './Routes',
     developmentRemoteEntry: remoteEntry,
+    ...(options.productionRemoteEntry
+      ? { productionRemoteEntry: options.productionRemoteEntry }
+      : {}),
     ...(sourceDirectory
       ? { sourcePath: toConfigurationPath(applicationRoot, sourceDirectory) }
       : {}),

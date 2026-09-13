@@ -14,6 +14,9 @@
 - Mantener las dependencias y los comandos específicos dentro del proyecto que los necesita.
 - No introducir lógica Angular en la raíz ni lógica de la shell en el CLI.
 - Mantener el core independiente de Angular, Capacitor y de cualquier microfrontal concreto.
+- Open Mova siempre utilizará microfrontales remotos mediante Native Federation.
+- No implementar un modo monolítico ni empaquetar los microfrontales dentro de la shell.
+- En aplicaciones Capacitor, la shell seguirá cargando los microfrontales desde sus URLs remotas.
 - Actualizar el README raíz cuando cambie la forma de preparar o ejecutar el monorepo.
 
 ## Estilo y verificación

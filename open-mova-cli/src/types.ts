@@ -10,5 +10,6 @@ export interface MicrofrontendConfiguration {
   readonly remoteName: string;
   readonly exposedModule: './Routes';
   readonly developmentRemoteEntry: string;
+  readonly productionRemoteEntry?: string;
   readonly sourcePath?: string;
 }

@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Este proyecto contiene únicamente la shell técnica de Open Mova. Los microfrontales viven en proyectos independientes del monorepo. Capacitor y los plugins nativos se incorporarán cuando exista una necesidad concreta.
+Este proyecto contiene únicamente la shell técnica de Open Mova. Los microfrontales viven en proyectos independientes del monorepo. La shell integra Capacitor y publica las capacidades Device y Camera mediante el contrato de `open-mova-core`.
 
 ## Principios de arquitectura
 

@@ -1,2 +1,8 @@
-// Punto de entrada público. Los contratos del framework se añadirán aquí más adelante.
-export {};
+export type {
+  CameraCapability,
+  DeviceCapability,
+  DeviceDetails,
+  NativeCapabilities,
+  PhotoResult,
+} from './native.js';
+export { getNativeCapabilities } from './native.js';

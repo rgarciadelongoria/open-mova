@@ -13,7 +13,7 @@ los microfrontales.
 - Inicializar Native Federation.
 - Leer el manifiesto de remotos.
 - Convertir la configuración de microfrontales en rutas Angular.
-- Compartir, en el futuro, servicios transversales del framework.
+- Publicar las capacidades nativas Device y Camera para los microfrontales.
 
 Los microfrontales no forman parte del código fuente de la shell. Cada uno se
 desarrolla y se instala como un proyecto independiente.
@@ -33,6 +33,7 @@ open-mova-shell/
 │   ├── index.html
 │   └── main.ts
 ├── angular.json
+├── capacitor.config.ts
 └── federation.config.js
 ```
 
@@ -85,8 +86,34 @@ npm run start:second
 npm start
 ```
 
-## Límites actuales
+## Capacitor
 
-Capacitor, autenticación, plugins nativos y servicios transversales todavía no
-forman parte de esta shell. Cuando se incorporen, la shell será el punto de
-integración y los contratos reutilizables vivirán en `open-mova-core`.
+`capacitor.config.ts` identifica la aplicación y apunta a `dist/browser`, donde
+se genera la shell web. Cambia `appId` y `appName` antes de crear una aplicación
+nativa propia. Los microfrontales siguen cargándose por HTTPS: sus ficheros no
+se incluyen en la app nativa.
+
+Desde este proyecto se pueden usar los comandos oficiales tras compilar:
+
+```bash
+npm run build
+npx cap add android     # o ios
+npx cap sync android    # después de cada build o cambio de plugins
+npx cap open android
+```
+
+Antes de sincronizar una app de producción, sustituye las URLs `localhost` del
+manifiesto compilado por URLs HTTPS versionadas. En aplicaciones creadas con
+Open Mova, `mova cap sync` hace esa sustitución a partir de `mova.config.json`.
+
+La shell publica `window.openMovaNative` antes de cargar remotos. La
+implementación de `src/native-capabilities.ts` usa los plugins oficiales de
+Capacitor; los tipos y el acceso desde un MF están en `@open-mova/core`.
+Camera funciona también en web, aunque depende de las capacidades del
+navegador. En iOS hay que añadir a `Info.plist` los textos de uso
+`NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` y
+`NSPhotoLibraryAddUsageDescription` antes de publicar. Los proyectos nativos
+requieren las herramientas de Android Studio o Xcode, respectivamente.
+Los servidores de los remotos deben permitir la carga desde el origen de la
+WebView mediante CORS. Solo registra microfrontales de confianza: el contrato
+global ofrece acceso a capacidades nativas, no aísla permisos entre remotos.

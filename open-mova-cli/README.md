@@ -20,9 +20,44 @@ microfrontal, el CLI actualiza también estos ficheros de la shell:
 Por ese motivo, no hay que editar esos dos ficheros manualmente en una
 aplicación creada por el CLI.
 
+## Capacitor y microfrontales remotos
+
+La aplicación creada incluye Capacitor en la shell. Antes de preparar Android
+o iOS, cambia `appId` en `capacitor.config.ts` por el identificador definitivo
+de tu aplicación. Publica cada microfrontal por separado y añade su URL HTTPS
+versionada a `mova.config.json`. Al crear o registrar un MF puedes indicar
+`--production-remote-entry https://cdn.example.com/home/1.0.0/remoteEntry.json`.
+Para el MF `home` que se crea con la aplicación, añade la propiedad manualmente:
+
+```json
+{
+  "name": "home",
+  "remoteName": "home-microfrontend",
+  "developmentRemoteEntry": "http://localhost:4300/remoteEntry.json",
+  "productionRemoteEntry": "https://cdn.example.com/home/1.0.0/remoteEntry.json"
+}
+```
+
+Esta entrada es un fragmento de `microfrontends`, no el fichero completo. El
+CLI mantiene la URL local para `mova start`. Para preparar el proyecto nativo:
+
+```bash
+cd mi-aplicacion
+mova cap add android      # compila la shell y crea android/
+mova cap sync android     # recompila y sincroniza assets y plugins
+mova cap open android     # abre Android Studio
+```
+
+Se puede usar `ios` en lugar de `android` en macOS con Xcode. El comando `sync`
+sin plataforma sincroniza todas las plataformas ya añadidas. El CLI exige una
+URL HTTPS para cada MF y escribe el manifiesto de producción solo en el
+resultado compilado. No compila ni copia los MFs al paquete nativo; estos deben
+estar publicados y accesibles en ejecución. Para Camera en iOS, añade a
+`ios/App/App/Info.plist` textos de uso para cámara y fototeca antes de publicar.
+
 ## Desarrollo del CLI
 
-Requiere Node.js 20 o posterior.
+Requiere Node.js 22 para las aplicaciones generadas con Capacitor 8.
 
 ```bash
 cd open-mova-cli

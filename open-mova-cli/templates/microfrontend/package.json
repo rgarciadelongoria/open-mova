@@ -1,7 +1,7 @@
 {
   "name": "__MF_PROJECT_NAME__",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.2",
   "scripts": {
     "start": "ng serve __MF_PROJECT_NAME__",
     "build": "ng build __MF_PROJECT_NAME__",

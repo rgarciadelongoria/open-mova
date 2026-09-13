@@ -12,6 +12,11 @@ module.exports = withNativeFederation({
   },
 
   skip: [
+    '@capacitor/core',
+    '@capacitor/device',
+    '@capacitor/camera',
+    '@capacitor/android',
+    '@capacitor/ios',
     'rxjs/ajax',
     'rxjs/fetch',
     'rxjs/testing',
