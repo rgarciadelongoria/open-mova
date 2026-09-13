@@ -1,26 +1,83 @@
 # Open Mova Shell
 
-Proyecto Angular del framework Open Mova. La shell es un contenedor técnico: carga microfrontales y centraliza capacidades comunes, pero no contiene lógica de negocio ni pantallas propias.
+La shell es el host técnico de Open Mova. Carga los microfrontales mediante
+Native Federation y ofrece el punto de integración para capacidades comunes del
+framework.
 
-Es un proyecto autónomo dentro del monorepo. Instala sus dependencias desde la raíz con:
+No contiene lógica de negocio ni una interfaz de usuario propia. Su plantilla
+solo incluye un `router-outlet`, que es el lugar donde se montan las rutas de
+los microfrontales.
+
+## Responsabilidades
+
+- Inicializar Native Federation.
+- Leer el manifiesto de remotos.
+- Convertir la configuración de microfrontales en rutas Angular.
+- Compartir, en el futuro, servicios transversales del framework.
+
+Los microfrontales no forman parte del código fuente de la shell. Cada uno se
+desarrolla y se instala como un proyecto independiente.
+
+## Estructura principal
+
+```text
+open-mova-shell/
+├── src/
+│   ├── app/
+│   │   ├── app.component.ts          # Contenedor de rutas
+│   │   ├── app.routes.ts             # Carga las rutas remotas
+│   │   └── application.config.ts    # Registro de microfrontales
+│   ├── assets/
+│   │   └── federation.manifest.json # URLs de los remotos
+│   ├── bootstrap.ts
+│   ├── index.html
+│   └── main.ts
+├── angular.json
+└── federation.config.js
+```
+
+En `application.config.ts`, `path` es la ruta pública, `remote` es el nombre
+del remoto y `exposedModule` indica el módulo de rutas que se carga:
+
+```ts
+{
+  path: 'first',
+  remote: 'first-microfrontend',
+  exposedModule: './Routes',
+}
+```
+
+El manifiesto relaciona ese remoto con su servidor:
+
+```json
+{
+  "first-microfrontend": "http://localhost:4300/remoteEntry.json"
+}
+```
+
+La lógica de `app.routes.ts` recorre el registro y crea las rutas
+automáticamente.
+
+## Desarrollo
+
+Instala las dependencias desde la raíz del proyecto:
 
 ```bash
 npm --prefix open-mova-shell install
 ```
 
-## Estructura
+Comandos propios de la shell:
 
-- `src/`: código de la shell.
-- `src/app/application.config.ts`: registro de los microfrontales que la shell puede cargar.
-- `src/app/app.routes.ts`: convierte ese registro en rutas Angular automáticamente.
-- `src/assets/federation.manifest.json`: URLs de los `remoteEntry.json`.
-- `federation.config.js`: configuración Native Federation de la shell.
+```bash
+cd open-mova-shell
+npm start
+npm run typecheck
+npm run build
+```
 
-La shell no contiene el código de los microfrontales. `open-mova-mf-first` y `open-mova-mf-second` son proyectos independientes que exponen sus rutas mediante Native Federation.
-
-## Ejecutar con los microfrontales
-
-Desde la raíz del monorepo, abre tres terminales:
+La shell se sirve en [http://localhost:4200](http://localhost:4200). Para ver
+los microfrontales cargados hay que iniciar también sus proyectos. Desde la
+raíz del monorepo, se pueden usar tres terminales:
 
 ```bash
 npm run start:first
@@ -28,36 +85,8 @@ npm run start:second
 npm start
 ```
 
-Las URLs son:
+## Límites actuales
 
-- Shell: `http://localhost:4200`
-- First microfrontend: `http://localhost:4300`
-- Second microfrontend: `http://localhost:4400`
-
-La shell redirige a `/first/first-route`. También puedes abrir directamente:
-
-- `http://localhost:4200/first/first-route`
-- `http://localhost:4200/first/second-route`
-- `http://localhost:4200/second/first-route`
-- `http://localhost:4200/second/second-route`
-
-## Añadir un microfrontal
-
-Para añadir un tercer microfrontal:
-
-1. Crea un proyecto independiente en la raíz, por ejemplo `open-mova-mf-third`.
-2. Configura Native Federation y expón `./Routes` desde su `federation.config.js`.
-3. Añade su `remoteEntry.json` al manifiesto de `src/assets/federation.manifest.json`.
-4. Añade su ruta pública a `src/app/application.config.ts`.
-5. Añade un comando en el `package.json` raíz si quieres iniciarlo desde el monorepo.
-
-No es necesario modificar la lógica de `app.routes.ts` de la shell.
-
-## Verificación
-
-```bash
-npm run typecheck
-npm run build:shell
-```
-
-Capacitor, autenticación y plugins nativos quedan fuera de esta fase.
+Capacitor, autenticación, plugins nativos y servicios transversales todavía no
+forman parte de esta shell. Cuando se incorporen, la shell será el punto de
+integración y los contratos reutilizables vivirán en `open-mova-core`.
