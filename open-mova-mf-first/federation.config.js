@@ -2,12 +2,9 @@ const { withNativeFederation, shareAll } = require('@angular-architects/native-f
 
 module.exports = withNativeFederation({
   name: 'first-microfrontend',
-
-
-
   exposes: {
-    './Component': './templates/first-microfrontend/src/app/app.ts',
-    './Routes': './templates/first-microfrontend/src/app/app.routes.ts',
+    './Component': './src/app/app.ts',
+    './Routes': './src/app/app.routes.ts',
   },
 
   shared: {

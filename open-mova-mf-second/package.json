@@ -1,10 +1,10 @@
 {
-  "name": "@open-mova/shell",
+  "name": "open-mova-mf-second",
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "start": "ng serve shell",
-    "build": "ng build shell",
+    "start": "ng serve open-mova-mf-second",
+    "build": "ng build open-mova-mf-second",
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {

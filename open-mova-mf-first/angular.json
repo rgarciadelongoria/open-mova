@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "projects": {
-    "shell": {
+    "open-mova-mf-first": {
       "projectType": "application",
       "root": "",
       "sourceRoot": "src",
@@ -13,10 +13,10 @@
           "options": {},
           "configurations": {
             "production": {
-              "target": "shell:application:production"
+              "target": "open-mova-mf-first:application:production"
             },
             "development": {
-              "target": "shell:application:development",
+              "target": "open-mova-mf-first:application:development",
               "dev": true
             }
           },
@@ -25,7 +25,7 @@
         "serve": {
           "builder": "@angular-architects/native-federation:build",
           "options": {
-            "target": "shell:serve-application:development",
+            "target": "open-mova-mf-first:serve-application:development",
             "rebuildDelay": 500,
             "dev": true,
             "cacheExternalArtifacts": false,
@@ -39,37 +39,34 @@
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
-              "zone.js",
               "es-module-shims"
             ],
             "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "css",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "assets"
-              }
-            ]
+            "assets": []
           },
           "configurations": {
             "production": {},
-            "development": {}
-          }
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
         },
         "serve-application": {
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "shell:application:production"
+              "buildTarget": "open-mova-mf-first:application:production"
             },
             "development": {
-              "buildTarget": "shell:application:development"
+              "buildTarget": "open-mova-mf-first:application:development"
             }
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4200
+            "port": 4300
           }
         }
       }

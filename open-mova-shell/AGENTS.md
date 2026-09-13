@@ -2,12 +2,12 @@
 
 ## Objetivo
 
-Este proyecto contiene el workspace Angular de Open Mova: la shell técnica y las plantillas de microfrontales. Capacitor y los plugins nativos se incorporarán cuando exista una necesidad concreta.
+Este proyecto contiene únicamente la shell técnica de Open Mova. Los microfrontales viven en proyectos independientes del monorepo. Capacitor y los plugins nativos se incorporarán cuando exista una necesidad concreta.
 
 ## Principios de arquitectura
 
-- Mantener `apps/shell` pequeña: carga y coordina microfrontales, configuración y capacidades comunes; no contiene lógica de negocio ni pantallas propias.
-- Mantener las plantillas de referencia exclusivamente en `templates/`.
+- Mantener la shell pequeña: carga y coordina microfrontales, configuración y capacidades comunes; no contiene lógica de negocio ni pantallas propias.
+- Mantener el código de la shell directamente en `src/`.
 - Aislar cada aplicación mediante su configuración y sus propias versiones.
 - Preferir interfaces y adaptadores frente a dependencias directas entre microfrontales.
 - Añadir una capacidad al framework solo cuando sea transversal, estable y útil para más de una aplicación.

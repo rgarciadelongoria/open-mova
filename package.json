@@ -4,11 +4,14 @@
   "version": "0.1.0",
   "scripts": {
     "start": "npm --prefix open-mova-shell run start",
-    "start:first": "npm --prefix open-mova-shell run start:first",
-    "start:second": "npm --prefix open-mova-shell run start:second",
+    "start:first": "npm --prefix open-mova-mf-first run start",
+    "start:second": "npm --prefix open-mova-mf-second run start",
     "start:cli": "npm --prefix open-mova-cli run start",
+    "build:core": "npm --prefix open-mova-core run build",
     "build:shell": "npm --prefix open-mova-shell run build",
     "build:cli": "npm --prefix open-mova-cli run build",
-    "typecheck": "npm --prefix open-mova-shell run typecheck && npm --prefix open-mova-cli run typecheck"
+    "build:first": "npm --prefix open-mova-mf-first run build",
+    "build:second": "npm --prefix open-mova-mf-second run build",
+    "typecheck": "npm --prefix open-mova-core run typecheck && npm --prefix open-mova-shell run typecheck && npm --prefix open-mova-mf-first run typecheck && npm --prefix open-mova-mf-second run typecheck && npm --prefix open-mova-cli run typecheck"
   }
 }
