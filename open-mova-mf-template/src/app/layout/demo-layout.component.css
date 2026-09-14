@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.page-shell {
+  box-sizing: border-box;
+  width: min(760px, calc(100% - 32px));
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 64px 0;
+  color: #e8eef8;
+  background: radial-gradient(circle at top right, #203c66, #101827 55%);
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-synthesis: none;
+}
+
+.page-shell *,
+.page-shell *::before,
+.page-shell *::after {
+  box-sizing: border-box;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #72e0c2;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.page-shell h1,
+.page-shell h2 {
+  margin: 0;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.page-shell h1 {
+  max-width: 600px;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  letter-spacing: -0.04em;
+}
+
+.page-shell h2 {
+  font-size: 1.7rem;
+}
+
+.intro {
+  max-width: 520px;
+  margin: 18px 0 0;
+  color: #b7c4d8;
+  font-size: 1.1rem;
+}
+
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.navigation a {
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: #c8d5e8;
+  font: inherit;
+  text-decoration: none;
+}
+
+.navigation a:hover,
+.navigation a:focus-visible {
+  background: #253b5d;
+  color: #fff;
+}
+
+.content-card {
+  padding: clamp(24px, 5vw, 40px);
+  border: 1px solid #2d4567;
+  border-radius: 20px;
+  background: rgba(19, 32, 53, 0.86);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.content-card p:not(.eyebrow) {
+  max-width: 580px;
+  color: #b7c4d8;
+  line-height: 1.6;
+}
+
+.action-button {
+  margin-top: 12px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 10px;
+  color: #10251f;
+  background: #72e0c2;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+}
+
+.action-button:hover,
+.action-button:focus-visible {
+  background: #a0f1dc;
+}
+
+.status {
+  min-height: 26px;
+  margin-bottom: 0;
+}
+
+.photo-preview {
+  display: block;
+  max-width: 100%;
+  margin-top: 20px;
+  border-radius: 12px;
+}
+
+@media (max-width: 600px) {
+  .page-shell {
+    width: 100%;
+    min-height: 100vh;
+    padding: 40px 20px;
+  }
+}

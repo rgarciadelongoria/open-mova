@@ -1,6 +1,6 @@
 {
   "name": "@open-mova/cli",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "CLI para crear y mantener aplicaciones Open Mova",
   "private": true,
   "type": "module",

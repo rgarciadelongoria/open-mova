@@ -42,8 +42,7 @@
               "es-module-shims"
             ],
             "tsConfig": "tsconfig.app.json",
-            "assets": [],
-            "styles": ["src/styles.css"]
+            "assets": []
           },
           "configurations": {
             "production": {},

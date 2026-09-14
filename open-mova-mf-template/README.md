@@ -51,3 +51,8 @@ src/app/
 Cada pantalla tiene su lógica en el fichero `.ts` y su vista en el `.html`.
 Para añadir una nueva pantalla, crea su carpeta y componente, y añade después
 una entrada en `app.routes.ts`.
+
+Los estilos de demostración están en `layout/demo-layout.component.css`. No se
+usan estilos globales del proyecto porque, al cargar el MF como remoto, Native
+Federation no garantiza que la shell incorpore su hoja global. El layout viaja
+con las rutas del remoto y aplica los estilos dentro de `.page-shell`.
