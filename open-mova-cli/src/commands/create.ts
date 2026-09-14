@@ -9,10 +9,12 @@ import {
 import { synchronizeShellConfiguration } from '../application/shell-configuration.js';
 import {
   configureDownloadedShell,
+  DEMO_MICROFRONTEND_REMOTE_ENTRY,
   downloadShell,
 } from '../application/shell-repository.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { normalizeName } from '../utils/names.js';
+import { changeDirectoryCommand } from '../utils/platform.js';
 
 interface CreateCommandOptions {
   readonly directory?: string;
@@ -65,6 +67,7 @@ export function registerCreateCommand(program: Command): void {
               directory: join('mfs', 'home'),
               profile: 'demo',
               templateVersion: shell.version,
+              productionRemoteEntry: DEMO_MICROFRONTEND_REMOTE_ENTRY,
             },
           );
 
@@ -83,7 +86,7 @@ export function registerCreateCommand(program: Command): void {
 
       console.log(`Aplicación creada en ${applicationRoot} con shell ${shellVersion}.`);
       console.log('Instala las dependencias antes de iniciar el desarrollo:');
-      console.log(`  cd ${applicationRoot}`);
+      console.log(`  ${changeDirectoryCommand(applicationRoot)}`);
       console.log('  npm install');
       if (!options.empty) {
         console.log('  npm --prefix mfs/home install');

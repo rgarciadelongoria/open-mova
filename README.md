@@ -24,6 +24,19 @@ La shell y el microfrontal de referencia se descargan desde los tags estables
 incluye rutas `inicio`, `device` y `camera`; el perfil **minimal** deja solo
 una ruta inicial. No hay plantillas Angular duplicadas dentro del CLI.
 
+## Demo publicada
+
+Cada tag `vX.Y.Z` publica el microfrontal demo en GitHub Pages. La URL estable
+es `https://rgarciadelongoria.github.io/open-mova/remoteEntry.json` y se usa
+como `productionRemoteEntry` del MF inicial creado por `mova create`. Sirve
+para pruebas rápidas y simuladores; una aplicación real debe sustituirla por
+la URL HTTPS y versionada de su propio microfrontal.
+
+Antes de la primera publicación hay que activar **Settings → Pages → Build and
+deployment → Source: GitHub Actions** en el repositorio. El workflow
+`.github/workflows/publish-demo-microfrontend.yml` compila y publica solo el
+artefacto estático del MF, no el código fuente.
+
 ## Preparación
 
 Requiere Node.js 22, npm y Git. Desde la raíz:

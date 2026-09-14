@@ -48,7 +48,10 @@ npm link
 
 ### `mova create`
 
-Crea una aplicación completa. Descarga una shell versionada, el core y un MF inicial `home`.
+Crea una aplicación completa. Descarga una shell versionada, el core y un MF
+inicial `home`. Ese MF incluye por defecto el `productionRemoteEntry` de la
+demo oficial de Open Mova, para probar Capacitor sin desplegar un MF propio.
+Sustitúyelo antes de publicar la aplicación.
 
 ```bash
 mova create mi-aplicacion

@@ -12,6 +12,10 @@ import { tmpdir } from 'node:os';
 
 export const SHELL_REPOSITORY = 'https://github.com/rgarciadelongoria/open-mova.git';
 
+// El demo publicado permite probar una aplicación recién creada sin desplegar un MF propio.
+export const DEMO_MICROFRONTEND_REMOTE_ENTRY =
+  'https://rgarciadelongoria.github.io/open-mova/remoteEntry.json';
+
 const VERSION_PATTERN = /^v(\d+)\.(\d+)\.(\d+)$/;
 const PUBLISHED_CORE_VERSION = '^0.1.9';
 const EXCLUDED_ENTRIES = new Set([
