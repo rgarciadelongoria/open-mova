@@ -6,7 +6,7 @@ import {
   readApplicationConfiguration,
   requireApplicationRoot,
 } from '../application/configuration.js';
-import { npmCommand } from '../utils/platform.js';
+import { npmCommand, useCommandShell } from '../utils/platform.js';
 
 interface StartCommandOptions {
   readonly shellOnly?: boolean;
@@ -58,6 +58,7 @@ async function startProjects(
     return spawn(npmCommand(), ['run', 'start'], {
       cwd: directory,
       stdio: 'inherit',
+      shell: useCommandShell(),
     });
   });
 

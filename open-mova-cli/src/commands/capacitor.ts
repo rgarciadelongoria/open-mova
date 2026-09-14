@@ -7,7 +7,7 @@ import {
   requireApplicationRoot,
 } from '../application/configuration.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
-import { localBinaryName, npmCommand } from '../utils/platform.js';
+import { localBinaryName, npmCommand, useCommandShell } from '../utils/platform.js';
 
 type Platform = 'android' | 'ios';
 
@@ -102,7 +102,11 @@ function runCapacitor(root: string, args: string[]): void {
 }
 
 function run(root: string, command: string, args: string[]): void {
-  const result = spawnSync(command, args, { cwd: root, stdio: 'inherit' });
+  const result = spawnSync(command, args, {
+    cwd: root,
+    stdio: 'inherit',
+    shell: useCommandShell(),
+  });
   if (result.error) {
     throw result.error;
   }
