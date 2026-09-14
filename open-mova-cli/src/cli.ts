@@ -14,7 +14,7 @@ const program = new Command();
 program
   .name('mova')
   .description('Herramientas de desarrollo para aplicaciones Open Mova')
-  .version('0.1.3');
+  .version('0.1.4');
 
 registerCreateCommand(program);
 registerMicrofrontendCommands(program);

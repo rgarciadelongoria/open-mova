@@ -14,7 +14,8 @@
 - Mantener `open-mova-shell` y `open-mova-cli` como proyectos npm autónomos, cada uno con su `package.json`, `package-lock.json` y `node_modules`.
 - Mantener las dependencias y los comandos específicos dentro del proyecto que los necesita.
 - No introducir lógica Angular en la raíz ni lógica de la shell en el CLI.
-- Mantener el core independiente de Angular, Capacitor y de cualquier microfrontal concreto.
+- El core puede depender de Angular, pero no de Capacitor ni de un microfrontal concreto.
+- Compartir `@open-mova/core` como singleton en Native Federation; la shell proporciona el token nativo por DI, sin globals en `window`.
 - La shell de `open-mova-shell/` es la única fuente de su código; el CLI la descarga de tags estables del repositorio y no mantiene una plantilla de shell.
 - Al crear una aplicación, guardar el tag y el commit de la shell para que su origen quede identificado.
 - Open Mova siempre utilizará microfrontales remotos mediante Native Federation.

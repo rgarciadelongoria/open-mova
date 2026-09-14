@@ -1,3 +1,5 @@
+import { InjectionToken, inject } from '@angular/core';
+
 export interface DeviceDetails {
   readonly model: string;
   readonly platform: 'ios' | 'android' | 'web';
@@ -24,17 +26,15 @@ export interface NativeCapabilities {
   readonly camera: CameraCapability;
 }
 
-declare global {
-  interface Window {
-    readonly openMovaNative?: NativeCapabilities;
-  }
-}
+// Shell y remotos deben compartir una sola instancia de este token.
+export const NATIVE_CAPABILITIES = new InjectionToken<NativeCapabilities>(
+  'Open Mova native capabilities',
+);
 
-// El host publica las capacidades antes de iniciar los microfrontales remotos.
-export function getNativeCapabilities(): NativeCapabilities {
-  const capabilities = window.openMovaNative;
+export function injectNativeCapabilities(): NativeCapabilities {
+  const capabilities = inject(NATIVE_CAPABILITIES);
 
-  if (!capabilities || capabilities.version !== 1) {
+  if (capabilities.version !== 1) {
     throw new Error('La shell no ofrece el contrato nativo Open Mova v1.');
   }
 

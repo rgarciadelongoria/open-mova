@@ -16,7 +16,7 @@ estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 - Inicializar Native Federation.
 - Leer el manifiesto de remotos.
 - Convertir la configuración de microfrontales en rutas Angular.
-- Publicar las capacidades nativas Device y Camera para los microfrontales.
+- Proporcionar las capacidades nativas Device y Camera por inyección de dependencias.
 
 Los microfrontales no forman parte del código fuente de la shell. Cada uno se
 desarrolla y se instala como un proyecto independiente.
@@ -64,9 +64,11 @@ automáticamente.
 
 ## Desarrollo
 
-Instala las dependencias desde la raíz del proyecto:
+Desde la raíz del monorepo, prepara primero core:
 
 ```bash
+npm --prefix open-mova-core install
+npm --prefix open-mova-core run build
 npm --prefix open-mova-shell install
 ```
 
@@ -108,14 +110,16 @@ Antes de sincronizar una app de producción, sustituye las URLs `localhost` del
 manifiesto compilado por URLs HTTPS versionadas. En aplicaciones creadas con
 Open Mova, `mova cap sync` hace esa sustitución a partir de `mova.config.json`.
 
-La shell publica `window.openMovaNative` antes de cargar remotos. La
+La shell registra `NATIVE_CAPABILITIES` en `src/app/app.config.ts`. La
 implementación de `src/native-capabilities.ts` usa los plugins oficiales de
-Capacitor; los tipos y el acceso desde un MF están en `@open-mova/core`.
+Capacitor; el contrato y el token Angular viven en `@open-mova/core`.
+Shell y MF comparten core como singleton de
+Native Federation; no se publica ningún objeto global en `window`.
 Camera funciona también en web, aunque depende de las capacidades del
 navegador. En iOS hay que añadir a `Info.plist` los textos de uso
 `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` y
 `NSPhotoLibraryAddUsageDescription` antes de publicar. Los proyectos nativos
 requieren las herramientas de Android Studio o Xcode, respectivamente.
 Los servidores de los remotos deben permitir la carga desde el origen de la
-WebView mediante CORS. Solo registra microfrontales de confianza: el contrato
-global ofrece acceso a capacidades nativas, no aísla permisos entre remotos.
+WebView mediante CORS. Solo registra microfrontales de confianza: compartir
+un token por DI no aísla permisos entre remotos en la misma página.

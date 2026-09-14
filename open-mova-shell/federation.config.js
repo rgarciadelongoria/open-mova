@@ -9,6 +9,11 @@ module.exports = withNativeFederation({
       strictVersion: true,
       requiredVersion: 'auto',
     }),
+    '@open-mova/core': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    },
   },
 
   skip: [

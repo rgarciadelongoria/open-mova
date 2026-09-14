@@ -5,9 +5,10 @@ junto con la shell en los tags `vX.Y.Z` del monorepo. La shell de desarrollo lo
 carga como remoto en `/demo` desde el puerto `4300`.
 
 Las rutas `inicio`, `device` y `camera` forman el perfil **demo**. Device y
-Camera usan el contrato `@open-mova/core`; la implementación de Capacitor vive
-en la shell. Al ejecutar este proyecto solo, sin shell, los botones muestran
-un error explicativo porque no existe el puente nativo.
+Camera usan `injectNativeCapabilities()` de `@open-mova/core`; la implementación
+de Capacitor vive en la
+shell. Al ejecutar este proyecto solo, sin shell, los botones muestran un
+error explicativo porque el bootstrap independiente proporciona un stub.
 
 El CLI descarga este proyecto sin duplicar su configuración Angular. Para
 `mova create`, lo copia como `mfs/home` con perfil demo. Para `mova mf create`,

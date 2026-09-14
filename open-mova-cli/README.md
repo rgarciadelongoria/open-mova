@@ -7,8 +7,8 @@ ejecuta desde el terminal con el comando `mova`.
 
 El CLI crea una aplicación host descargando `open-mova-shell/` desde un tag del
 repositorio público y mantiene su composición de microfrontales. Descarga
-también `open-mova-mf-template/` para crear los MF y `open-mova-core/` cuando
-el perfil demo lo necesita. No contiene plantillas de código propias.
+también `open-mova-mf-template/` para crear los MF y, en las versiones que lo
+requieren, `open-mova-core/`. No contiene plantillas de código propias.
 
 La fuente de configuración es `mova.config.json`. Al crear o registrar un
 microfrontal, el CLI actualiza también estos ficheros de la shell:
@@ -92,7 +92,7 @@ la rama `main`. Para verlos o elegir uno:
 
 ```bash
 mova shell versions
-mova create mi-aplicacion --shell-version v0.1.3
+mova create mi-aplicacion --shell-version v0.1.4
 ```
 
 La app guarda en `mova.config.json` la URL del repositorio, el tag y el commit
@@ -104,13 +104,15 @@ La aplicación creada contiene la shell en su propia raíz y un microfrontal
 inicial llamado `home` dentro de `mfs/home`. Ambos proceden del mismo tag;
 el CLI descarga también `core` para que los ejemplos nativos puedan compilar:
 
+> Esta estructura corresponde a los tags cuya shell use `@open-mova/core`.
+
 ```text
 mi-aplicacion/
 ├── src/                         # Shell técnica
 ├── mfs/
 │   └── home/                    # Microfrontal inicial independiente
 ├── packages/
-│   └── core/                    # Contrato nativo usado por la demo
+│   └── core/                    # Contrato y token de DI compartidos
 ├── mova.config.json             # Configuración de la composición
 ├── capacitor.config.ts          # Si la versión de shell incluye Capacitor
 ├── angular.json
@@ -121,9 +123,9 @@ Antes de arrancar hay que instalar las dependencias de cada proyecto:
 
 ```bash
 cd mi-aplicacion
-npm install
 npm --prefix packages/core install
 npm --prefix packages/core run build
+npm install
 npm --prefix mfs/home install
 ```
 
@@ -172,8 +174,8 @@ La ruta inicial del ejemplo anterior estaría en:
 Para crear otro microfrontal con los ejemplos `inicio`, `device` y `camera`,
 usa `mova mf create catalog --demo`. Si la aplicación aún no tiene
 `packages/core`, el CLI lo descarga del mismo tag. Antes de instalar ese MF,
-ejecuta `npm --prefix packages/core install` y
-`npm --prefix packages/core run build`.
+compila core. El perfil
+demo debe usar el mismo tag que la shell para mantener compatible el contrato.
 
 ### Registrar un microfrontal existente
 

@@ -25,6 +25,7 @@ export function configureDownloadedMicrofrontend(
   if (profile === 'minimal') {
     delete packageJson.dependencies['@open-mova/core'];
     writeFileSync(join(destination, 'src/app/app.routes.ts'), minimalRoutes(name));
+    writeFileSync(join(destination, 'src/app/app.config.ts'), minimalAppConfig());
   } else {
     const core = join(applicationRoot, 'packages/core');
     if (!existsSync(core)) {
@@ -80,5 +81,16 @@ export class HomeComponent {}
 export const routes: Routes = [
   { path: '', component: HomeComponent },
 ];
+`;
+}
+
+function minimalAppConfig(): string {
+  return `import { ApplicationConfig } from '@angular/core';
+import { provideRouter } from '@angular/router';
+import { routes } from './app.routes';
+
+export const appConfig: ApplicationConfig = {
+  providers: [provideRouter(routes)],
+};
 `;
 }

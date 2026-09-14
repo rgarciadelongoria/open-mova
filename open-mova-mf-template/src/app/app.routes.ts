@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { RouterLink, RouterOutlet, Routes } from '@angular/router';
-import { getNativeCapabilities } from '@open-mova/core';
+import { injectNativeCapabilities } from '@open-mova/core';
 
 @Component({
   standalone: true,
@@ -30,11 +30,12 @@ export class HomeComponent {}
   template: '<h2>Device</h2><button type="button" (click)="readDevice()">Leer dispositivo</button><p>{{ result() }}</p>',
 })
 export class DeviceExampleComponent {
+  private readonly native = injectNativeCapabilities();
   readonly result = signal('Pulsa el botón para consultar el dispositivo.');
 
   async readDevice(): Promise<void> {
     try {
-      const info = await getNativeCapabilities().device.getInfo();
+      const info = await this.native.device.getInfo();
       this.result.set(`${info.model} · ${info.platform} · ${info.osVersion}`);
     } catch (error) {
       this.result.set(error instanceof Error ? error.message : 'No se pudo leer el dispositivo.');
@@ -54,12 +55,13 @@ export class DeviceExampleComponent {
   `,
 })
 export class CameraExampleComponent {
+  private readonly native = injectNativeCapabilities();
   readonly result = signal('Pulsa el botón para usar la cámara.');
   readonly photoUrl = signal<string | undefined>(undefined);
 
   async takePhoto(): Promise<void> {
     try {
-      const photo = await getNativeCapabilities().camera.takePhoto();
+      const photo = await this.native.camera.takePhoto();
       this.photoUrl.set(photo.webPath);
       this.result.set(photo.webPath ? 'Foto obtenida.' : 'Foto obtenida sin URL web.');
     } catch (error) {

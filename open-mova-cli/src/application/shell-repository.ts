@@ -96,20 +96,31 @@ export function downloadTaggedProject(
   }
 }
 
-export function configureDownloadedShell(destination: string, applicationName: string): void {
+export function configureDownloadedShell(
+  destination: string,
+  applicationName: string,
+  includesStarterMicrofrontend: boolean,
+): void {
   const packagePath = join(destination, 'package.json');
   const packageLockPath = join(destination, 'package-lock.json');
   const packageJson = JSON.parse(readFileSync(packagePath, 'utf8')) as {
     name: string;
     version: string;
     private?: boolean;
+    dependencies?: Record<string, string>;
   };
   packageJson.name = applicationName;
   packageJson.version = '0.1.0';
   packageJson.private = true;
+  if (packageJson.dependencies?.['@open-mova/core']) {
+    packageJson.dependencies['@open-mova/core'] = 'file:packages/core';
+  }
   writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
-  if (existsSync(packageLockPath)) {
+  if (packageJson.dependencies?.['@open-mova/core']) {
+    // Las rutas file: cambian al copiar la shell fuera del monorepo.
+    rmSync(packageLockPath, { force: true });
+  } else if (existsSync(packageLockPath)) {
     const packageLock = JSON.parse(readFileSync(packageLockPath, 'utf8')) as {
       name: string;
       version: string;
@@ -141,14 +152,19 @@ export function configureDownloadedShell(destination: string, applicationName: s
     writeFileSync(capacitorPath, customizedConfig);
   }
   writeFileSync(join(destination, '.nvmrc'), '22\n');
+  const usesCore = Boolean(packageJson.dependencies?.['@open-mova/core']);
+  const coreSteps = 'npm --prefix packages/core install\nnpm --prefix packages/core run build\n';
+  const librarySteps = usesCore || includesStarterMicrofrontend ? coreSteps : '';
+  const installSteps = `${librarySteps}npm install\n` +
+    (includesStarterMicrofrontend ? 'npm --prefix mfs/home install\n' : '');
+  const runSteps = includesStarterMicrofrontend
+    ? 'Inicia `npm --prefix mfs/home start` y `npm start` en dos terminales. Abre `http://localhost:4200/home/inicio`.\n'
+    : 'Registra primero un MF con `mova mf create nombre` y después ejecuta `mova start`.\n';
   writeFileSync(
     join(destination, 'README.md'),
     `# ${applicationName}\n\nAplicación creada con Open Mova. \`mova.config.json\` registra la shell y los microfrontales remotos.\n\n` +
-      `Si se creó el MF inicial, instala y compila primero \`packages/core\`:\n\n` +
-      `\`\`\`bash\nnpm install\nnpm --prefix packages/core install\nnpm --prefix packages/core run build\nnpm --prefix mfs/home install\n\`\`\`\n\n` +
-      `Inicia \`npm --prefix mfs/home start\` y \`npm start\` en dos terminales. ` +
-      `Abre \`http://localhost:4200/home/inicio\`. Si creaste la app con \`--empty\`, ` +
-      `registra primero un MF con \`mova mf create nombre\`.\n`,
+      `Instala y compila las dependencias locales en este orden:\n\n` +
+      `\`\`\`bash\n${installSteps}\`\`\`\n\n${runSteps}`,
   );
 }
 

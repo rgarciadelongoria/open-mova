@@ -10,7 +10,7 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 ```text
 open-mova/
 ├── open-mova-shell/        # Contenedor y capacidades nativas
-├── open-mova-core/         # Contratos reutilizables, sin Angular
+├── open-mova-core/         # Contratos y acceso Angular por DI
 ├── open-mova-mf-template/  # Única fuente de microfrontal y demo local
 └── open-mova-cli/          # Comandos mova
 ```

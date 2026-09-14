@@ -1,6 +1,8 @@
 import { Camera } from '@capacitor/camera';
 import { Device } from '@capacitor/device';
 
+import type { NativeCapabilities } from '@open-mova/core';
+
 // La interfaz pública equivalente se define en @open-mova/core.
 export const nativeCapabilities = {
   version: 1,
@@ -21,12 +23,4 @@ export const nativeCapabilities = {
       return photo ? { webPath: photo.webPath, uri: photo.uri } : undefined;
     },
   },
-} as const;
-
-export function publishNativeCapabilities(): void {
-  Object.defineProperty(window, 'openMovaNative', {
-    configurable: false,
-    writable: false,
-    value: nativeCapabilities,
-  });
-}
+} satisfies NativeCapabilities;

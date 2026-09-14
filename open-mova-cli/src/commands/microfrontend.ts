@@ -48,9 +48,14 @@ export function registerMicrofrontendCommands(program: Command): void {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
       const normalizedName = normalizeName(name, 'El nombre del microfrontal');
-      const templateVersion = options.templateVersion ?? listShellVersions()[0];
+      const templateVersion = options.templateVersion ?? (
+        options.demo ? configuration.shell?.version : undefined
+      ) ?? listShellVersions()[0];
       if (!templateVersion) {
         throw new Error('No hay tags estables disponibles para crear el microfrontal.');
+      }
+      if (options.demo && configuration.shell?.version !== templateVersion) {
+        throw new Error('El perfil demo debe usar el mismo tag que la shell para mantener compatible el contrato nativo.');
       }
       if (options.demo && !existsSync(join(applicationRoot, 'packages/core'))) {
         downloadTaggedProject('open-mova-core', join(applicationRoot, 'packages/core'), templateVersion);

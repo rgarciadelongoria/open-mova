@@ -9,10 +9,14 @@ module.exports = withNativeFederation({
 
   shared: {
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),
+    '@open-mova/core': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    },
   },
 
   skip: [
-    '@open-mova/core',
     'rxjs/ajax',
     'rxjs/fetch',
     'rxjs/testing',

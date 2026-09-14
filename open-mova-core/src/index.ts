@@ -5,4 +5,4 @@ export type {
   NativeCapabilities,
   PhotoResult,
 } from './native.js';
-export { getNativeCapabilities } from './native.js';
+export { NATIVE_CAPABILITIES, injectNativeCapabilities } from './native.js';
