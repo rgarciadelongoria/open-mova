@@ -1,7 +1,7 @@
 {
   "name": "open-mova-mf-template",
   "private": true,
-  "version": "0.1.6",
+  "version": "0.1.7",
   "scripts": {
     "start": "ng serve open-mova-mf-template",
     "build": "ng build open-mova-mf-template",

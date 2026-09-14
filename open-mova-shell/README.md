@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
+</p>
+
 # Open Mova Shell
 
 La shell es el host técnico de Open Mova. Carga los microfrontales mediante

@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
+</p>
+
 # Microfrontal de referencia
 
 Este es el único proyecto fuente de microfrontal que utiliza el CLI. Se publica

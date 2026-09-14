@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
+</p>
+
 # Open Mova CLI
 
 CLI de terminal para crear y mantener aplicaciones Open Mova. Se ejecuta desde la raíz de cada aplicación con el comando `mova`.

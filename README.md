@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
+</p>
+
 # Open Mova
 
 Framework para aplicaciones web y móviles con Angular, Native Federation y
