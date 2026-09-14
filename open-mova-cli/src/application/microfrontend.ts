@@ -50,7 +50,7 @@ export function createMicrofrontend(
     template = downloadTaggedProject(
       'open-mova-mf-template', destination, options.templateVersion,
     );
-    configureDownloadedMicrofrontend(destination, applicationRoot, name, port, profile);
+    configureDownloadedMicrofrontend(destination, name, port, profile);
   } catch (error) {
     rmSync(destination, { recursive: true, force: true });
     throw error;

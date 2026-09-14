@@ -1,14 +1,14 @@
 {
   "name": "@open-mova/shell",
   "private": true,
-  "version": "0.1.9",
+  "version": "0.1.10",
   "scripts": {
     "start": "ng serve shell",
     "build": "ng build shell",
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "@open-mova/core": "file:../open-mova-core",
+    "@open-mova/core": "^0.1.9",
     "@angular-architects/native-federation": "^21.2.6",
     "@angular/common": "^21.2.23",
     "@angular/core": "^21.2.23",

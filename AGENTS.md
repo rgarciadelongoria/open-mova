@@ -23,6 +23,29 @@
 - En aplicaciones Capacitor, la shell seguirá cargando los microfrontales desde sus URLs remotas.
 - Actualizar el README raíz cuando cambie la forma de preparar o ejecutar el monorepo.
 
+## Versionado y publicaciones
+
+- La versión de `package.json` en la raíz es la versión del **framework** o
+  workspace. Toda release incrementa esta versión y crea un tag Git anotado
+  exactamente igual, con el formato `vX.Y.Z`.
+- El tag del framework es la fuente que consulta el CLI para descargar shell y
+  template. Una release puede cambiar shell, template, configuración o
+  documentación aunque no publique ningún paquete npm.
+- No sincronizar mecánicamente las versiones de todos los proyectos con la
+  versión del workspace.
+- `@open-mova/core` tiene versión propia y solo se incrementa y publica en npm
+  cuando cambia su API, contrato o comportamiento distribuido.
+- `@open-mova/cli` tiene versión propia y solo se incrementa y publica en npm
+  cuando cambia el comportamiento de la herramienta de terminal.
+- Los `package.json` de shell y template se incrementan únicamente cuando
+  cambia su propio proyecto; no se publican en npm.
+- Antes de una release, identificar los proyectos afectados y elegir para cada
+  uno su incremento semver. Actualizar sus lockfiles cuando cambie la versión
+  de ese paquete.
+- Una versión de framework no obliga a publicar core ni CLI. Del mismo modo,
+  no publicar una versión de npm vacía solo para igualarla al tag del
+  workspace.
+
 ## Estilo y verificación
 
 - Usar código explícito, formateado y fácil de mantener.

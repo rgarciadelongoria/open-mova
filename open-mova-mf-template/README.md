@@ -22,8 +22,6 @@ por una única ruta inicial y quita la dependencia de core.
 ## Desarrollo local
 
 ```bash
-npm --prefix ../open-mova-core install
-npm --prefix ../open-mova-core run build
 npm install
 npm start
 ```

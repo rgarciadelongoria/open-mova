@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import type { Command } from 'commander';
 import { createMicrofrontend } from '../application/microfrontend.js';
@@ -10,7 +10,6 @@ import { synchronizeShellConfiguration } from '../application/shell-configuratio
 import {
   configureDownloadedShell,
   downloadShell,
-  downloadTaggedProject,
 } from '../application/shell-repository.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { normalizeName } from '../utils/names.js';
@@ -48,18 +47,6 @@ export function registerCreateCommand(program: Command): void {
       try {
         const shell = downloadShell(temporaryApplication, options.shellVersion);
         shellVersion = shell.version;
-        const shellPackage = JSON.parse(
-          readFileSync(join(temporaryApplication, 'package.json'), 'utf8'),
-        ) as { dependencies?: Record<string, string> };
-        const shellUsesCore = Boolean(shellPackage.dependencies?.['@open-mova/core']);
-
-        if (shellUsesCore || !options.empty) {
-          downloadTaggedProject(
-            'open-mova-core',
-            join(temporaryApplication, 'packages/core'),
-            shell.version,
-          );
-        }
         configureDownloadedShell(temporaryApplication, applicationName, !options.empty);
 
         let configuration: OpenMovaApplicationConfiguration = {
@@ -97,10 +84,6 @@ export function registerCreateCommand(program: Command): void {
       console.log(`Aplicación creada en ${applicationRoot} con shell ${shellVersion}.`);
       console.log('Instala las dependencias antes de iniciar el desarrollo:');
       console.log(`  cd ${applicationRoot}`);
-      const createdWithCore = existsSync(join(applicationRoot, 'packages/core'));
-      if (createdWithCore) {
-        console.log('  npm --prefix packages/core install && npm --prefix packages/core run build');
-      }
       console.log('  npm install');
       if (!options.empty) {
         console.log('  npm --prefix mfs/home install');

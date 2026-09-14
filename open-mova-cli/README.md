@@ -159,8 +159,6 @@ mova cap open ios
 mova create mi-aplicacion
 cd mi-aplicacion
 npm install
-npm --prefix packages/core install
-npm --prefix packages/core run build
 npm --prefix mfs/home install
 mova start
 ```

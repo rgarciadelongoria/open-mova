@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os';
 export const SHELL_REPOSITORY = 'https://github.com/rgarciadelongoria/open-mova.git';
 
 const VERSION_PATTERN = /^v(\d+)\.(\d+)\.(\d+)$/;
+const PUBLISHED_CORE_VERSION = '^0.1.9';
 const EXCLUDED_ENTRIES = new Set([
   '.git',
   '.angular',
@@ -46,7 +47,7 @@ export function downloadShell(destination: string, requestedVersion?: string): S
 }
 
 export function downloadTaggedProject(
-  project: 'open-mova-shell' | 'open-mova-mf-template' | 'open-mova-core',
+  project: 'open-mova-shell' | 'open-mova-mf-template',
   destination: string,
   requestedVersion?: string,
 ): ShellVersion {
@@ -72,9 +73,7 @@ export function downloadTaggedProject(
     ]);
 
     const source = join(checkout, project);
-    const requiredFiles = project === 'open-mova-core'
-      ? ['package.json', 'src/index.ts']
-      : ['package.json', 'angular.json', 'src/main.ts'];
+    const requiredFiles = ['package.json', 'angular.json', 'src/main.ts'];
     for (const requiredFile of requiredFiles) {
       if (!existsSync(join(source, requiredFile))) {
         throw new Error(`El tag ${version} no contiene ${project}: falta ${requiredFile}.`);
@@ -113,14 +112,13 @@ export function configureDownloadedShell(
   packageJson.version = '0.1.0';
   packageJson.private = true;
   if (packageJson.dependencies?.['@open-mova/core']) {
-    packageJson.dependencies['@open-mova/core'] = 'file:packages/core';
+    // También permite crear apps desde tags anteriores a la publicación en npm.
+    packageJson.dependencies['@open-mova/core'] = PUBLISHED_CORE_VERSION;
+    rmSync(packageLockPath, { force: true });
   }
   writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
-  if (packageJson.dependencies?.['@open-mova/core']) {
-    // Las rutas file: cambian al copiar la shell fuera del monorepo.
-    rmSync(packageLockPath, { force: true });
-  } else if (existsSync(packageLockPath)) {
+  if (existsSync(packageLockPath)) {
     const packageLock = JSON.parse(readFileSync(packageLockPath, 'utf8')) as {
       name: string;
       version: string;
@@ -152,10 +150,7 @@ export function configureDownloadedShell(
     writeFileSync(capacitorPath, customizedConfig);
   }
   writeFileSync(join(destination, '.nvmrc'), '22\n');
-  const usesCore = Boolean(packageJson.dependencies?.['@open-mova/core']);
-  const coreSteps = 'npm --prefix packages/core install\nnpm --prefix packages/core run build\n';
-  const librarySteps = usesCore || includesStarterMicrofrontend ? coreSteps : '';
-  const installSteps = `${librarySteps}npm install\n` +
+  const installSteps = 'npm install\n' +
     (includesStarterMicrofrontend ? 'npm --prefix mfs/home install\n' : '');
   const runSteps = includesStarterMicrofrontend
     ? 'Inicia `npm --prefix mfs/home start` y `npm start` en dos terminales. Abre `http://localhost:4200/home/inicio`.\n'
@@ -163,7 +158,7 @@ export function configureDownloadedShell(
   writeFileSync(
     join(destination, 'README.md'),
     `# ${applicationName}\n\nAplicación creada con Open Mova. \`mova.config.json\` registra la shell y los microfrontales remotos.\n\n` +
-      `Instala y compila las dependencias locales en este orden:\n\n` +
+      `Instala las dependencias de cada proyecto:\n\n` +
       `\`\`\`bash\n${installSteps}\`\`\`\n\n${runSteps}`,
   );
 }

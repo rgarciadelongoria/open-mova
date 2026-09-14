@@ -1,14 +1,14 @@
 {
   "name": "open-mova-mf-template",
   "private": true,
-  "version": "0.1.9",
+  "version": "0.1.10",
   "scripts": {
     "start": "ng serve open-mova-mf-template",
     "build": "ng build open-mova-mf-template",
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "@open-mova/core": "file:../open-mova-core",
+    "@open-mova/core": "^0.1.9",
     "@angular-architects/native-federation": "^21.2.6",
     "@angular/common": "^21.2.23",
     "@angular/core": "^21.2.23",

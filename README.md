@@ -29,11 +29,16 @@ una ruta inicial. No hay plantillas Angular duplicadas dentro del CLI.
 Requiere Node.js 22, npm y Git. Desde la raíz:
 
 ```bash
-npm --prefix open-mova-core install
-npm run build:core
 npm --prefix open-mova-mf-template install
 npm --prefix open-mova-shell install
 npm --prefix open-mova-cli install
+```
+
+`open-mova-core` se instala desde npm en la shell y el template. Instala sus
+dependencias locales solo si vas a desarrollar la propia librería:
+
+```bash
+npm --prefix open-mova-core install
 ```
 
 El `package.json` raíz solo coordina comandos; no tiene dependencias ni

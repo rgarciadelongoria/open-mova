@@ -71,6 +71,6 @@ const selected = await native.camera.choosePhoto();
 móvil. `choosePhoto()` devuelve `undefined` si la galería devuelve una lista
 vacía; cancelar el diálogo puede rechazar la promesa según la plataforma.
 Angular muestra un error de provider ausente si la shell no ofrece el contrato.
-Los MF que usan capacidades nativas dependen de `@open-mova/core`; en el
-monorepo se instala por ruta local tras compilar la librería. Shell y MF deben
-compartir una sola instancia de core mediante Native Federation.
+Los MF que usan capacidades nativas dependen de `@open-mova/core` desde npm.
+Shell y MF deben compartir una sola instancia de core mediante Native
+Federation.

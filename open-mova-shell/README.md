@@ -72,11 +72,9 @@ automáticamente.
 
 ## Desarrollo
 
-Desde la raíz del monorepo, prepara primero core:
+Desde la raíz del monorepo:
 
 ```bash
-npm --prefix open-mova-core install
-npm --prefix open-mova-core run build
 npm --prefix open-mova-shell install
 ```
 

@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Command } from 'commander';
 import { createMicrofrontend, inspectExistingMicrofrontend } from '../application/microfrontend.js';
@@ -10,7 +9,7 @@ import {
 } from '../application/configuration.js';
 import { synchronizeShellConfiguration } from '../application/shell-configuration.js';
 import { normalizeName } from '../utils/names.js';
-import { downloadTaggedProject, listShellVersions } from '../application/shell-repository.js';
+import { listShellVersions } from '../application/shell-repository.js';
 
 interface CreateMicrofrontendCommandOptions {
   readonly directory?: string;
@@ -56,9 +55,6 @@ export function registerMicrofrontendCommands(program: Command): void {
       }
       if (options.demo && configuration.shell?.version !== templateVersion) {
         throw new Error('El perfil demo debe usar el mismo tag que la shell para mantener compatible el contrato nativo.');
-      }
-      if (options.demo && !existsSync(join(applicationRoot, 'packages/core'))) {
-        downloadTaggedProject('open-mova-core', join(applicationRoot, 'packages/core'), templateVersion);
       }
       const microfrontendConfiguration = createMicrofrontend(
         applicationRoot,

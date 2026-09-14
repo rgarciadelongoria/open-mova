@@ -1,12 +1,11 @@
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { toDisplayName, toRemoteName } from '../utils/names.js';
 
 export type MicrofrontendProfile = 'minimal' | 'demo';
 
 export function configureDownloadedMicrofrontend(
   destination: string,
-  applicationRoot: string,
   name: string,
   port: number,
   profile: MicrofrontendProfile,
@@ -27,11 +26,7 @@ export function configureDownloadedMicrofrontend(
     writeFileSync(join(destination, 'src/app/app.routes.ts'), minimalRoutes(name));
     writeFileSync(join(destination, 'src/app/app.config.ts'), minimalAppConfig());
   } else {
-    const core = join(applicationRoot, 'packages/core');
-    if (!existsSync(core)) {
-      throw new Error('El perfil demo requiere packages/core en la aplicación.');
-    }
-    packageJson.dependencies['@open-mova/core'] = `file:${relative(destination, core)}`;
+    packageJson.dependencies['@open-mova/core'] = '^0.1.9';
   }
   writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
