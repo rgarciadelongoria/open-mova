@@ -30,7 +30,8 @@ jobs:
           cache-dependency-path: open-mova-mf-template/package-lock.json
 
       - name: Instalar dependencias del microfrontal
-        run: npm ci
+        # npm resuelve los peers opcionales según el sistema operativo del runner.
+        run: npm install --no-audit --no-fund
         working-directory: open-mova-mf-template
 
       - name: Compilar el microfrontal demo

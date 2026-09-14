@@ -8,12 +8,12 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
-    "@open-mova/core": "^0.1.9",
     "@angular-architects/native-federation": "^21.2.6",
     "@angular/common": "^21.2.23",
     "@angular/core": "^21.2.23",
     "@angular/platform-browser": "^21.2.23",
     "@angular/router": "^21.2.23",
+    "@open-mova/core": "^0.1.9",
     "@softarc/native-federation-node": "^3.3.4",
     "es-module-shims": "^1.5.12",
     "rxjs": "^7.8.2",
@@ -28,7 +28,7 @@
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
-    "@emnapi/core": "^1.11.3",
-    "@emnapi/runtime": "^1.11.3"
+    "@emnapi/core": "1.11.3",
+    "@emnapi/runtime": "1.11.3"
   }
 }
