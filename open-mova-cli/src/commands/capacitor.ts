@@ -7,6 +7,7 @@ import {
   requireApplicationRoot,
 } from '../application/configuration.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
+import { localBinaryName, npmCommand } from '../utils/platform.js';
 
 type Platform = 'android' | 'ios';
 
@@ -52,7 +53,7 @@ function buildMobileShell(root: string): void {
   }
   const configuration = readApplicationConfiguration(root);
   const manifest = createProductionManifest(configuration);
-  run(root, 'npm', ['run', 'build']);
+  run(root, npmCommand(), ['run', 'build']);
 
   const webDirectory = join(root, 'dist', 'browser');
   if (!existsSync(join(webDirectory, 'index.html'))) {
@@ -93,7 +94,7 @@ function runCapacitor(root: string, args: string[]): void {
   if (!existsSync(join(root, 'capacitor.config.ts'))) {
     throw new Error('Esta versión de shell no incluye Capacitor. Usa una shell v0.1.2 o posterior.');
   }
-  const binary = join(root, 'node_modules', '.bin', 'cap');
+  const binary = join(root, 'node_modules', '.bin', localBinaryName('cap'));
   if (!existsSync(binary)) {
     throw new Error('Instala las dependencias de la aplicación con npm install.');
   }

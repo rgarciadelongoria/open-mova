@@ -6,6 +6,7 @@ import {
   readApplicationConfiguration,
   requireApplicationRoot,
 } from '../application/configuration.js';
+import { npmCommand } from '../utils/platform.js';
 
 export function registerBuildCommand(program: Command): void {
   program
@@ -38,7 +39,7 @@ export function registerBuildCommand(program: Command): void {
 function runBuild(directory: string, label: string): void {
   console.log(`Compilando ${label}...`);
 
-  const result = spawnSync('npm', ['run', 'build'], {
+  const result = spawnSync(npmCommand(), ['run', 'build'], {
     cwd: directory,
     stdio: 'inherit',
   });

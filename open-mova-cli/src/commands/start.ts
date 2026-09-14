@@ -6,6 +6,7 @@ import {
   readApplicationConfiguration,
   requireApplicationRoot,
 } from '../application/configuration.js';
+import { npmCommand } from '../utils/platform.js';
 
 interface StartCommandOptions {
   readonly shellOnly?: boolean;
@@ -54,7 +55,7 @@ async function startProjects(
 ): Promise<void> {
   const children = projects.map(({ directory, label }) => {
     console.log(`- ${label}: ${directory}`);
-    return spawn('npm', ['run', 'start'], {
+    return spawn(npmCommand(), ['run', 'start'], {
       cwd: directory,
       stdio: 'inherit',
     });
