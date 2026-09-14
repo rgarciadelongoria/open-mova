@@ -1,11 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
 .page-shell {
   box-sizing: border-box;
-  width: min(760px, calc(100% - 32px));
+  width: 100%;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 64px 0;
+  padding: 64px max(20px, calc((100% - 760px) / 2));
   color: #e8eef8;
   background: radial-gradient(circle at top right, #203c66, #101827 55%);
   font-family: 'DM Sans', system-ui, sans-serif;
