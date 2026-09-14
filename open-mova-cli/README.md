@@ -1,255 +1,159 @@
 # Open Mova CLI
 
-CLI para crear y mantener aplicaciones basadas en Open Mova. La herramienta se
-ejecuta desde el terminal con el comando `mova`.
+CLI de terminal para crear y mantener aplicaciones Open Mova. Se ejecuta desde la raíz de cada aplicación con el comando `mova`.
 
-## Qué gestiona
+El CLI descarga la shell, el core y la plantilla de microfrontales desde tags estables del repositorio de Open Mova. No contiene copias de esas plantillas. Cada aplicación guarda en `mova.config.json` el tag y el commit con los que fue creada.
 
-El CLI crea una aplicación host descargando `open-mova-shell/` desde un tag del
-repositorio público y mantiene su composición de microfrontales. Descarga
-también `open-mova-mf-template/` para crear los MF y, en las versiones que lo
-requieren, `open-mova-core/`. No contiene plantillas de código propias.
+## Índice de comandos
 
-La fuente de configuración es `mova.config.json`. Al crear o registrar un
-microfrontal, el CLI actualiza también estos ficheros de la shell:
+- [`mova create`](#mova-create)
+- [`mova mf create`](#mova-mf-create)
+- [`mova mf add`](#mova-mf-add)
+- [`mova start`](#mova-start)
+- [`mova build`](#mova-build)
+- [`mova info`](#mova-info)
+- [`mova shell versions`](#mova-shell-versions)
+- [`mova cap add`](#mova-cap-add)
+- [`mova cap sync`](#mova-cap-sync)
+- [`mova cap open`](#mova-cap-open)
 
-- `src/assets/federation.manifest.json`: relaciona el remoto con su
-  `remoteEntry.json` de desarrollo.
-- `src/app/application.config.ts`: relaciona la URL pública con el remoto y
-  sus rutas expuestas.
+## Instalación para desarrollar el CLI
 
-Por ese motivo, no hay que editar esos dos ficheros manualmente en una
-aplicación creada por el CLI.
-
-## Capacitor y microfrontales remotos
-
-La aplicación creada incluye Capacitor en la shell. Antes de preparar Android
-o iOS, cambia `appId` en `capacitor.config.ts` por el identificador definitivo
-de tu aplicación. Publica cada microfrontal por separado y añade su URL HTTPS
-versionada a `mova.config.json`. Al crear o registrar un MF puedes indicar
-`--production-remote-entry https://cdn.example.com/home/1.0.0/remoteEntry.json`.
-Para el MF `home` que se crea con la aplicación, añade la propiedad manualmente:
-
-```json
-{
-  "name": "home",
-  "remoteName": "home-microfrontend",
-  "developmentRemoteEntry": "http://localhost:4300/remoteEntry.json",
-  "productionRemoteEntry": "https://cdn.example.com/home/1.0.0/remoteEntry.json"
-}
-```
-
-Esta entrada es un fragmento de `microfrontends`, no el fichero completo. El
-CLI mantiene la URL local para `mova start`. Para preparar el proyecto nativo:
-
-```bash
-cd mi-aplicacion
-mova cap add android      # compila la shell y crea android/
-mova cap sync android     # recompila y sincroniza assets y plugins
-mova cap open android     # abre Android Studio
-```
-
-Se puede usar `ios` en lugar de `android` en macOS con Xcode. El comando `sync`
-sin plataforma sincroniza todas las plataformas ya añadidas. El CLI exige una
-URL HTTPS para cada MF y escribe el manifiesto de producción solo en el
-resultado compilado. No compila ni copia los MFs al paquete nativo; estos deben
-estar publicados y accesibles en ejecución. Para Camera en iOS, añade a
-`ios/App/App/Info.plist` textos de uso para cámara y fototeca antes de publicar.
-
-## Desarrollo del CLI
-
-Requiere Node.js 22 para las aplicaciones generadas con Capacitor 8.
+Requiere Node.js 22.
 
 ```bash
 cd open-mova-cli
 npm install
 npm run typecheck
 npm run build
-```
-
-Para usar el comando `mova` durante el desarrollo desde cualquier directorio:
-
-```bash
 npm link
 ```
 
-`npm link` crea un enlace local global; no publica el paquete en npm. Para
-eliminarlo más tarde se puede ejecutar `npm unlink -g @open-mova/cli`.
+`npm link` enlaza la versión local del comando `mova`; no publica el paquete.
 
 ## Comandos
 
-### Crear una aplicación
+### `mova create`
 
-Ejecuta el comando desde el directorio donde quieras crear el proyecto:
+Crea una aplicación completa. Descarga una shell versionada, el core y un MF inicial `home`.
 
 ```bash
 mova create mi-aplicacion
-```
-
-Requiere Git y acceso al repositorio. El CLI consulta los tags estables
-`vMAJOR.MINOR.PATCH` y usa el más reciente por número de versión. No utiliza
-la rama `main`. Para verlos o elegir uno:
-
-```bash
-mova shell versions
+mova create mi-aplicacion --directory ../apps/mi-aplicacion
 mova create mi-aplicacion --shell-version v0.1.4
-```
-
-La app guarda en `mova.config.json` la URL del repositorio, el tag y el commit
-exacto de la shell descargada. El número de versión de la propia app en
-`package.json` es independiente de la versión de la shell. El CLI no modifica
-aplicaciones ya creadas cuando aparece un tag nuevo.
-
-La aplicación creada contiene la shell en su propia raíz y un microfrontal
-inicial llamado `home` dentro de `mfs/home`. Ambos proceden del mismo tag;
-el CLI descarga también `core` para que los ejemplos nativos puedan compilar:
-
-> Esta estructura corresponde a los tags cuya shell use `@open-mova/core`.
-
-```text
-mi-aplicacion/
-├── src/                         # Shell técnica
-├── mfs/
-│   └── home/                    # Microfrontal inicial independiente
-├── packages/
-│   └── core/                    # Contrato y token de DI compartidos
-├── mova.config.json             # Configuración de la composición
-├── capacitor.config.ts          # Si la versión de shell incluye Capacitor
-├── angular.json
-└── package.json
-```
-
-Antes de arrancar hay que instalar las dependencias de cada proyecto:
-
-```bash
-cd mi-aplicacion
-npm --prefix packages/core install
-npm --prefix packages/core run build
-npm install
-npm --prefix mfs/home install
-```
-
-Para elegir un directorio concreto:
-
-```bash
-mova create mi-aplicacion --directory ../aplicaciones/mi-aplicacion
-```
-
-Para crear una shell sin microfrontal inicial:
-
-```bash
 mova create mi-aplicacion --empty
 ```
 
-### Crear un microfrontal local
+Sin `--shell-version` se usa el tag estable más reciente (`vMAJOR.MINOR.PATCH`). `--empty` omite el MF inicial.
 
-Ejecuta el comando desde la raíz de una aplicación Open Mova:
+### `mova mf create`
+
+Crea un microfrontal local, lo registra y actualiza la configuración de federación de la shell.
 
 ```bash
 cd mi-aplicacion
 mova mf create catalog
+mova mf create catalog --route productos --port 4500
+mova mf create catalog --directory ../provider-mf-catalog
+mova mf create catalog --demo
 ```
 
-Por defecto se crea en `mfs/catalog`, se registra en la aplicación bajo la
-ruta `/catalog` y utiliza el primer puerto libre desde el `4300`. El perfil
-predeterminado es mínimo: una ruta inicial sin ejemplos ni dependencia de core.
-El CLI descarga `open-mova-mf-template` desde el tag estable más reciente, o
-desde el tag elegido con `--template-version vX.Y.Z`.
+Por defecto se crea en `mfs/catalog`, con perfil mínimo, ruta `/catalog` y un puerto libre desde `4300`. `--demo` añade ejemplos de Device y Camera. Se puede fijar la plantilla con `--template-version v0.1.4`.
 
-Se puede personalizar su ubicación, ruta o puerto:
+### `mova mf add`
 
-```bash
-mova mf create catalog \
-  --directory ../provider-mf-catalog \
-  --route productos \
-  --port 4500
-```
-
-La ruta inicial del ejemplo anterior estaría en:
-
-```text
-/productos
-```
-
-Para crear otro microfrontal con los ejemplos `inicio`, `device` y `camera`,
-usa `mova mf create catalog --demo`. Si la aplicación aún no tiene
-`packages/core`, el CLI lo descarga del mismo tag. Antes de instalar ese MF,
-compila core. El perfil
-demo debe usar el mismo tag que la shell para mantener compatible el contrato.
-
-### Registrar un microfrontal existente
-
-Para vincular un proyecto local existente, indica su ruta desde la raíz de la
-aplicación:
+Registra un microfrontal existente, sin crearlo de nuevo.
 
 ```bash
 mova mf add ../provider-mf-catalog
+mova mf add ../provider-mf-catalog --name catalog --route productos \
+  --remote catalog-microfrontend --port 4500
 ```
 
-El CLI comprueba que existe `package.json`, `angular.json` y
-`federation.config.js`, e intenta leer de ellos el nombre remoto y el puerto.
-Si hace falta, los valores se pueden indicar de forma explícita:
+Para registrar solo un MF ya publicado:
 
 ```bash
-mova mf add ../provider-mf-catalog \
-  --name catalog \
-  --route productos \
-  --remote catalog-microfrontend \
-  --port 4500
-```
-
-Si el microfrontal ya está desplegado y no se quiere descargar su código
-fuente, se registra directamente con la URL publicada:
-
-```bash
-mova mf add \
-  --name catalog \
-  --route productos \
+mova mf add --name catalog --route productos \
   --remote catalog-microfrontend \
   --remote-entry https://cdn.example.com/catalog/remoteEntry.json
 ```
 
-La URL del repositorio Git sirve para obtener el código fuente; la URL de
-`remoteEntry.json` es la que utiliza la shell en tiempo de ejecución.
+El CLI actualiza `mova.config.json`, `src/assets/federation.manifest.json` y `src/app/application.config.ts`.
 
-### Arrancar y compilar
+### `mova start`
 
-Desde la raíz de la aplicación:
+Arranca los MFs locales registrados y después la shell. Los MFs configurados solo con una URL remota no se arrancan localmente.
 
 ```bash
 mova start
-```
-
-Inicia todos los microfrontales locales registrados y después la shell. Los
-remotos registrados solo por URL se omiten, porque ya no tienen un proyecto
-local que arrancar.
-
-Para iniciar únicamente la shell:
-
-```bash
 mova start --shell-only
 ```
 
-Para compilar los microfrontales locales y después la shell:
+### `mova build`
+
+Compila los microfrontales locales y la shell.
 
 ```bash
 mova build
 ```
 
-### Inspeccionar la aplicación activa
+### `mova info`
+
+Muestra la aplicación detectada, la versión de shell y sus microfrontales. También funciona desde subdirectorios como `mfs/catalog`.
 
 ```bash
 mova info
 ```
 
-El CLI busca `mova.config.json` desde el directorio actual hacia sus
-directorios padre. Por eso también funciona desde `mfs/catalog` y muestra la
-aplicación a la que pertenece.
+### `mova shell versions`
 
-## Límites actuales
+Lista los tags estables disponibles para crear aplicaciones.
 
-El CLI prepara Android/iOS cuando la versión de shell elegida incluye
-Capacitor (`v0.1.2` en adelante). Los tags anteriores pueden crearse como
-aplicaciones web, pero no disponen de los comandos móviles. El CLI aún no
-actualiza automáticamente la shell de una aplicación existente ni publica
-microfrontales.
+```bash
+mova shell versions
+```
+
+### `mova cap add`
+
+Compila la aplicación y añade una plataforma nativa. Configura antes el `appId` definitivo en `capacitor.config.ts`.
+
+```bash
+mova cap add android
+mova cap add ios
+```
+
+### `mova cap sync`
+
+Sincroniza la shell compilada, los recursos y los plugins con la plataforma. Sin plataforma, sincroniza todas las plataformas añadidas.
+
+```bash
+mova cap sync android
+mova cap sync
+```
+
+### `mova cap open`
+
+Abre el proyecto nativo en Android Studio o Xcode.
+
+```bash
+mova cap open android
+mova cap open ios
+```
+
+## Flujo habitual
+
+```bash
+mova create mi-aplicacion
+cd mi-aplicacion
+npm install
+npm --prefix packages/core install
+npm --prefix packages/core run build
+npm --prefix mfs/home install
+mova start
+```
+
+Los microfrontales siempre se cargan remotamente mediante Native Federation. En producción, cada MF debe estar publicado en HTTPS y registrado con su `productionRemoteEntry`. Capacitor no copia los MFs al paquete nativo: la shell los carga desde sus URLs en ejecución.
+
+## Limitaciones actuales
+
+El CLI todavía no actualiza automáticamente la shell de una aplicación creada ni publica microfrontales. Los comandos móviles requieren una versión de shell que incluya Capacitor.

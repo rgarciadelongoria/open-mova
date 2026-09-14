@@ -26,3 +26,28 @@ npm start
 
 Después inicia la shell y abre `http://localhost:4200/demo/inicio`. Para
 verificar este proyecto: `npm run typecheck` y `npm run build`.
+
+## Estructura del código
+
+Las rutas se mantienen en `src/app/app.routes.ts` y solo enlazan cada URL con
+su componente. La implementación está separada por responsabilidad:
+
+```text
+src/app/
+├── app.routes.ts
+├── layout/
+│   ├── demo-layout.component.ts
+│   └── demo-layout.component.html
+└── pages/
+    ├── home/
+    ├── device/
+    │   ├── device-example.component.ts
+    │   └── device-example.component.html
+    └── camera/
+        ├── camera-example.component.ts
+        └── camera-example.component.html
+```
+
+Cada pantalla tiene su lógica en el fichero `.ts` y su vista en el `.html`.
+Para añadir una nueva pantalla, crea su carpeta y componente, y añade después
+una entrada en `app.routes.ts`.
