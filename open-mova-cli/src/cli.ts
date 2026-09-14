@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'node:fs';
 import { Command } from 'commander';
 import { registerBuildCommand } from './commands/build.js';
 import { registerCapacitorCommands } from './commands/capacitor.js';
@@ -10,11 +11,14 @@ import { registerStartCommand } from './commands/start.js';
 import { registerShellCommands } from './commands/shell.js';
 
 const program = new Command();
+const packageVersion = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+) as { version: string };
 
 program
   .name('mova')
   .description('Herramientas de desarrollo para aplicaciones Open Mova')
-  .version('0.1.4');
+  .version(packageVersion.version);
 
 registerCreateCommand(program);
 registerMicrofrontendCommands(program);

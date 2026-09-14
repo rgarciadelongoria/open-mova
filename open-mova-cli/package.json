@@ -1,11 +1,37 @@
 {
   "name": "@open-mova/cli",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "CLI para crear y mantener aplicaciones Open Mova",
-  "private": true,
+  "license": "MIT",
+  "author": "Open Mova contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rgarciadelongoria/open-mova.git",
+    "directory": "open-mova-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/rgarciadelongoria/open-mova/issues"
+  },
+  "homepage": "https://github.com/rgarciadelongoria/open-mova#readme",
+  "keywords": [
+    "angular",
+    "capacitor",
+    "cli",
+    "microfrontends",
+    "native-federation",
+    "open-mova"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "bin": {
     "mova": "dist/cli.js"

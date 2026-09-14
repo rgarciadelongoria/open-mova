@@ -1,7 +1,36 @@
 {
   "name": "@open-mova/core",
-  "private": true,
-  "version": "0.1.8",
+  "version": "0.1.9",
+  "description": "Contratos y utilidades Angular compartidas de Open Mova",
+  "license": "MIT",
+  "author": "Open Mova contributors",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rgarciadelongoria/open-mova.git",
+    "directory": "open-mova-core"
+  },
+  "bugs": {
+    "url": "https://github.com/rgarciadelongoria/open-mova/issues"
+  },
+  "homepage": "https://github.com/rgarciadelongoria/open-mova#readme",
+  "keywords": [
+    "angular",
+    "capacitor",
+    "dependency-injection",
+    "microfrontends",
+    "open-mova"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

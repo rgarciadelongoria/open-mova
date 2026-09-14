@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
+  <img src="https://raw.githubusercontent.com/rgarciadelongoria/open-mova/main/assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
 # Open Mova CLI
@@ -20,6 +20,15 @@ El CLI descarga la shell, el core y la plantilla de microfrontales desde tags es
 - [`mova cap add`](#mova-cap-add)
 - [`mova cap sync`](#mova-cap-sync)
 - [`mova cap open`](#mova-cap-open)
+
+## Instalación
+
+Requiere Node.js 22 o posterior.
+
+```bash
+npm install --global @open-mova/cli
+mova --help
+```
 
 ## Instalación para desarrollar el CLI
 
@@ -44,7 +53,7 @@ Crea una aplicación completa. Descarga una shell versionada, el core y un MF in
 ```bash
 mova create mi-aplicacion
 mova create mi-aplicacion --directory ../apps/mi-aplicacion
-mova create mi-aplicacion --shell-version v0.1.4
+mova create mi-aplicacion --shell-version v0.1.9
 mova create mi-aplicacion --empty
 ```
 
@@ -62,7 +71,7 @@ mova mf create catalog --directory ../provider-mf-catalog
 mova mf create catalog --demo
 ```
 
-Por defecto se crea en `mfs/catalog`, con perfil mínimo, ruta `/catalog` y un puerto libre desde `4300`. `--demo` añade ejemplos de Device y Camera. Se puede fijar la plantilla con `--template-version v0.1.4`.
+Por defecto se crea en `mfs/catalog`, con perfil mínimo, ruta `/catalog` y un puerto libre desde `4300`. `--demo` añade ejemplos de Device y Camera. Se puede fijar la plantilla con `--template-version v0.1.9`.
 
 ### `mova mf add`
 

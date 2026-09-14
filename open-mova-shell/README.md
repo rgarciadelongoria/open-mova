@@ -36,6 +36,10 @@ open-mova-shell/
 │   │   └── application.config.ts    # Registro de microfrontales
 │   ├── assets/
 │   │   └── federation.manifest.json # URLs de los remotos
+│   └── native-capabilities/
+│       ├── device/device.capability.ts # Implementación de Device
+│       ├── camera/camera.capability.ts # Implementación de Camera
+│       └── native-capabilities.provider.ts # Provider común de Angular
 │   ├── bootstrap.ts
 │   ├── index.html
 │   └── main.ts
@@ -115,7 +119,7 @@ manifiesto compilado por URLs HTTPS versionadas. En aplicaciones creadas con
 Open Mova, `mova cap sync` hace esa sustitución a partir de `mova.config.json`.
 
 La shell registra `NATIVE_CAPABILITIES` en `src/app/app.config.ts`. La
-implementación de `src/native-capabilities.ts` usa los plugins oficiales de
+implementación de `src/native-capabilities/` usa los plugins oficiales de
 Capacitor; el contrato y el token Angular viven en `@open-mova/core`.
 Shell y MF comparten core como singleton de
 Native Federation; no se publica ningún objeto global en `window`.

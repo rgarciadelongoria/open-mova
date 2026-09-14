@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
+  <img src="https://raw.githubusercontent.com/rgarciadelongoria/open-mova/main/assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
 # Open Mova Core
@@ -10,6 +10,14 @@ microfrontales.
 
 Actualmente define el contrato `NativeCapabilities` v1 para Device y Camera,
 el token de DI Angular y `injectNativeCapabilities()`. No depende de Capacitor.
+
+## Instalación
+
+El microfrontal y la shell deben usar una versión compatible de Angular.
+
+```bash
+npm install @open-mova/core
+```
 
 ## Qué debe contener
 
