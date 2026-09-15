@@ -1,0 +1,31 @@
+<p class="eyebrow">CAPACIDAD NATIVA</p>
+<div class="capability-heading">
+  <div>
+    <h2>{{ capability.title }}</h2>
+    <p>{{ capability.description }}</p>
+  </div>
+  <span class="availability" [class.is-available]="isAvailable()">
+    {{ isAvailable() ? 'Disponible' : 'No disponible en esta plataforma' }}
+  </span>
+</div>
+@for (example of capability.examples; track example.title) {
+  <article class="example-card">
+    <h3>{{ example.title }}</h3>
+    <p>{{ example.description }}</p>
+    <pre><code>{{ example.code.replace('CAPABILITY', capability.property) }}</code></pre>
+    @if (example.note) {
+      <p class="example-note">{{ example.note }}</p>
+    }
+    <button class="action-button" type="button" (click)="run(example)" [disabled]="!example.runnable">
+      {{ example.runnable ? 'Probar ejemplo' : 'Requiere configuración' }}
+    </button>
+  </article>
+}
+<section class="result-panel" aria-live="polite">
+  <p class="eyebrow">RESULTADO</p>
+  <pre>{{ result() }}</pre>
+</section>
+
+@if (photoUrl()) {
+  <img class="photo-preview" [src]="photoUrl()" alt="Fotografía tomada con la cámara" />
+}

@@ -8,8 +8,9 @@
 contratos, tipos y utilidades transversales que puedan utilizar la shell y los
 microfrontales.
 
-Actualmente define el contrato `NativeCapabilities` v1 para Device y Camera,
-el token de DI Angular y `injectNativeCapabilities()`. No depende de Capacitor.
+Define el contrato `NativeCapabilities` v1, el token de DI Angular y
+`injectNativeCapabilities()`. No depende de Capacitor: los plugins reales solo
+se instalan y se ejecutan dentro de la shell.
 
 ## Instalación
 
@@ -74,3 +75,39 @@ Angular muestra un error de provider ausente si la shell no ofrece el contrato.
 Los MF que usan capacidades nativas dependen de `@open-mova/core` desde npm.
 Shell y MF deben compartir una sola instancia de core mediante Native
 Federation.
+
+## Capacidades nativas
+
+Cada plugin oficial se representa como una capacidad con tres operaciones
+comunes:
+
+- `isAvailable()` comprueba si el plugin está disponible en la plataforma.
+- `invoke(nombre, opciones)` ejecuta una operación del plugin.
+- `subscribe(evento, listener)` registra un evento y devuelve un handle con
+  `remove()` para cancelarlo.
+
+Los nombres de capacidad están en camelCase y no dependen del nombre del
+paquete npm. Por ejemplo, un MF puede consultar conectividad así:
+
+```ts
+const native = injectNativeCapabilities();
+
+if (native.network.isAvailable()) {
+  const status = await native.network.invoke('getStatus');
+}
+```
+
+El contrato expone: `actionSheet`, `app`, `appLauncher`, `backgroundRunner`,
+`barcodeScanner`, `browser`, `calendar`, `camera`, `clipboard`, `contacts`,
+`cookies`, `device`, `dialog`, `fileTransfer`, `fileViewer`, `filesystem`,
+`geolocation`, `googleMaps`, `haptics`, `healthFitness`, `http`,
+`inAppBrowser`, `keyboard`, `localLlm`, `localNotifications`, `motion`,
+`network`, `preferences`, `privacyScreen`, `pushNotifications`,
+`screenOrientation`, `screenReader`, `share`, `splashScreen`, `statusBar`,
+`systemBars`, `textZoom` y `toast`.
+
+Las opciones y el resultado no exponen tipos de Capacitor. Esto evita que el MF
+se acople a su versión; algunas operaciones avanzadas pueden requerir valores
+propios de plataforma, como `Date` o `Blob`. Las operaciones más estables y
+habituales conservan métodos explícitos: `device.getInfo()`,
+`camera.takePhoto()` y `camera.choosePhoto()`.

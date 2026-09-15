@@ -1,0 +1,29 @@
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.home-grid article {
+  padding: 20px;
+  border: 1px solid #2d4567;
+  border-radius: 16px;
+  background: rgba(9, 20, 37, 0.46);
+}
+
+.home-grid h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 1.05rem;
+}
+
+.home-grid code {
+  color: #72e0c2;
+}
+
+@media (max-width: 760px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}

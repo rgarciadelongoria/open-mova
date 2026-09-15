@@ -42,7 +42,13 @@
               "es-module-shims"
             ],
             "tsConfig": "tsconfig.app.json",
-            "assets": []
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets"
+              }
+            ]
           },
           "configurations": {
             "production": {

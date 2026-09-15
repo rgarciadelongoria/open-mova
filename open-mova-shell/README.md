@@ -20,7 +20,8 @@ estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 - Inicializar Native Federation.
 - Leer el manifiesto de remotos.
 - Convertir la configuración de microfrontales en rutas Angular.
-- Proporcionar las capacidades nativas Device y Camera por inyección de dependencias.
+- Implementar los plugins oficiales de Capacitor y proporcionarlos por
+  inyección de dependencias.
 
 Los microfrontales no forman parte del código fuente de la shell. Cada uno se
 desarrolla y se instala como un proyecto independiente.
@@ -37,8 +38,11 @@ open-mova-shell/
 │   ├── assets/
 │   │   └── federation.manifest.json # URLs de los remotos
 │   └── native-capabilities/
-│       ├── device/device.capability.ts # Implementación de Device
-│       ├── camera/camera.capability.ts # Implementación de Camera
+│       ├── camera/                     # Una carpeta por capacidad nativa
+│       ├── device/
+│       ├── filesystem/
+│       ├── …
+│       ├── create-native-plugin-capability.ts # Adaptador común de Capacitor
 │       └── native-capabilities.provider.ts # Provider común de Angular
 │   ├── bootstrap.ts
 │   ├── index.html
@@ -129,3 +133,23 @@ requieren las herramientas de Android Studio o Xcode, respectivamente.
 Los servidores de los remotos deben permitir la carga desde el origen de la
 WebView mediante CORS. Solo registra microfrontales de confianza: compartir
 un token por DI no aísla permisos entre remotos en la misma página.
+
+## Catálogo de capacidades
+
+La shell implementa el catálogo de plugins oficiales de Capacitor v8. Cada
+adaptador vive en su propio directorio y el provider los reúne en un único
+objeto `NativeCapabilities`. El MF consume ese contrato a través de
+`@open-mova/core`; nunca importa `@capacitor/*` ni accede a `window`.
+
+El adaptador común ofrece `isAvailable()`, `invoke()` y `subscribe()` a todos
+los plugins. La cámara y el dispositivo mantienen, además, sus atajos
+`takePhoto()`, `choosePhoto()` y `getInfo()` para no complicar los casos más
+frecuentes.
+
+Aunque estén instalados, algunos plugins necesitan configuración específica de
+la aplicación nativa antes de utilizarse: permisos de cámara, ubicación,
+calendario, contactos, notificaciones o salud; credenciales para Google Maps;
+y configuración del proveedor para Push Notifications. `npx cap sync` copia
+los plugins a Android e iOS, pero no puede inventar esos permisos, claves ni
+entitlements. Comprueba siempre `isAvailable()` y configura solo las
+capacidades que la aplicación vaya a usar.

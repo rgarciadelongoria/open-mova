@@ -4,7 +4,7 @@ import { NATIVE_CAPABILITIES, type NativeCapabilities } from '@open-mova/core';
 import { routes } from './app.routes';
 
 // Solo se usa al abrir el MF directamente; dentro de la shell manda su provider.
-const standaloneCapabilities: NativeCapabilities = {
+const standaloneCapabilities = {
   version: 1,
   device: {
     getInfo: async () => {
@@ -19,7 +19,7 @@ const standaloneCapabilities: NativeCapabilities = {
       throw new Error('Abre este ejemplo desde la shell para usar Camera.');
     },
   },
-};
+} as unknown as NativeCapabilities;
 
 export const appConfig: ApplicationConfig = {
   providers: [

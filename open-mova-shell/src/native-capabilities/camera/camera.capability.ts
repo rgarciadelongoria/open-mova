@@ -1,7 +1,10 @@
 import { Camera } from '@capacitor/camera';
 import type { NativeCapabilities } from '@open-mova/core';
+import { createNativePluginCapability } from '../create-native-plugin-capability';
 
 export const cameraCapability = {
+  ...createNativePluginCapability<NativeCapabilities['camera']>('Camera', Camera),
+
   async takePhoto() {
     const { webPath, uri } = await Camera.takePhoto({});
     return { webPath, uri };
