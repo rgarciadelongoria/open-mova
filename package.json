@@ -1,7 +1,7 @@
 {
   "name": "open-mova",
   "private": true,
-  "version": "0.1.19",
+  "version": "0.1.20",
   "scripts": {
     "start": "npm --prefix open-mova-shell run start",
     "start:demo": "npm --prefix open-mova-mf-template run start",

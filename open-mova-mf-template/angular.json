@@ -45,7 +45,11 @@
             "assets": []
           },
           "configurations": {
-            "production": {},
+            "production": {
+              "optimization": {
+                "fonts": false
+              }
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
