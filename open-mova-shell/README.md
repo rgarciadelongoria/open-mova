@@ -32,18 +32,19 @@ desarrolla y se instala como un proyecto independiente.
 open-mova-shell/
 ├── src/
 │   ├── app/
-│   │   ├── app.component.ts          # Contenedor de rutas
+│   │   ├── app.component.ts          # Contenedor con el router-outlet
+│   │   ├── app.config.ts             # Providers Angular y capacidades nativas
 │   │   ├── app.routes.ts             # Carga las rutas remotas
-│   │   └── application.config.ts    # Registro de microfrontales
+│   │   └── application.config.ts     # Registro de microfrontales
 │   ├── assets/
 │   │   └── federation.manifest.json # URLs de los remotos
 │   └── native-capabilities/
-│       ├── camera/                     # Una carpeta por capacidad nativa
+│       ├── camera/                    # Una carpeta por capacidad nativa
 │       ├── device/
 │       ├── filesystem/
 │       ├── …
 │       ├── create-native-plugin-capability.ts # Adaptador común de Capacitor
-│       └── native-capabilities.provider.ts # Provider común de Angular
+│       └── native-capabilities.provider.ts    # Provider común de Angular
 │   ├── bootstrap.ts
 │   ├── index.html
 │   └── main.ts
@@ -52,8 +53,16 @@ open-mova-shell/
 └── federation.config.js
 ```
 
-En `application.config.ts`, `path` es la ruta pública, `remote` es el nombre
-del remoto y `exposedModule` indica el módulo de rutas que se carga:
+Hay dos ficheros de configuración con responsabilidades diferentes:
+
+- `app.config.ts` configura Angular. Aquí se registran el router y el provider
+  que conecta las capacidades nativas mediante inyección de dependencias.
+- `application.config.ts` describe qué microfrontales debe cargar esta shell.
+  No contiene lógica de negocio ni componentes de interfaz.
+
+En `application.config.ts`, `path` es el prefijo público de la aplicación,
+`remote` es el nombre utilizado en el manifiesto y `exposedModule` indica el
+módulo de rutas que expone el microfrontal:
 
 ```ts
 {
@@ -72,17 +81,20 @@ El manifiesto relaciona ese remoto con su servidor:
 ```
 
 La lógica de `app.routes.ts` recorre el registro y crea las rutas
-automáticamente.
+automáticamente. Si el MF expone `first-route` y se registra con `path: 'demo'`,
+la URL resultante será `/demo/first-route`. Las rutas internas pertenecen al
+MF; la shell solo aporta el prefijo y lo monta en su `router-outlet`.
 
-## Desarrollo
+## Desarrollo de la shell
 
-Desde la raíz del monorepo:
+La shell requiere Node.js 22 o una versión compatible con el toolchain actual.
+Desde la raíz del monorepo instala sus dependencias de forma independiente:
 
 ```bash
 npm --prefix open-mova-shell install
 ```
 
-Comandos propios de la shell:
+Después, ejecuta los comandos dentro de este proyecto:
 
 ```bash
 cd open-mova-shell
@@ -91,14 +103,20 @@ npm run typecheck
 npm run build
 ```
 
-La shell se sirve en [http://localhost:4200](http://localhost:4200). Para ver
-los microfrontales cargados hay que iniciar también sus proyectos. Desde la
-raíz del monorepo, se pueden usar dos terminales:
+`npm start` sirve la shell en
+[http://localhost:4200](http://localhost:4200). La shell no incluye ni inicia
+microfrontales por sí misma. Para comprobar la integración local hay que
+arrancar también un servidor remoto que coincida con el manifiesto; la demo del
+monorepo se inicia desde la raíz con:
 
 ```bash
 npm run start:demo
 npm start
 ```
+
+El comando anterior es una comodidad del monorepo. En una aplicación creada
+con el CLI, `mova start` coordina la shell y los MFs declarados en su
+configuración.
 
 ## Capacitor
 
@@ -107,7 +125,9 @@ se genera la shell web. Cambia `appId` y `appName` antes de crear una aplicació
 nativa propia. Los microfrontales siguen cargándose por HTTPS: sus ficheros no
 se incluyen en la app nativa.
 
-Desde este proyecto se pueden usar los comandos oficiales tras compilar:
+Desde este proyecto se pueden usar los comandos oficiales de Capacitor tras
+compilar. Este flujo sirve para desarrollar la shell; en una aplicación creada
+con Open Mova se recomienda usar los comandos equivalentes del CLI:
 
 ```bash
 npm run build
@@ -123,8 +143,12 @@ Open Mova, `mova cap sync` hace esa sustitución a partir de `mova.config.json`.
 La shell registra `NATIVE_CAPABILITIES` en `src/app/app.config.ts`. La
 implementación de `src/native-capabilities/` usa los plugins oficiales de
 Capacitor; el contrato y el token Angular viven en `@open-mova/core`.
-Shell y MF comparten core como singleton de
-Native Federation; no se publica ningún objeto global en `window`.
+La shell es quien proporciona las implementaciones reales por DI. El MF solo
+inyecta el contrato de `@open-mova/core`, por lo que no importa Capacitor ni
+necesita conocer cómo se ejecuta cada plugin.
+
+Shell y MF comparten core como singleton de Native Federation; no se publica
+ningún objeto global en `window`.
 Camera funciona también en web, aunque depende de las capacidades del
 navegador. En iOS hay que añadir a `Info.plist` los textos de uso
 `NSCameraUsageDescription`, `NSPhotoLibraryUsageDescription` y
