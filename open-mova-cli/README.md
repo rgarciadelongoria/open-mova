@@ -165,6 +165,30 @@ mova cap sync android
 mova cap sync
 ```
 
+En Android, el CLI aplica también los requisitos técnicos de los plugins
+incluidos por la shell: configura el repositorio AAR de Background Runner y
+eleva `minSdkVersion` a 28 cuando está instalado Local LLM. También añade la
+entrada obligatoria de Google Maps. Para usar mapas reales, define una clave
+restringida antes de sincronizar:
+
+```bash
+OPEN_MOVA_GOOGLE_MAPS_ANDROID_API_KEY=tu_clave mova cap sync android
+```
+
+Como alternativa, guarda `native.googleMaps.androidApiKey` en
+`mova.config.json`. Sin una clave configurada la aplicación sigue arrancando,
+pero Google Maps no estará operativo.
+
+```json
+{
+  "native": {
+    "googleMaps": {
+      "androidApiKey": "tu_clave"
+    }
+  }
+}
+```
+
 ### `mova cap open`
 
 Abre el proyecto nativo en Android Studio o Xcode.

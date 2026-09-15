@@ -128,6 +128,30 @@ function validateApplicationConfiguration(
     };
   }
 
+  let native: OpenMovaApplicationConfiguration['native'];
+  if (value.native !== undefined) {
+    if (!isRecord(value.native)) {
+      throw new Error(`${configurationPath} contiene una configuración nativa no válida.`);
+    }
+
+    if (value.native.googleMaps !== undefined) {
+      if (
+        !isRecord(value.native.googleMaps) ||
+        typeof value.native.googleMaps.androidApiKey !== 'string'
+      ) {
+        throw new Error(`${configurationPath} contiene una clave de Google Maps no válida.`);
+      }
+
+      native = {
+        googleMaps: {
+          androidApiKey: value.native.googleMaps.androidApiKey,
+        },
+      };
+    } else {
+      native = {};
+    }
+  }
+
   const microfrontends = value.microfrontends.map((entry) =>
     validateMicrofrontend(entry, configurationPath),
   );
@@ -136,6 +160,7 @@ function validateApplicationConfiguration(
     schemaVersion: 1,
     name: value.name,
     ...(shell ? { shell } : {}),
+    ...(native ? { native } : {}),
     microfrontends,
   };
 }

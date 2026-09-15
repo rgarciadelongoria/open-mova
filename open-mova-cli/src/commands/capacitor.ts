@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Command } from 'commander';
 import {
@@ -21,7 +21,11 @@ export function registerCapacitorCommands(program: Command): void {
       const root = requireApplicationRoot(process.cwd());
       buildMobileShell(root);
       runCapacitor(root, ['add', selectedPlatform]);
-      configureNativePlatform(root, selectedPlatform);
+      configureNativePlatform(
+        root,
+        selectedPlatform,
+        readApplicationConfiguration(root),
+      );
     });
 
   capacitor.command('sync [platform]')
@@ -33,9 +37,13 @@ export function registerCapacitorCommands(program: Command): void {
       runCapacitor(root, ['sync', ...(selectedPlatform ? [selectedPlatform] : [])]);
 
       if (selectedPlatform) {
-        configureNativePlatform(root, selectedPlatform);
+        configureNativePlatform(
+          root,
+          selectedPlatform,
+          readApplicationConfiguration(root),
+        );
       } else {
-        configureExistingPlatforms(root);
+        configureExistingPlatforms(root, readApplicationConfiguration(root));
       }
     });
 
@@ -98,16 +106,114 @@ function isHttpsUrl(value: string): boolean {
   }
 }
 
-function configureExistingPlatforms(root: string): void {
+function configureExistingPlatforms(
+  root: string,
+  configuration: OpenMovaApplicationConfiguration,
+): void {
   if (existsSync(join(root, 'android'))) {
-    configureNativePlatform(root, 'android');
+    configureNativePlatform(root, 'android', configuration);
   }
 }
 
-function configureNativePlatform(root: string, platform: Platform): void {
+function configureNativePlatform(
+  root: string,
+  platform: Platform,
+  configuration: OpenMovaApplicationConfiguration,
+): void {
   if (platform === 'android') {
+    configureMinimumAndroidSdk(root);
     configureBackgroundRunnerForAndroid(root);
+    configureGoogleMapsForAndroid(root, configuration);
   }
+}
+
+function configureGoogleMapsForAndroid(
+  root: string,
+  configuration: OpenMovaApplicationConfiguration,
+): void {
+  const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>;
+  };
+  if (!packageJson.dependencies?.['@capacitor/google-maps']) return;
+
+  const manifestPath = join(root, 'android', 'app', 'src', 'main', 'AndroidManifest.xml');
+  if (!existsSync(manifestPath)) {
+    throw new Error('No se encuentra AndroidManifest.xml para configurar Google Maps.');
+  }
+
+  const manifest = readFileSync(manifestPath, 'utf8');
+  const apiKeyMetadata = 'android:name="com.google.android.geo.API_KEY"';
+  if (!manifest.includes(apiKeyMetadata)) {
+    const applicationCloseTag = '</application>';
+    if (!manifest.includes(applicationCloseTag)) {
+      throw new Error('No se ha encontrado el elemento application en AndroidManifest.xml.');
+    }
+
+    const metadata = [
+      '        <meta-data',
+      `            ${apiKeyMetadata}`,
+      '            android:value="@string/open_mova_google_maps_api_key" />',
+    ].join('\n');
+    writeFileSync(
+      manifestPath,
+      manifest.replace(applicationCloseTag, `${metadata}\n    ${applicationCloseTag}`),
+      'utf8',
+    );
+  }
+
+  const valuesDirectory = join(root, 'android', 'app', 'src', 'main', 'res', 'values');
+  mkdirSync(valuesDirectory, { recursive: true });
+
+  const apiKey = process.env.OPEN_MOVA_GOOGLE_MAPS_ANDROID_API_KEY
+    ?? configuration.native?.googleMaps?.androidApiKey
+    // Google Maps aborta la aplicación si falta por completo esta entrada.
+    // El valor explícito permite arrancar; Maps seguirá requiriendo una clave real al usarse.
+    ?? 'OPEN_MOVA_GOOGLE_MAPS_API_KEY_NOT_CONFIGURED';
+  const resource = [
+    '<?xml version="1.0" encoding="utf-8"?>',
+    '<resources>',
+    `    <string name="open_mova_google_maps_api_key" translatable="false">${escapeXml(apiKey)}</string>`,
+    '</resources>',
+    '',
+  ].join('\n');
+  writeFileSync(join(valuesDirectory, 'open_mova_google_maps.xml'), resource, 'utf8');
+}
+
+function escapeXml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&apos;',
+  })[character] ?? character);
+}
+
+function configureMinimumAndroidSdk(root: string): void {
+  const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>;
+  };
+  if (!packageJson.dependencies?.['@capacitor/local-llm']) return;
+
+  const variablesPath = join(root, 'android', 'variables.gradle');
+  if (!existsSync(variablesPath)) {
+    throw new Error('No se encuentra android/variables.gradle para configurar Local LLM.');
+  }
+
+  const variables = readFileSync(variablesPath, 'utf8');
+  const minimumSdkPattern = /minSdkVersion\s*=\s*(\d+)/;
+  const currentMinimumSdk = Number(minimumSdkPattern.exec(variables)?.[1]);
+
+  if (!Number.isFinite(currentMinimumSdk)) {
+    throw new Error('No se ha encontrado minSdkVersion en android/variables.gradle.');
+  }
+  if (currentMinimumSdk >= 28) return;
+
+  writeFileSync(
+    variablesPath,
+    variables.replace(minimumSdkPattern, 'minSdkVersion = 28'),
+    'utf8',
+  );
 }
 
 function configureBackgroundRunnerForAndroid(root: string): void {

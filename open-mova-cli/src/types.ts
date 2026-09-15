@@ -6,7 +6,16 @@ export interface OpenMovaApplicationConfiguration {
     readonly version: string;
     readonly commit: string;
   };
+  /** Configuración opcional de las capacidades nativas de la aplicación. */
+  readonly native?: NativeConfiguration;
   readonly microfrontends: readonly MicrofrontendConfiguration[];
+}
+
+export interface NativeConfiguration {
+  readonly googleMaps?: {
+    /** Clave de Android Maps. También puede venir de OPEN_MOVA_GOOGLE_MAPS_ANDROID_API_KEY. */
+    readonly androidApiKey?: string;
+  };
 }
 
 export interface MicrofrontendConfiguration {
