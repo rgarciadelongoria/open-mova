@@ -26,7 +26,11 @@ export class CapabilityPageComponent {
   readonly capability = this.route.snapshot.data['capability'] as DemoCapability;
   readonly result = signal('Selecciona un ejemplo para ejecutarlo desde la shell.');
   readonly photoUrl = signal<string | undefined>(undefined);
-  readonly isAvailable = computed(() => this.native[this.capability.property]?.isAvailable() ?? false);
+  readonly isAvailable = computed(() => this.capabilityApi().isAvailable());
+
+  private capabilityApi(): CapabilityRegistry[string] {
+    return (this.native as CapabilityRegistry)[this.capability.property];
+  }
 
   async run(example: CapabilityExample): Promise<void> {
     if (!example.runnable) {
@@ -45,7 +49,7 @@ export class CapabilityPageComponent {
         value = photo;
         this.photoUrl.set(photo.webPath);
       } else {
-        value = await this.native[this.capability.property].invoke(example.operation!, example.options);
+        value = await this.capabilityApi().invoke(example.operation!, example.options);
       }
       this.result.set(
         value === undefined ? 'Operación completada.' : JSON.stringify(value, null, 2),

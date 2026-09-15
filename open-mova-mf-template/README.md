@@ -10,13 +10,14 @@ carga como remoto en `/demo` desde el puerto `4300`.
 
 El perfil **demo** es una documentación interactiva de las capacidades nativas
 oficiales de Capacitor que expone Open Mova. Cada capacidad tiene su propia URL,
-pero comparte una única pantalla mantenible basada en un catálogo. Los ejemplos
-usan `injectNativeCapabilities()` de `@open-mova/core`; la implementación de
-Capacitor sigue viviendo en la shell.
+ejemplos principales y una referencia de todos sus métodos y eventos. La lista
+completa procede de `NATIVE_CAPABILITY_API` en `@open-mova/core`, por lo que no
+se duplica en la plantilla. Los ejemplos usan `injectNativeCapabilities()`;
+la implementación de Capacitor sigue viviendo en la shell.
 
-Al abrir el MF sin shell se muestra igualmente la documentación. Los ejemplos
-nativos requieren abrirlo a través de una shell porque el bootstrap independiente
-solo proporciona el contrato mínimo de Device y Camera.
+Al abrir el MF sin shell se puede recorrer toda la documentación. Las
+capacidades se muestran como no disponibles y los ejemplos nativos requieren
+abrirlo a través de una shell.
 
 El CLI descarga este proyecto sin duplicar su configuración Angular. Para
 `mova create`, lo copia como `mfs/home` con perfil demo. Para `mova mf create`,
@@ -57,8 +58,9 @@ src/app/
     └── home/
 ```
 
-`capability-catalog.ts` es la fuente de verdad de la documentación, el orden
-del menú y las URLs. `app.routes.ts` crea una ruta por cada entrada y
+`capability-catalog.ts` contiene los textos, ejemplos principales, orden del
+menú y URLs; Core aporta la superficie completa de la API. `app.routes.ts` crea
+una ruta por cada entrada y
 `capability-page.component` presenta la capacidad y ejecuta los ejemplos que
 son seguros de probar. Esto evita duplicar componentes casi idénticos.
 

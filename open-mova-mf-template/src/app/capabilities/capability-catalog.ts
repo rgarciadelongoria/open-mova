@@ -1,3 +1,8 @@
+import {
+  NATIVE_CAPABILITY_API,
+  type NativeCapabilityName,
+} from '@open-mova/core';
+
 export type DemoAction = 'invoke' | 'device-info' | 'camera-photo';
 
 export interface CapabilityExample {
@@ -13,11 +18,13 @@ export interface CapabilityExample {
 
 export interface DemoCapability {
   readonly id: string;
-  readonly property: string;
+  readonly property: NativeCapabilityName;
   readonly label: string;
   readonly title: string;
   readonly description: string;
   readonly examples: readonly CapabilityExample[];
+  readonly operations: readonly string[];
+  readonly events: readonly string[];
 }
 
 const invoke = (
@@ -39,7 +46,7 @@ const invoke = (
 });
 
 // The order deliberately follows Capacitor's official API navigation.
-export const CAPABILITY_CATALOG: readonly DemoCapability[] = [
+const CAPABILITY_SUMMARIES: readonly Omit<DemoCapability, 'operations' | 'events'>[] = [
   { id: 'action-sheet', property: 'actionSheet', label: 'Action Sheet', title: 'Action Sheet', description: 'Muestra una lista de acciones nativa para que la persona elija una opción.', examples: [invoke('Mostrar acciones', 'Presenta las acciones más relevantes de una tarea.', 'showActions', { title: 'Acciones', options: [{ title: 'Guardar' }, { title: 'Cancelar' }] }, true)] },
   { id: 'app-launcher', property: 'appLauncher', label: 'App Launcher', title: 'App Launcher', description: 'Comprueba o abre otra aplicación instalada en el dispositivo.', examples: [invoke('Comprobar una URL', 'Antes de abrir otra aplicación, comprueba que puede gestionar la URL.', 'canOpenUrl', { url: 'https://capacitorjs.com' }, true)] },
   { id: 'app', property: 'app', label: 'App', title: 'App', description: 'Expone el estado, la información y los eventos del ciclo de vida de la aplicación.', examples: [invoke('Consultar información', 'Obtiene el identificador, nombre y versión de la aplicación.', 'getInfo', {}, true)] },
@@ -59,13 +66,13 @@ export const CAPABILITY_CATALOG: readonly DemoCapability[] = [
   { id: 'geolocation', property: 'geolocation', label: 'Geolocation', title: 'Geolocation', description: 'Obtiene la ubicación actual y permite observar cambios de posición.', examples: [invoke('Obtener ubicación', 'Solicita la posición actual con el permiso de la persona.', 'getCurrentPosition', {}, true, 'Requiere permiso de ubicación.')] },
   { id: 'google-maps', property: 'googleMaps', label: 'Google Maps', title: 'Google Maps', description: 'Crea y controla mapas nativos de Google Maps.', examples: [invoke('Crear un mapa', 'Crea una instancia sobre un elemento configurado por la aplicación.', 'create', { id: 'map' }, false, 'Requiere API key y un elemento HTML nativo.')] },
   { id: 'haptics', property: 'haptics', label: 'Haptics', title: 'Haptics', description: 'Aporta respuesta táctil a interacciones importantes.', examples: [invoke('Impacto medio', 'Emite una vibración breve de intensidad media.', 'impact', { style: 'MEDIUM' }, true), invoke('Vibrar', 'Activa una vibración de duración controlada.', 'vibrate', { duration: 300 }, true)] },
-  { id: 'health-fitness', property: 'healthFitness', label: 'Health Fitness', title: 'Health Fitness', description: 'Consulta y registra datos de salud y actividad con autorización explícita.', examples: [invoke('Comprobar disponibilidad', 'Verifica si el servicio de salud existe en el dispositivo.', 'isAvailable', {}, true, 'Requiere autorización y configuración específica por plataforma.')] },
+  { id: 'health-fitness', property: 'healthFitness', label: 'Health Fitness', title: 'Health Fitness', description: 'Consulta y registra datos de salud y actividad con autorización explícita.', examples: [invoke('Listar tareas de fondo', 'Consulta las tareas de seguimiento de salud configuradas.', 'listBackgroundJobs', {}, true, 'La lectura y escritura de datos requiere autorización específica por plataforma.')] },
   { id: 'http', property: 'http', label: 'Http', title: 'Http', description: 'Realiza solicitudes HTTP mediante la capa nativa de Capacitor.', examples: [invoke('Solicitud GET', 'Ejecuta una petición HTTP nativa a un endpoint.', 'get', { url: 'https://example.com/api' }, false, 'Usa un endpoint real de tu aplicación.')] },
   { id: 'in-app-browser', property: 'inAppBrowser', label: 'InAppBrowser', title: 'InAppBrowser', description: 'Muestra contenido web en una vista embebida o navegador del sistema.', examples: [invoke('Abrir en navegador del sistema', 'Abre una URL fuera de la aplicación.', 'openInSystemBrowser', { url: 'https://capacitorjs.com' }, false)] },
   { id: 'keyboard', property: 'keyboard', label: 'Keyboard', title: 'Keyboard', description: 'Controla el teclado nativo y escucha sus cambios de visibilidad.', examples: [invoke('Ocultar teclado', 'Pide al sistema cerrar el teclado cuando sea posible.', 'hide', {}, true)] },
   { id: 'local-llm', property: 'localLlm', label: 'Local LLM', title: 'Local LLM', description: 'Accede a modelos de lenguaje locales cuando la plataforma los ofrece.', examples: [invoke('Comprobar disponibilidad', 'Consulta si hay un modelo local disponible.', 'systemAvailability', {}, true, 'Capacidad experimental y dependiente del dispositivo.')] },
   { id: 'local-notifications', property: 'localNotifications', label: 'Local Notifications', title: 'Local Notifications', description: 'Programa notificaciones que se muestran localmente en el dispositivo.', examples: [invoke('Comprobar permisos', 'Consulta el permiso antes de programar una notificación.', 'checkPermissions', {}, true), invoke('Programar aviso', 'Programa una notificación local sencilla.', 'schedule', { notifications: [{ title: 'Open Mova', body: 'Recordatorio de ejemplo', id: 1 }] }, false)] },
-  { id: 'motion', property: 'motion', label: 'Motion', title: 'Motion', description: 'Escucha aceleración y orientación del dispositivo.', examples: [invoke('Escuchar orientación', 'Se suscribe al evento de orientación del dispositivo.', 'addListener', { eventName: 'orientation' }, false, 'Usa subscribe() para eventos: native.motion.subscribe(\'orientation\', listener).')] },
+  { id: 'motion', property: 'motion', label: 'Motion', title: 'Motion', description: 'Escucha aceleración y orientación del dispositivo.', examples: [] },
   { id: 'network', property: 'network', label: 'Network', title: 'Network', description: 'Consulta el estado de conexión y escucha cambios de red.', examples: [invoke('Consultar conexión', 'Obtiene si el dispositivo está conectado y el tipo de red.', 'getStatus', {}, true)] },
   { id: 'preferences', property: 'preferences', label: 'Preferences', title: 'Preferences', description: 'Guarda preferencias ligeras y persistentes de la aplicación.', examples: [invoke('Guardar preferencia', 'Almacena una configuración simple por clave.', 'set', { key: 'theme', value: 'dark' }, true), invoke('Leer preferencia', 'Recupera una preferencia almacenada.', 'get', { key: 'theme' }, true)] },
   { id: 'privacy-screen', property: 'privacyScreen', label: 'Privacy Screen', title: 'Privacy Screen', description: 'Protege visualmente la aplicación cuando pasa a segundo plano.', examples: [invoke('Activar privacidad', 'Evita que el contenido se vea en la vista de aplicaciones recientes.', 'enable', {}, true)] },
@@ -79,3 +86,15 @@ export const CAPABILITY_CATALOG: readonly DemoCapability[] = [
   { id: 'text-zoom', property: 'textZoom', label: 'Text Zoom', title: 'Text Zoom', description: 'Respeta y ajusta el tamaño de texto preferido en Android.', examples: [invoke('Leer zoom preferido', 'Obtiene el porcentaje de zoom elegido por la persona.', 'getPreferred', {}, true)] },
   { id: 'toast', property: 'toast', label: 'Toast', title: 'Toast', description: 'Muestra un mensaje breve no bloqueante mediante el sistema.', examples: [invoke('Mostrar mensaje', 'Confirma una acción con un toast nativo.', 'show', { text: 'Hola desde Open Mova', duration: 'SHORT' }, true)] },
 ];
+
+/**
+ * Métodos y eventos proceden del contrato de Core. Así la documentación
+ * interactiva no puede quedarse desincronizada respecto al framework.
+ */
+export const CAPABILITY_CATALOG: readonly DemoCapability[] = CAPABILITY_SUMMARIES.map(
+  (capability) => ({
+    ...capability,
+    operations: NATIVE_CAPABILITY_API[capability.property].operations,
+    events: NATIVE_CAPABILITY_API[capability.property].events,
+  }),
+);

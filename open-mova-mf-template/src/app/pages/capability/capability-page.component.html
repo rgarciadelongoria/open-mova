@@ -21,6 +21,44 @@
     </button>
   </article>
 }
+
+<section class="api-reference">
+  <p class="eyebrow">API COMPLETA</p>
+  <h3>Métodos</h3>
+  <p>
+    Todos los métodos oficiales disponibles a través del contrato de Open Mova.
+    Sustituye <code>options</code> por las opciones indicadas para cada plugin.
+  </p>
+  <div class="api-grid">
+    @for (operation of capability.operations; track operation) {
+      <article class="api-item">
+        <strong>{{ operation }}</strong>
+        <pre><code>await native.{{ capability.property }}.invoke('{{ operation }}', options);</code></pre>
+      </article>
+    }
+  </div>
+
+  @if (capability.events.length > 0) {
+    <h3 class="events-heading">Eventos</h3>
+    <p>
+      Cada suscripción devuelve un manejador que debe eliminarse cuando deje de usarse.
+    </p>
+    <div class="api-grid">
+      @for (event of capability.events; track event) {
+        <article class="api-item">
+          <strong>{{ event }}</strong>
+          <pre><code>const subscription = await native.{{ capability.property }}.subscribe(
+  '{{ event }}',
+  (payload) => console.log(payload),
+);
+
+await subscription.remove();</code></pre>
+        </article>
+      }
+    </div>
+  }
+</section>
+
 <section class="result-panel" aria-live="polite">
   <p class="eyebrow">RESULTADO</p>
   <pre>{{ result() }}</pre>

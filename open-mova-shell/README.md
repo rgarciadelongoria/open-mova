@@ -146,6 +146,12 @@ los plugins. La cámara y el dispositivo mantienen, además, sus atajos
 `takePhoto()`, `choosePhoto()` y `getInfo()` para no complicar los casos más
 frecuentes.
 
+La superficie completa de métodos y eventos se declara una sola vez en
+`@open-mova/core` mediante `NATIVE_CAPABILITY_API`. Google Maps utiliza un
+adaptador específico porque su API crea mapas con estado: `create` registra la
+instancia por `id` y las siguientes operaciones y suscripciones reciben ese
+identificador en las opciones.
+
 Aunque estén instalados, algunos plugins necesitan configuración específica de
 la aplicación nativa antes de utilizarse: permisos de cámara, ubicación,
 calendario, contactos, notificaciones o salud; credenciales para Google Maps;

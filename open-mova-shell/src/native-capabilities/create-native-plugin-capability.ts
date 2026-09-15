@@ -34,6 +34,7 @@ export function createNativePluginCapability<TCapability>(
     async subscribe(
       event: string,
       listener: (payload: unknown) => void,
+      _options?: NativeOptions,
     ): Promise<NativeSubscription> {
       const addListener = pluginRecord['addListener'];
 

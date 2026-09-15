@@ -83,8 +83,14 @@ comunes:
 
 - `isAvailable()` comprueba si el plugin está disponible en la plataforma.
 - `invoke(nombre, opciones)` ejecuta una operación del plugin.
-- `subscribe(evento, listener)` registra un evento y devuelve un handle con
+- `subscribe(evento, listener, contexto?)` registra un evento y devuelve un handle con
   `remove()` para cancelarlo.
+
+`NATIVE_CAPABILITY_API` contiene la lista completa y versionada de operaciones
+y eventos soportados. El microfrontal de demostración la reutiliza para que su
+referencia interactiva no pueda quedarse desactualizada respecto al contrato.
+El tercer argumento de `subscribe()` solo es necesario en capacidades con
+instancias, como Google Maps, donde se pasa `{ id: 'mapa-principal' }`.
 
 Los nombres de capacidad están en camelCase y no dependen del nombre del
 paquete npm. Por ejemplo, un MF puede consultar conectividad así:

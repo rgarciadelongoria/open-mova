@@ -27,7 +27,10 @@ export type {
   LocalNotificationsCapability,
   MotionCapability,
   NativeCapabilities,
+  NativeCapabilityName,
+  NativeEvent,
   NativeOptions,
+  NativeOperation,
   NativePluginCapability,
   NativeSubscription,
   NetworkCapability,
@@ -44,4 +47,8 @@ export type {
   TextZoomCapability,
   ToastCapability,
 } from './native.js';
-export { NATIVE_CAPABILITIES, injectNativeCapabilities } from './native.js';
+export {
+  NATIVE_CAPABILITIES,
+  NATIVE_CAPABILITY_API,
+  injectNativeCapabilities,
+} from './native.js';

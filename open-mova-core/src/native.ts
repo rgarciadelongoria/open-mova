@@ -1,36 +1,361 @@
 import { InjectionToken, inject } from '@angular/core';
 
 /**
- * Options passed across the framework boundary. Some official plugins need
- * platform values such as Date, Blob or an element reference, so this cannot
- * be restricted to JSON alone.
+ * Superficie oficial que Open Mova expone para cada plugin de Capacitor.
+ * La demo consume también este catálogo para no mantener una segunda lista.
  */
+export const NATIVE_CAPABILITY_API = {
+  actionSheet: { operations: ['showActions'], events: [] },
+  app: {
+    operations: [
+      'exitApp',
+      'getInfo',
+      'getState',
+      'getLaunchUrl',
+      'minimizeApp',
+      'getAppLanguage',
+      'toggleBackButtonHandler',
+      'removeAllListeners',
+    ],
+    events: [
+      'appStateChange',
+      'pause',
+      'resume',
+      'appUrlOpen',
+      'appRestoredResult',
+      'backButton',
+    ],
+  },
+  appLauncher: { operations: ['canOpenUrl', 'openUrl'], events: [] },
+  backgroundRunner: {
+    operations: [
+      'checkPermissions',
+      'requestPermissions',
+      'dispatchEvent',
+      'removeNotificationListeners',
+    ],
+    events: ['backgroundRunnerNotificationReceived'],
+  },
+  barcodeScanner: { operations: ['scanBarcode'], events: [] },
+  browser: {
+    operations: ['open', 'close', 'removeAllListeners'],
+    events: ['browserFinished', 'browserPageLoaded'],
+  },
+  calendar: {
+    operations: [
+      'checkPermissions',
+      'requestPermissions',
+      'createEvent',
+      'createEventInteractively',
+      'modifyEvent',
+      'findEvents',
+      'deleteEvent',
+      'listCalendars',
+      'createCalendar',
+      'deleteCalendar',
+      'openCalendar',
+    ],
+    events: [],
+  },
+  camera: {
+    operations: [
+      'takePhoto',
+      'recordVideo',
+      'playVideo',
+      'chooseFromGallery',
+      'editPhoto',
+      'editURIPhoto',
+      'pickLimitedLibraryPhotos',
+      'getLimitedLibraryPhotos',
+      'checkPermissions',
+      'requestPermissions',
+      'getPhoto',
+      'pickImages',
+    ],
+    events: [],
+  },
+  clipboard: { operations: ['write', 'read'], events: [] },
+  contacts: { operations: ['find', 'save', 'remove', 'pickContact'], events: [] },
+  cookies: {
+    operations: ['getCookies', 'setCookie', 'deleteCookie', 'clearCookies', 'clearAllCookies'],
+    events: [],
+  },
+  device: {
+    operations: ['getId', 'getInfo', 'getBatteryInfo', 'getLanguageCode', 'getLanguageTag'],
+    events: [],
+  },
+  dialog: { operations: ['alert', 'prompt', 'confirm'], events: [] },
+  fileTransfer: {
+    operations: ['downloadFile', 'uploadFile', 'removeAllListeners'],
+    events: ['progress'],
+  },
+  fileViewer: {
+    operations: [
+      'openDocumentFromLocalPath',
+      'openDocumentFromResources',
+      'openDocumentFromUrl',
+      'previewMediaContentFromLocalPath',
+      'previewMediaContentFromResources',
+      'previewMediaContentFromUrl',
+    ],
+    events: [],
+  },
+  filesystem: {
+    operations: [
+      'checkPermissions',
+      'requestPermissions',
+      'readFile',
+      'readFileInChunks',
+      'writeFile',
+      'appendFile',
+      'deleteFile',
+      'mkdir',
+      'rmdir',
+      'readdir',
+      'getUri',
+      'stat',
+      'rename',
+      'copy',
+      'downloadFile',
+      'removeAllListeners',
+    ],
+    events: ['progress'],
+  },
+  geolocation: {
+    operations: [
+      'getCurrentPosition',
+      'watchPosition',
+      'clearWatch',
+      'checkPermissions',
+      'requestPermissions',
+    ],
+    events: [],
+  },
+  googleMaps: {
+    operations: [
+      'create',
+      'enableTouch',
+      'disableTouch',
+      'enableClustering',
+      'disableClustering',
+      'addTileOverlay',
+      'removeTileOverlay',
+      'addMarker',
+      'addMarkers',
+      'removeMarker',
+      'removeMarkers',
+      'addPolygons',
+      'removePolygons',
+      'addCircles',
+      'removeCircles',
+      'addPolylines',
+      'removePolylines',
+      'destroy',
+      'setCamera',
+      'getMapType',
+      'setMapType',
+      'enableIndoorMaps',
+      'enableTrafficLayer',
+      'enableAccessibilityElements',
+      'enableCurrentLocation',
+      'setPadding',
+      'getMapBounds',
+      'fitBounds',
+      'removeAllMapListeners',
+    ],
+    events: [
+      'boundsChanged',
+      'cameraIdle',
+      'cameraMoveStarted',
+      'clusterClick',
+      'clusterInfoWindowClick',
+      'infoWindowClick',
+      'mapClick',
+      'markerClick',
+      'polygonClick',
+      'circleClick',
+      'polylineClick',
+      'markerDragStart',
+      'markerDrag',
+      'markerDragEnd',
+      'myLocationButtonClick',
+      'myLocationClick',
+    ],
+  },
+  haptics: {
+    operations: [
+      'impact',
+      'notification',
+      'vibrate',
+      'selectionStart',
+      'selectionChanged',
+      'selectionEnd',
+    ],
+    events: [],
+  },
+  healthFitness: {
+    operations: [
+      'requestHealthPermissions',
+      'getData',
+      'getWorkoutData',
+      'writeData',
+      'getLastRecord',
+      'setBackgroundJob',
+      'deleteBackgroundJob',
+      'listBackgroundJobs',
+      'updateBackgroundJob',
+      'disconnectFromHealthConnect',
+      'openHealthConnect',
+    ],
+    events: [],
+  },
+  http: { operations: ['request', 'get', 'post', 'put', 'patch', 'delete'], events: [] },
+  inAppBrowser: {
+    operations: [
+      'openInWebView',
+      'openInSystemBrowser',
+      'openInExternalBrowser',
+      'close',
+      'removeAllListeners',
+    ],
+    events: ['browserPageLoaded', 'browserPageNavigationCompleted', 'browserClosed'],
+  },
+  keyboard: {
+    operations: [
+      'show',
+      'hide',
+      'setAccessoryBarVisible',
+      'setScroll',
+      'setStyle',
+      'setResizeMode',
+      'getResizeMode',
+      'removeAllListeners',
+    ],
+    events: ['keyboardWillShow', 'keyboardDidShow', 'keyboardWillHide', 'keyboardDidHide'],
+  },
+  localLlm: {
+    operations: [
+      'systemAvailability',
+      'download',
+      'prompt',
+      'endSession',
+      'generateImage',
+      'warmup',
+      'removeAllListeners',
+    ],
+    events: ['systemAvailabilityChange'],
+  },
+  localNotifications: {
+    operations: [
+      'schedule',
+      'update',
+      'getPending',
+      'registerActionTypes',
+      'cancel',
+      'cancelAll',
+      'areEnabled',
+      'getDeliveredNotifications',
+      'removeDeliveredNotifications',
+      'removeDeliveredNotificationsById',
+      'removeAllDeliveredNotifications',
+      'getByIds',
+      'getAll',
+      'createChannel',
+      'deleteChannel',
+      'listChannels',
+      'checkPermissions',
+      'requestPermissions',
+      'changeExactNotificationSetting',
+      'checkExactNotificationSetting',
+      'removeAllListeners',
+    ],
+    events: ['localNotificationReceived', 'localNotificationActionPerformed'],
+  },
+  motion: { operations: ['removeAllListeners'], events: ['accel', 'orientation'] },
+  network: { operations: ['getStatus', 'removeAllListeners'], events: ['networkStatusChange'] },
+  preferences: {
+    operations: ['configure', 'get', 'set', 'remove', 'clear', 'keys', 'migrate', 'removeOld'],
+    events: [],
+  },
+  privacyScreen: { operations: ['enable', 'disable', 'isEnabled'], events: [] },
+  pushNotifications: {
+    operations: [
+      'register',
+      'unregister',
+      'getDeliveredNotifications',
+      'removeDeliveredNotifications',
+      'removeAllDeliveredNotifications',
+      'createChannel',
+      'deleteChannel',
+      'listChannels',
+      'checkPermissions',
+      'requestPermissions',
+      'removeAllListeners',
+    ],
+    events: [
+      'registration',
+      'registrationError',
+      'pushNotificationReceived',
+      'pushNotificationActionPerformed',
+    ],
+  },
+  screenOrientation: {
+    operations: ['orientation', 'lock', 'unlock', 'removeAllListeners'],
+    events: ['screenOrientationChange'],
+  },
+  screenReader: {
+    operations: ['isEnabled', 'speak', 'removeAllListeners'],
+    events: ['stateChange'],
+  },
+  share: { operations: ['canShare', 'share'], events: [] },
+  splashScreen: { operations: ['show', 'hide'], events: [] },
+  statusBar: {
+    operations: [
+      'setStyle',
+      'setBackgroundColor',
+      'show',
+      'hide',
+      'getInfo',
+      'setOverlaysWebView',
+    ],
+    events: ['statusBarVisibilityChanged', 'statusBarOverlayChanged'],
+  },
+  systemBars: { operations: ['setStyle', 'show', 'hide', 'setAnimation'], events: [] },
+  textZoom: { operations: ['get', 'getPreferred', 'set'], events: [] },
+  toast: { operations: ['show'], events: [] },
+} as const;
+
+export type NativeCapabilityName = keyof typeof NATIVE_CAPABILITY_API;
+export type NativeOperation<TName extends NativeCapabilityName> =
+  (typeof NATIVE_CAPABILITY_API)[TName]['operations'][number];
+export type NativeEvent<TName extends NativeCapabilityName> =
+  (typeof NATIVE_CAPABILITY_API)[TName]['events'][number];
+
+/** Options passed across the shell boundary, including non-JSON native values. */
 export type NativeOptions = Readonly<Record<string, unknown>>;
 
 export interface NativeSubscription {
   remove(): Promise<void>;
 }
 
-/**
- * Base contract shared by every plugin capability. Capacitor stays private to
- * the shell, so this public API can be versioned independently.
- */
+/** Capacitor stays private to the shell behind this stable public contract. */
 export interface NativePluginCapability<
   TOperation extends string = string,
   TEvent extends string = never,
 > {
   isAvailable(): boolean;
-  invoke<TResult = unknown>(
-    operation: TOperation,
-    options?: NativeOptions,
-  ): Promise<TResult>;
+  invoke<TResult = unknown>(operation: TOperation, options?: NativeOptions): Promise<TResult>;
   subscribe(
     event: TEvent,
     listener: (payload: unknown) => void,
+    options?: NativeOptions,
   ): Promise<NativeSubscription>;
 }
 
-type ExtensibleOperation<TKnown extends string> = TKnown | (string & {});
+type Capability<TName extends NativeCapabilityName> = NativePluginCapability<
+  NativeOperation<TName>,
+  NativeEvent<TName>
+>;
 
 export interface DeviceDetails {
   readonly model: string;
@@ -38,12 +363,7 @@ export interface DeviceDetails {
   readonly osVersion: string;
 }
 
-export interface DeviceCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      'getId' | 'getInfo' | 'getBatteryInfo' | 'getLanguageCode' | 'getLanguageTag'
-    >
-  > {
+export interface DeviceCapability extends Capability<'device'> {
   getInfo(): Promise<DeviceDetails>;
 }
 
@@ -52,249 +372,52 @@ export interface PhotoResult {
   readonly uri?: string;
 }
 
-export interface CameraCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'takePhoto'
-      | 'recordVideo'
-      | 'playVideo'
-      | 'chooseFromGallery'
-      | 'editPhoto'
-      | 'editURIPhoto'
-      | 'pickLimitedLibraryPhotos'
-      | 'getLimitedLibraryPhotos'
-      | 'checkPermissions'
-      | 'requestPermissions'
-      | 'getPhoto'
-      | 'pickImages'
-    >
-  > {
+export interface CameraCapability extends Capability<'camera'> {
   takePhoto(): Promise<PhotoResult>;
   choosePhoto(): Promise<PhotoResult | undefined>;
 }
 
-export interface ActionSheetCapability
-  extends NativePluginCapability<ExtensibleOperation<'showActions'>> {}
-export interface AppLauncherCapability
-  extends NativePluginCapability<ExtensibleOperation<'canOpenUrl' | 'openUrl'>> {}
-export interface AppCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'exitApp'
-      | 'getInfo'
-      | 'getState'
-      | 'getLaunchUrl'
-      | 'minimizeApp'
-      | 'getAppLanguage'
-      | 'toggleBackButtonHandler'
-      | 'removeAllListeners'
-    >,
-    'appStateChange' | 'pause' | 'resume' | 'appUrlOpen' | 'appRestoredResult' | 'backButton'
-  > {}
-export interface BackgroundRunnerCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'checkPermissions' | 'requestPermissions' | 'removeNotificationListeners'>,
-    'backgroundRunnerNotificationReceived'
-  > {}
-export interface BarcodeScannerCapability
-  extends NativePluginCapability<ExtensibleOperation<'scanBarcode'>> {}
-export interface BrowserCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'open' | 'close' | 'removeAllListeners'>,
-    'browserFinished' | 'browserPageLoaded'
-  > {}
-export interface CalendarCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'checkPermissions'
-      | 'requestPermissions'
-      | 'createEvent'
-      | 'createEventInteractively'
-      | 'modifyEvent'
-      | 'findEvents'
-      | 'deleteEvent'
-      | 'listCalendars'
-      | 'createCalendar'
-      | 'deleteCalendar'
-      | 'openCalendar'
-    >
-  > {}
-export interface ClipboardCapability
-  extends NativePluginCapability<ExtensibleOperation<'write' | 'read'>> {}
-export interface ContactsCapability
-  extends NativePluginCapability<ExtensibleOperation<'find' | 'save' | 'remove' | 'pickContact'>> {}
+export interface ActionSheetCapability extends Capability<'actionSheet'> {}
+export interface AppCapability extends Capability<'app'> {}
+export interface AppLauncherCapability extends Capability<'appLauncher'> {}
+export interface BackgroundRunnerCapability extends Capability<'backgroundRunner'> {}
+export interface BarcodeScannerCapability extends Capability<'barcodeScanner'> {}
+export interface BrowserCapability extends Capability<'browser'> {}
+export interface CalendarCapability extends Capability<'calendar'> {}
+export interface ClipboardCapability extends Capability<'clipboard'> {}
+export interface ContactsCapability extends Capability<'contacts'> {}
 /** Cookies is bundled in @capacitor/core. */
-export interface CookiesCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'getCookies' | 'setCookie' | 'deleteCookie' | 'clearCookies' | 'clearAllCookies'>
-  > {}
-export interface DialogCapability
-  extends NativePluginCapability<ExtensibleOperation<'alert' | 'prompt' | 'confirm'>> {}
-export interface FileTransferCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'downloadFile' | 'uploadFile' | 'removeAllListeners'>,
-    'progress'
-  > {}
-export interface FileViewerCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'openDocumentFromLocalPath'
-      | 'openDocumentFromResources'
-      | 'openDocumentFromUrl'
-      | 'previewMediaContentFromLocalPath'
-      | 'previewMediaContentFromResources'
-      | 'previewMediaContentFromUrl'
-    >
-  > {}
-export interface FilesystemCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'checkPermissions'
-      | 'requestPermissions'
-      | 'readFile'
-      | 'writeFile'
-      | 'appendFile'
-      | 'deleteFile'
-      | 'mkdir'
-      | 'rmdir'
-      | 'readdir'
-      | 'getUri'
-      | 'stat'
-      | 'rename'
-      | 'copy'
-      | 'downloadFile'
-    >,
-    'progress'
-  > {}
-export interface GeolocationCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      'getCurrentPosition' | 'watchPosition' | 'clearWatch' | 'checkPermissions' | 'requestPermissions'
-    >
-  > {}
-/** Google Maps creates stateful map instances behind this same capability boundary. */
-export interface GoogleMapsCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'create' | 'destroy' | 'setCamera' | 'addMarker' | 'addMarkers' | 'removeMarker' | 'removeMarkers'>
-  > {}
-export interface HapticsCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'impact' | 'notification' | 'vibrate' | 'selectionStart' | 'selectionChanged' | 'selectionEnd'>
-  > {}
-export interface HealthFitnessCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'isAvailable'
-      | 'requestAuthorization'
-      | 'checkAuthorization'
-      | 'query'
-      | 'save'
-      | 'delete'
-      | 'setBackgroundJob'
-      | 'disableBackgroundJob'
-    >
-  > {}
+export interface CookiesCapability extends Capability<'cookies'> {}
+export interface DialogCapability extends Capability<'dialog'> {}
+export interface FileTransferCapability extends Capability<'fileTransfer'> {}
+export interface FileViewerCapability extends Capability<'fileViewer'> {}
+export interface FilesystemCapability extends Capability<'filesystem'> {}
+export interface GeolocationCapability extends Capability<'geolocation'> {}
+/** Google Maps keeps stateful map instances inside the shell. */
+export interface GoogleMapsCapability extends Capability<'googleMaps'> {}
+export interface HapticsCapability extends Capability<'haptics'> {}
+export interface HealthFitnessCapability extends Capability<'healthFitness'> {}
 /** HTTP is bundled in @capacitor/core. */
-export interface HttpCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'request' | 'get' | 'post' | 'put' | 'patch' | 'delete' | 'setCookie' | 'clearCookies' | 'deleteCookie' | 'clearAllCookies'>
-  > {}
-export interface InAppBrowserCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'openInWebView' | 'openInSystemBrowser' | 'openInExternalBrowser' | 'close' | 'removeAllListeners'>,
-    'browserPageLoaded' | 'browserPageNavigationCompleted' | 'browserClosed' | 'urlChange'
-  > {}
-export interface KeyboardCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'show' | 'hide' | 'setAccessoryBarVisible' | 'setScroll' | 'setResizeMode' | 'getResizeMode' | 'removeAllListeners'>,
-    'keyboardWillShow' | 'keyboardDidShow' | 'keyboardWillHide' | 'keyboardDidHide'
-  > {}
+export interface HttpCapability extends Capability<'http'> {}
+export interface InAppBrowserCapability extends Capability<'inAppBrowser'> {}
+export interface KeyboardCapability extends Capability<'keyboard'> {}
 /** Experimental Capacitor plugin. Always call isAvailable before invoking it. */
-export interface LocalLlmCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'systemAvailability' | 'download' | 'prompt' | 'endSession' | 'generateImage' | 'warmup' | 'removeAllListeners'>,
-    'systemAvailabilityChange'
-  > {}
-export interface LocalNotificationsCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'schedule'
-      | 'update'
-      | 'getPending'
-      | 'registerActionTypes'
-      | 'cancel'
-      | 'cancelAll'
-      | 'areEnabled'
-      | 'getDeliveredNotifications'
-      | 'removeDeliveredNotifications'
-      | 'removeDeliveredNotificationsById'
-      | 'removeAllDeliveredNotifications'
-      | 'getByIds'
-      | 'getAll'
-      | 'createChannel'
-      | 'deleteChannel'
-      | 'listChannels'
-      | 'checkPermissions'
-      | 'requestPermissions'
-      | 'changeExactNotificationSetting'
-      | 'checkExactNotificationSetting'
-      | 'removeAllListeners'
-    >,
-    'localNotificationReceived' | 'localNotificationActionPerformed'
-  > {}
-export interface MotionCapability
-  extends NativePluginCapability<ExtensibleOperation<'removeAllListeners'>, 'accel' | 'orientation'> {}
-export interface NetworkCapability
-  extends NativePluginCapability<ExtensibleOperation<'getStatus' | 'removeAllListeners'>, 'networkStatusChange'> {}
-export interface PreferencesCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'configure' | 'get' | 'set' | 'remove' | 'clear' | 'keys' | 'migrate' | 'removeOld'>
-  > {}
-export interface PrivacyScreenCapability
-  extends NativePluginCapability<ExtensibleOperation<'enable' | 'disable' | 'isEnabled'>> {}
-export interface PushNotificationsCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<
-      | 'register'
-      | 'unregister'
-      | 'getDeliveredNotifications'
-      | 'removeDeliveredNotifications'
-      | 'removeAllDeliveredNotifications'
-      | 'createChannel'
-      | 'deleteChannel'
-      | 'listChannels'
-      | 'checkPermissions'
-      | 'requestPermissions'
-      | 'removeAllListeners'
-    >,
-    'registration' | 'registrationError' | 'pushNotificationReceived' | 'pushNotificationActionPerformed'
-  > {}
-export interface ScreenOrientationCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'orientation' | 'lock' | 'unlock' | 'removeAllListeners'>,
-    'screenOrientationChange'
-  > {}
-export interface ScreenReaderCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'isEnabled' | 'speak' | 'removeAllListeners'>,
-    'stateChange'
-  > {}
-export interface ShareCapability
-  extends NativePluginCapability<ExtensibleOperation<'canShare' | 'share'>> {}
-export interface SplashScreenCapability
-  extends NativePluginCapability<ExtensibleOperation<'show' | 'hide'>> {}
-export interface StatusBarCapability
-  extends NativePluginCapability<
-    ExtensibleOperation<'setStyle' | 'setBackgroundColor' | 'show' | 'hide' | 'getInfo' | 'setOverlaysWebView'>,
-    'statusBarVisibilityChanged' | 'statusBarOverlayChanged'
-  > {}
+export interface LocalLlmCapability extends Capability<'localLlm'> {}
+export interface LocalNotificationsCapability extends Capability<'localNotifications'> {}
+export interface MotionCapability extends Capability<'motion'> {}
+export interface NetworkCapability extends Capability<'network'> {}
+export interface PreferencesCapability extends Capability<'preferences'> {}
+export interface PrivacyScreenCapability extends Capability<'privacyScreen'> {}
+export interface PushNotificationsCapability extends Capability<'pushNotifications'> {}
+export interface ScreenOrientationCapability extends Capability<'screenOrientation'> {}
+export interface ScreenReaderCapability extends Capability<'screenReader'> {}
+export interface ShareCapability extends Capability<'share'> {}
+export interface SplashScreenCapability extends Capability<'splashScreen'> {}
+export interface StatusBarCapability extends Capability<'statusBar'> {}
 /** System Bars is bundled in @capacitor/core and supersedes Status Bar for edge-to-edge layouts. */
-export interface SystemBarsCapability
-  extends NativePluginCapability<ExtensibleOperation<'setStyle' | 'show' | 'hide' | 'setAnimation'>> {}
-export interface TextZoomCapability
-  extends NativePluginCapability<ExtensibleOperation<'get' | 'getPreferred' | 'set'>> {}
-export interface ToastCapability
-  extends NativePluginCapability<ExtensibleOperation<'show'>> {}
+export interface SystemBarsCapability extends Capability<'systemBars'> {}
+export interface TextZoomCapability extends Capability<'textZoom'> {}
+export interface ToastCapability extends Capability<'toast'> {}
 
 export interface NativeCapabilities {
   /** Version 1 remains compatible with the original Device and Camera contract. */
