@@ -39,7 +39,9 @@
   "scripts": {
     "build": "tsc",
     "start": "tsx src/cli.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && npm run test:unit",
+    "test:unit": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "commander": "^14.0.0"

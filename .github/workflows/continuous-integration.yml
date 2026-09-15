@@ -1,0 +1,69 @@
+name: Integración continua
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validar monorepo
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            open-mova-core/package-lock.json
+            open-mova-cli/package-lock.json
+            open-mova-shell/package-lock.json
+            open-mova-mf-template/package-lock.json
+
+      - name: Instalar dependencias de Core
+        run: npm ci
+        working-directory: open-mova-core
+
+      - name: Instalar dependencias del CLI
+        run: npm ci
+        working-directory: open-mova-cli
+
+      - name: Instalar dependencias de la shell
+        run: npm ci --include=optional
+        working-directory: open-mova-shell
+
+      - name: Instalar dependencias del microfrontal demo
+        run: npm ci --include=optional
+        working-directory: open-mova-mf-template
+
+      - name: Preparar bindings Linux de Native Federation
+        run: |
+          node scripts/install-linux-native-bindings.mjs open-mova-shell
+          node scripts/install-linux-native-bindings.mjs open-mova-mf-template
+
+      - name: Comprobar tipos
+        run: npm run typecheck
+
+      - name: Compilar todos los proyectos
+        run: npm run build
+
+      - name: Ejecutar pruebas automáticas
+        run: npm run test:unit
+
+      - name: Verificar paquetes distribuibles
+        run: npm run pack:verify

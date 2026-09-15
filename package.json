@@ -10,6 +10,11 @@
     "build:shell": "npm --prefix open-mova-shell run build",
     "build:cli": "npm --prefix open-mova-cli run build",
     "build:demo": "npm --prefix open-mova-mf-template run build",
-    "typecheck": "npm --prefix open-mova-core run typecheck && npm --prefix open-mova-shell run typecheck && npm --prefix open-mova-mf-template run typecheck && npm --prefix open-mova-cli run typecheck"
+    "build": "npm run build:core && npm run build:cli && npm run build:shell && npm run build:demo",
+    "typecheck": "npm --prefix open-mova-core run typecheck && npm --prefix open-mova-shell run typecheck && npm --prefix open-mova-mf-template run typecheck && npm --prefix open-mova-cli run typecheck",
+    "test": "npm run build:core && npm run build:cli && npm run test:unit",
+    "test:unit": "npm --prefix open-mova-core run test:unit && npm --prefix open-mova-cli run test:unit",
+    "pack:check": "npm run build:core && npm run build:cli && npm run pack:verify",
+    "pack:verify": "node scripts/verify-packages.mjs"
   }
 }

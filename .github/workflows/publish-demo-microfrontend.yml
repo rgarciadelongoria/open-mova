@@ -35,15 +35,8 @@ jobs:
 
       - name: Reinstalar binarios nativos de Linux
         # npm puede omitir dependencias opcionales de otra plataforma del lockfile.
-        # Esta instalación explícita evita que Native Federation falle al cargar sus bindings.
-        run: >
-          npm install --no-save --no-package-lock --ignore-scripts --no-audit --no-fund
-          @napi-rs/lzma-linux-x64-gnu@1.5.1
-          @napi-rs/nice-linux-x64-gnu@1.1.1
-          @oxc-parser/binding-linux-x64-gnu@0.149.0
-          @rolldown/binding-linux-x64-gnu@1.0.0-rc.4
-          @rollup/rollup-linux-x64-gnu@4.63.2
-        working-directory: open-mova-mf-template
+        # El script común evita duplicar aquí la lista y las versiones de los bindings.
+        run: node scripts/install-linux-native-bindings.mjs open-mova-mf-template
 
       - name: Comprobar binarios nativos de Linux
         run: |

@@ -80,6 +80,9 @@ el CLI recibe su propia configuración en `mova.config.json`.
 | `npm run start:demo` | Iniciar remoto en 4300. |
 | `npm run start:cli` | Ejecutar CLI en desarrollo. |
 | `npm run typecheck` | Comprobar tipado de todos los proyectos. |
+| `npm run build` | Compilar todos los proyectos. |
+| `npm test` | Compilar y ejecutar las pruebas automáticas. |
+| `npm run pack:check` | Empaquetar Core y CLI e instalarlos en un proyecto temporal. |
 | `npm run build:core` | Compilar contratos. |
 | `npm run build:shell` | Compilar shell. |
 | `npm run build:demo` | Compilar microfrontal de referencia. |

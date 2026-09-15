@@ -20,8 +20,8 @@ equipos puedan crear y mantener aplicaciones sin encontrarse sorpresas.
 
 ### Integración continua
 
-Además del workflow que publica la demo al crear un tag, conviene añadir una
-comprobación para cada pull request que ejecute:
+El workflow de integración continua comprueba cada pull request y cada cambio
+en `main`. Actualmente ejecuta:
 
 - Typecheck de todos los proyectos.
 - Build de Core, CLI, shell y template.
@@ -31,9 +31,9 @@ comprobación para cada pull request que ejecute:
 
 ### Pruebas automatizadas
 
-Actualmente el repositorio no contiene una batería de tests automatizados.
-Empezaría por el CLI, porque una regresión en él afecta a la experiencia de
-todos los proveedores:
+Existe una primera base de tests unitarios para el catálogo de capacidades de
+Core y para los nombres, la configuración y la compatibilidad entre plataformas
+del CLI. Los siguientes casos que conviene cubrir son:
 
 - `mova create`.
 - `mova mf create` y `mova mf add`.
@@ -41,9 +41,9 @@ todos los proveedores:
 - Generación correcta de `mova.config.json`, el manifiesto y las rutas.
 - Configuración Android de Gradle, Maps, permisos y `minSdk`.
 
-También conviene añadir una prueba de integración que arranque una shell y un
-MF remoto y verifique que las rutas, el Core singleton y la inyección de
-capacidades funcionan juntos.
+También conviene añadir una prueba de integración que cree una aplicación,
+arranque una shell y un MF remoto y verifique que las rutas, el Core singleton
+y la inyección de capacidades funcionan juntos.
 
 ### Formato y linting
 
