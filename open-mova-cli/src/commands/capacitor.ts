@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Command } from 'commander';
 import {
@@ -21,6 +21,7 @@ export function registerCapacitorCommands(program: Command): void {
       const root = requireApplicationRoot(process.cwd());
       buildMobileShell(root);
       runCapacitor(root, ['add', selectedPlatform]);
+      configureNativePlatform(root, selectedPlatform);
     });
 
   capacitor.command('sync [platform]')
@@ -28,7 +29,14 @@ export function registerCapacitorCommands(program: Command): void {
     .action((platform?: string) => {
       const root = requireApplicationRoot(process.cwd());
       buildMobileShell(root);
-      runCapacitor(root, ['sync', ...(platform ? [parsePlatform(platform)] : [])]);
+      const selectedPlatform = platform ? parsePlatform(platform) : undefined;
+      runCapacitor(root, ['sync', ...(selectedPlatform ? [selectedPlatform] : [])]);
+
+      if (selectedPlatform) {
+        configureNativePlatform(root, selectedPlatform);
+      } else {
+        configureExistingPlatforms(root);
+      }
     });
 
   capacitor.command('open <platform>')
@@ -88,6 +96,46 @@ function isHttpsUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+function configureExistingPlatforms(root: string): void {
+  if (existsSync(join(root, 'android'))) {
+    configureNativePlatform(root, 'android');
+  }
+}
+
+function configureNativePlatform(root: string, platform: Platform): void {
+  if (platform === 'android') {
+    configureBackgroundRunnerForAndroid(root);
+  }
+}
+
+function configureBackgroundRunnerForAndroid(root: string): void {
+  const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as {
+    dependencies?: Record<string, string>;
+  };
+  if (!packageJson.dependencies?.['@capacitor/background-runner']) return;
+
+  const gradlePath = join(root, 'android', 'app', 'build.gradle');
+  if (!existsSync(gradlePath)) {
+    throw new Error('No se encuentra android/app/build.gradle para configurar Background Runner.');
+  }
+
+  const repositoryEntry =
+    "dirs '../../node_modules/@capacitor/background-runner/android/src/main/libs', 'libs'";
+  const gradle = readFileSync(gradlePath, 'utf8');
+  if (gradle.includes(repositoryEntry)) return;
+
+  const flatDirectory = /flatDir\s*\{/;
+  if (!flatDirectory.test(gradle)) {
+    throw new Error('No se ha encontrado el bloque flatDir en android/app/build.gradle.');
+  }
+
+  const configuredGradle = gradle.replace(
+    flatDirectory,
+    (match) => `${match}\n        ${repositoryEntry}`,
+  );
+  writeFileSync(gradlePath, configuredGradle, 'utf8');
 }
 
 function runCapacitor(root: string, args: string[]): void {

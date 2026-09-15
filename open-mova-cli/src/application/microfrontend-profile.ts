@@ -25,8 +25,6 @@ export function configureDownloadedMicrofrontend(
     delete packageJson.dependencies['@open-mova/core'];
     writeFileSync(join(destination, 'src/app/app.routes.ts'), minimalRoutes(name));
     writeFileSync(join(destination, 'src/app/app.config.ts'), minimalAppConfig());
-  } else {
-    packageJson.dependencies['@open-mova/core'] = '^0.1.9';
   }
   writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
