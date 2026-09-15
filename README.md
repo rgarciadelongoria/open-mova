@@ -13,29 +13,21 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 ```text
 open-mova/
+├── .github/                # Automatizaciones y workflows
+├── assets/                 # Recursos de marca y documentación
 ├── open-mova-shell/        # Contenedor y capacidades nativas
 ├── open-mova-core/         # Contratos y acceso Angular por DI
 ├── open-mova-mf-template/  # Única fuente de microfrontal y demo local
 └── open-mova-cli/          # Comandos mova
 ```
 
-La shell y el microfrontal de referencia se descargan desde los tags estables
-`vX.Y.Z` del repositorio al crear proyectos con el CLI. El perfil **demo**
-incluye rutas `inicio`, `device` y `camera`; el perfil **minimal** deja solo
-una ruta inicial. No hay plantillas Angular duplicadas dentro del CLI.
-
-## Demo publicada
+## Microfrontal Demo publicado
 
 Cada tag `vX.Y.Z` publica el microfrontal demo en GitHub Pages. La URL estable
 es `https://rgarciadelongoria.github.io/open-mova/remoteEntry.json` y se usa
 como `productionRemoteEntry` del MF inicial creado por `mova create`. Sirve
 para pruebas rápidas y simuladores; una aplicación real debe sustituirla por
 la URL HTTPS y versionada de su propio microfrontal.
-
-Antes de la primera publicación hay que activar **Settings → Pages → Build and
-deployment → Source: GitHub Actions** en el repositorio. El workflow
-`.github/workflows/publish-demo-microfrontend.yml` compila y publica solo el
-artefacto estático del MF, no el código fuente.
 
 ## Preparación
 
@@ -70,11 +62,15 @@ npm start
 ```
 
 Abre `http://localhost:4200/demo/inicio`, `/demo/device` o `/demo/camera`.
-El remoto publica `remoteEntry.json` en el puerto 4300. La shell lee la URL
-desde `open-mova-shell/src/assets/federation.manifest.json` y la ruta desde
-`open-mova-shell/src/app/application.config.ts`. Esas entradas son solo para
-el desarrollo de este monorepo; una app creada por el CLI recibe su propia
-configuración en `mova.config.json`.
+
+El remoto publica `remoteEntry.json` en el puerto 4300.
+
+La shell lee la URL desde
+`open-mova-shell/src/assets/federation.manifest.json` y la ruta desde
+`open-mova-shell/src/app/application.config.ts`.
+
+Esas entradas son solo para el desarrollo de este monorepo; una app creada por
+el CLI recibe su propia configuración en `mova.config.json`.
 
 ## Comandos de coordinación
 
@@ -92,10 +88,3 @@ configuración en `mova.config.json`.
 Consulta los README de cada proyecto para sus comandos y responsabilidades.
 Para crear una aplicación o un microfrontal, empieza por
 [`open-mova-cli/README.md`](open-mova-cli/README.md).
-
-## Publicación de versiones
-
-El CLI solo consume tags publicados. Tras modificar la shell, core o el
-microfrontal de referencia, hay que publicar un nuevo tag estable para que
-`mova create` y `mova mf create` puedan descargar ese código. Cada MF
-generado registra el tag y commit de su origen en `mova.config.json`.
