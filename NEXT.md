@@ -222,3 +222,28 @@ comportamiento real. Por ejemplo, el README del CLI debe indicar que
 La siguiente versión importante debería centrarse en la fiabilidad de la
 plataforma y la experiencia del proveedor, más que en añadir nuevas
 capacidades nativas sin cerrar antes su configuración y mantenimiento.
+
+## Política de tags y migración de aplicaciones antiguas
+
+`mova update` necesita descargar tanto la versión actual de la shell como la
+versión de destino. Utiliza la versión actual como base de comparación para
+detectar qué archivos puede actualizar y qué cambios personalizados del
+proveedor deben tratarse como conflictos.
+
+Por este motivo, no se deben eliminar tags históricos que puedan estar
+registrados en aplicaciones existentes. Los tags no solo sirven para listar
+versiones disponibles: también son necesarios para actualizar de forma segura
+una aplicación creada con una versión anterior.
+
+Si una aplicación apunta a un tag que ya no existe, el CLI debe ofrecer en el
+futuro un modo de migración controlada que:
+
+- Detecte que falta la versión de origen.
+- Cree una copia de seguridad antes de modificar el proyecto.
+- Compare o aplique la shell de destino con una estrategia explícita.
+- Muestre los posibles conflictos para que el proveedor los revise.
+- Actualice el registro de versión y commit en `mova.config.json` solo cuando
+  la migración termine correctamente.
+
+Mientras ese modo no exista, la solución segura es restaurar el tag antiguo o
+migrar manualmente la aplicación a una shell nueva.
