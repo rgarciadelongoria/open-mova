@@ -16,6 +16,7 @@ El CLI descarga la shell, el core y la plantilla de microfrontales desde tags es
 - [`mova start`](#mova-start)
 - [`mova build`](#mova-build)
 - [`mova info`](#mova-info)
+- [`mova update`](#mova-update)
 - [`mova shell versions`](#mova-shell-versions)
 - [`mova cap add`](#mova-cap-add)
 - [`mova cap sync`](#mova-cap-sync)
@@ -120,6 +121,23 @@ Muestra la aplicación detectada, la versión de shell y sus microfrontales. Tam
 ```bash
 mova info
 ```
+
+### `mova update`
+
+Actualiza los archivos técnicos de la shell usando como referencia el tag con
+el que se creó la aplicación. No modifica los microfrontales ni sobrescribe
+archivos personalizados: los muestra como conflictos.
+
+```bash
+mova update --check
+mova update
+mova update --to v0.2.0
+```
+
+`--check` solo muestra el plan. Para aplicar cambios, el proyecto debe estar en
+un repositorio Git limpio. Si cambia `package.json`, el CLI elimina el lockfile
+obsoleto y pide ejecutar `npm install`; después se debe comprobar con
+`mova build`.
 
 ### `mova shell versions`
 

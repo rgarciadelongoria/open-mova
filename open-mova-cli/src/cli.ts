@@ -9,6 +9,7 @@ import { registerInfoCommand } from './commands/info.js';
 import { registerMicrofrontendCommands } from './commands/microfrontend.js';
 import { registerStartCommand } from './commands/start.js';
 import { registerShellCommands } from './commands/shell.js';
+import { registerUpdateCommand } from './commands/update.js';
 
 const program = new Command();
 const packageVersion = JSON.parse(
@@ -27,6 +28,7 @@ registerShellCommands(program);
 registerBuildCommand(program);
 registerCapacitorCommands(program);
 registerInfoCommand(program);
+registerUpdateCommand(program);
 
 try {
   await program.parseAsync();
