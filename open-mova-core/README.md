@@ -57,25 +57,6 @@ npm run build
 El paquete se identifica como `@open-mova/core`. Cuando se añada una pieza
 pública, debe exportarse desde `src/index.ts`.
 
-La shell proporciona el token `NATIVE_CAPABILITIES` y el MF accede a él por DI:
-
-```ts
-import { injectNativeCapabilities } from '@open-mova/core';
-
-const native = injectNativeCapabilities(); // Dentro de un contexto de inyección Angular.
-const device = await native.device.getInfo();
-const photo = await native.camera.takePhoto();
-const selected = await native.camera.choosePhoto();
-```
-
-`photo.webPath` sirve para mostrar la imagen; `photo.uri` puede existir en
-móvil. `choosePhoto()` devuelve `undefined` si la galería devuelve una lista
-vacía; cancelar el diálogo puede rechazar la promesa según la plataforma.
-Angular muestra un error de provider ausente si la shell no ofrece el contrato.
-Los MF que usan capacidades nativas dependen de `@open-mova/core` desde npm.
-Shell y MF deben compartir una sola instancia de core mediante Native
-Federation.
-
 ## Capacidades nativas
 
 Cada plugin oficial se representa como una capacidad con tres operaciones
@@ -92,25 +73,16 @@ referencia interactiva no pueda quedarse desactualizada respecto al contrato.
 El tercer argumento de `subscribe()` solo es necesario en capacidades con
 instancias, como Google Maps, donde se pasa `{ id: 'mapa-principal' }`.
 
-Los nombres de capacidad están en camelCase y no dependen del nombre del
-paquete npm. Por ejemplo, un MF puede consultar conectividad así:
-
-```ts
-const native = injectNativeCapabilities();
-
-if (native.network.isAvailable()) {
-  const status = await native.network.invoke('getStatus');
-}
-```
-
-El contrato expone: `actionSheet`, `app`, `appLauncher`, `backgroundRunner`,
+El contrato expone una capacidad por cada plugin oficial soportado:
+`actionSheet`, `app`, `appLauncher`, `backgroundRunner`,
 `barcodeScanner`, `browser`, `calendar`, `camera`, `clipboard`, `contacts`,
 `cookies`, `device`, `dialog`, `fileTransfer`, `fileViewer`, `filesystem`,
 `geolocation`, `googleMaps`, `haptics`, `healthFitness`, `http`,
 `inAppBrowser`, `keyboard`, `localLlm`, `localNotifications`, `motion`,
 `network`, `preferences`, `privacyScreen`, `pushNotifications`,
 `screenOrientation`, `screenReader`, `share`, `splashScreen`, `statusBar`,
-`systemBars`, `textZoom` y `toast`.
+`systemBars`, `textZoom` y `toast`. La lista completa de métodos y eventos de
+cada capacidad se encuentra en `NATIVE_CAPABILITY_API`.
 
 Las opciones y el resultado no exponen tipos de Capacitor. Esto evita que el MF
 se acople a su versión; algunas operaciones avanzadas pueden requerir valores
