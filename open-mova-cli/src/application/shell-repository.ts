@@ -17,7 +17,6 @@ export const DEMO_MICROFRONTEND_REMOTE_ENTRY =
   'https://rgarciadelongoria.github.io/open-mova/remoteEntry.json';
 
 const VERSION_PATTERN = /^v(\d+)\.(\d+)\.(\d+)$/;
-const PUBLISHED_CORE_VERSION = '^0.1.9';
 const EXCLUDED_ENTRIES = new Set([
   '.git',
   '.angular',
@@ -110,30 +109,15 @@ export function configureDownloadedShell(
     name: string;
     version: string;
     private?: boolean;
-    dependencies?: Record<string, string>;
   };
   packageJson.name = applicationName;
   packageJson.version = '0.1.0';
   packageJson.private = true;
-  if (packageJson.dependencies?.['@open-mova/core']) {
-    // También permite crear apps desde tags anteriores a la publicación en npm.
-    packageJson.dependencies['@open-mova/core'] = PUBLISHED_CORE_VERSION;
-    rmSync(packageLockPath, { force: true });
-  }
   writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
 
-  if (existsSync(packageLockPath)) {
-    const packageLock = JSON.parse(readFileSync(packageLockPath, 'utf8')) as {
-      name: string;
-      version: string;
-      packages: Record<string, { name?: string; version?: string }>;
-    };
-    packageLock.name = applicationName;
-    packageLock.version = packageJson.version;
-    packageLock.packages[''].name = applicationName;
-    packageLock.packages[''].version = packageJson.version;
-    writeFileSync(packageLockPath, `${JSON.stringify(packageLock, null, 2)}\n`);
-  }
+  // A lockfile from the framework checkout may contain local development links.
+  // The generated application must resolve every dependency from its own package.json.
+  rmSync(packageLockPath, { force: true });
 
   const capacitorPath = join(destination, 'capacitor.config.ts');
   if (existsSync(capacitorPath)) {
