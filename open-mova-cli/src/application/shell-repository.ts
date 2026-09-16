@@ -79,6 +79,9 @@ export function downloadTaggedProject(
 
     const source = join(checkout, project);
     const requiredFiles = ['package.json', 'angular.json', 'src/main.ts'];
+    if (project === 'open-mova-shell') {
+      requiredFiles.push('native-capabilities.catalog.json');
+    }
     for (const requiredFile of requiredFiles) {
       if (!existsSync(join(source, requiredFile))) {
         throw new Error(`El tag ${version} no contiene ${project}: falta ${requiredFile}.`);
