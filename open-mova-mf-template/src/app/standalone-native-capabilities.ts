@@ -1,8 +1,4 @@
-import {
-  NATIVE_CAPABILITY_API,
-  type NativeCapabilities,
-  type NativePluginCapability,
-} from '@open-mova/core';
+import type { NativeCapabilities, NativePluginCapability } from '@open-mova/core';
 
 const shellRequiredError = (): Error =>
   new Error('Abre este ejemplo desde la shell para usar capacidades nativas.');
@@ -15,14 +11,9 @@ function createUnavailableCapability(): NativePluginCapability<string, string> {
   };
 }
 
-/** Permite navegar por toda la documentación al abrir el remoto directamente. */
+/** Permite recorrer los ejemplos seleccionados al abrir el remoto directamente. */
 export function createStandaloneNativeCapabilities(): NativeCapabilities {
-  const capabilities = Object.fromEntries(
-    Object.keys(NATIVE_CAPABILITY_API).map((name) => [name, createUnavailableCapability()]),
-  );
-
   return {
-    ...capabilities,
     version: 1,
     device: {
       ...createUnavailableCapability(),
@@ -33,5 +24,6 @@ export function createStandaloneNativeCapabilities(): NativeCapabilities {
       takePhoto: async () => Promise.reject(shellRequiredError()),
       choosePhoto: async () => Promise.reject(shellRequiredError()),
     },
+    share: createUnavailableCapability(),
   } as NativeCapabilities;
 }

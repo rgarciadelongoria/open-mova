@@ -13,60 +13,19 @@
     <h3>{{ example.title }}</h3>
     <p>{{ example.description }}</p>
     <pre><code>{{ example.code.replace('CAPABILITY', capability.property) }}</code></pre>
-    @if (example.note) {
-      <p class="example-note">{{ example.note }}</p>
-    }
-    <button
-      class="action-button"
-      type="button"
-      (click)="run(example)"
-      [disabled]="!example.runnable"
-    >
-      {{ example.runnable ? 'Probar ejemplo' : 'Requiere configuración' }}
+    <button class="action-button" type="button" (click)="run(example)" [disabled]="!isAvailable()">
+      Probar ejemplo
     </button>
-  </article>
-}
-
-<section class="api-reference">
-  <p class="eyebrow">API COMPLETA</p>
-  <h3>Métodos</h3>
-  <p>
-    Todos los métodos oficiales disponibles a través del contrato de Open Mova. Sustituye
-    <code>options</code> por las opciones indicadas para cada plugin.
-  </p>
-  <div class="api-grid">
-    @for (operation of capability.operations; track operation) {
-      <article class="api-item">
-        <strong>{{ operation }}</strong>
-        <pre><code>await native.{{ capability.property }}.invoke('{{ operation }}', options);</code></pre>
-      </article>
+    <section class="example-result" aria-live="polite">
+      <p class="eyebrow">RESULTADO</p>
+      <pre>{{ resultFor(example) }}</pre>
+    </section>
+    @if (photoUrlFor(example)) {
+      <img
+        class="photo-preview"
+        [src]="photoUrlFor(example)"
+        alt="Fotografía obtenida durante la prueba"
+      />
     }
-  </div>
-
-  @if (capability.events.length > 0) {
-    <h3 class="events-heading">Eventos</h3>
-    <p>Cada suscripción devuelve un manejador que debe eliminarse cuando deje de usarse.</p>
-    <div class="api-grid">
-      @for (event of capability.events; track event) {
-        <article class="api-item">
-          <strong>{{ event }}</strong>
-          <pre><code>const subscription = await native.{{ capability.property }}.subscribe(
-  '{{ event }}',
-  (payload) => console.log(payload),
-);
-
-await subscription.remove();</code></pre>
-        </article>
-      }
-    </div>
-  }
-</section>
-
-<section class="result-panel" aria-live="polite">
-  <p class="eyebrow">RESULTADO</p>
-  <pre>{{ result() }}</pre>
-</section>
-
-@if (photoUrl()) {
-  <img class="photo-preview" [src]="photoUrl()" alt="Fotografía tomada con la cámara" />
+  </article>
 }

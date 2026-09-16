@@ -8,14 +8,20 @@ Este es el único proyecto fuente de microfrontal que utiliza el CLI. Se publica
 junto con la shell en los tags `vX.Y.Z` del monorepo. La shell de desarrollo lo
 carga como remoto en `/demo` desde el puerto `4300`.
 
-El perfil **demo** es una documentación interactiva de las capacidades nativas
-oficiales de Capacitor que expone Open Mova. Cada capacidad tiene su propia URL,
-ejemplos principales y una referencia de todos sus métodos y eventos. La lista
-completa procede de `NATIVE_CAPABILITY_API` en `@open-mova/core`, por lo que no
-se duplica en la plantilla. Los ejemplos usan `injectNativeCapabilities()`;
-la implementación de Capacitor sigue viviendo en la shell.
+El perfil **demo** es una guía interactiva pequeña de tres capacidades nativas:
+Device, Camera y Share. Cada una tiene su propia URL y pruebas ejecutables; el
+resultado aparece junto al botón que ha lanzado la prueba. Los ejemplos usan
+`injectNativeCapabilities()`; la implementación de Capacitor sigue viviendo en
+la shell.
 
-Al abrir el MF sin shell se puede recorrer toda la documentación. Las
+En una aplicación nueva, activa las tres capacidades antes de ejecutar sus
+pruebas:
+
+```bash
+mova cap enable device camera share
+```
+
+Al abrir el MF sin shell se pueden recorrer las tres pantallas, pero las
 capacidades se muestran como no disponibles y los ejemplos nativos requieren
 abrirlo a través de una shell.
 
@@ -33,7 +39,7 @@ npm start
 
 Después inicia la shell y abre `http://localhost:4200/demo/inicio`. Las demás
 rutas se generan a partir de `capability-catalog.ts`; por ejemplo,
-`http://localhost:4200/demo/camera` o `http://localhost:4200/demo/network`.
+`http://localhost:4200/demo/camera` o `http://localhost:4200/demo/share`.
 Para verificar este proyecto: `npm run typecheck` y `npm run build`.
 
 ## Estructura del código
@@ -58,11 +64,11 @@ src/app/
     └── home/
 ```
 
-`capability-catalog.ts` contiene los textos, ejemplos principales, orden del
-menú y URLs; Core aporta la superficie completa de la API. `app.routes.ts` crea
-una ruta por cada entrada y
-`capability-page.component` presenta la capacidad y ejecuta los ejemplos que
-son seguros de probar. Esto evita duplicar componentes casi idénticos.
+`capability-catalog.ts` contiene los textos, ejemplos ejecutables, orden del
+menú y URLs de Device, Camera y Share. `app.routes.ts` crea una ruta por cada
+entrada y `capability-page.component` presenta la capacidad y muestra el
+resultado junto al ejemplo que se ha ejecutado. Esto evita duplicar componentes
+casi idénticos.
 
 Los estilos de demostración están en `layout/demo-layout.component.css`. No se
 usan estilos globales del proyecto porque, al cargar el MF como remoto, Native
