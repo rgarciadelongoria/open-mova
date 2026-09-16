@@ -20,6 +20,38 @@ test('aplica los requisitos Android de los plugins instalados', (context) => {
       },
     }),
   );
+  write(
+    root,
+    'native-capabilities.catalog.json',
+    JSON.stringify({
+      schemaVersion: 1,
+      capabilities: [
+        {
+          name: 'localLlm',
+          minimumAndroidSdk: 28,
+          platforms: ['android'],
+          implementation: 'local-llm/local-llm.capability',
+          exportName: 'localLlmCapability',
+          package: '@capacitor/local-llm',
+        },
+        {
+          name: 'googleMaps',
+          platforms: ['android'],
+          implementation: 'google-maps/google-maps.capability',
+          exportName: 'googleMapsCapability',
+          package: '@capacitor/google-maps',
+        },
+        {
+          name: 'backgroundRunner',
+          platforms: ['android'],
+          implementation: 'background-runner/background-runner.capability',
+          exportName: 'backgroundRunnerCapability',
+          package: '@capacitor/background-runner',
+          permissions: { android: ['android.permission.POST_NOTIFICATIONS'] },
+        },
+      ],
+    }),
+  );
   write(root, 'android/variables.gradle', 'ext {\n    minSdkVersion = 24\n}\n');
   write(root, 'android/app/build.gradle', 'repositories {\n    flatDir {\n    }\n}\n');
   write(
@@ -29,9 +61,12 @@ test('aplica los requisitos Android de los plugins instalados', (context) => {
   );
 
   configureAndroidProject(root, {
-    schemaVersion: 1,
+    schemaVersion: 3,
     name: 'demo-app',
-    native: { googleMaps: { androidApiKey: 'key<&>"\'' } },
+    native: {
+      capabilities: ['backgroundRunner', 'googleMaps', 'localLlm'],
+      googleMaps: { androidApiKey: 'key<&>"\'' },
+    },
     microfrontends: [],
   });
 
@@ -43,6 +78,10 @@ test('aplica los requisitos Android de los plugins instalados', (context) => {
   assert.match(
     read(root, 'android/app/src/main/AndroidManifest.xml'),
     /com\.google\.android\.geo\.API_KEY/,
+  );
+  assert.match(
+    read(root, 'android/app/src/main/AndroidManifest.xml'),
+    /android\.permission\.POST_NOTIFICATIONS/,
   );
   assert.match(
     read(root, 'android/app/src/main/res/values/open_mova_google_maps.xml'),

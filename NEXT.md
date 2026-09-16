@@ -106,9 +106,10 @@ Las actualizaciones deberían quedar separadas por responsabilidad:
 Esto evita sobrescribir lógica propia de un proveedor al actualizar la
 infraestructura común.
 
-`mova.config.json` usa ahora `schemaVersion: 2`, que declara la compatibilidad
-de Core por MF. El CLI migra configuraciones de esquema 1 en memoria y guarda
-la migración al ejecutar `mova update`. Las entradas antiguas sin información
+`mova.config.json` usa ahora `schemaVersion: 3`, que declara la compatibilidad
+de Core por MF y las capacidades seleccionadas. El CLI migra configuraciones
+de esquemas anteriores en memoria y guarda la migración al ejecutar
+`mova update`. Las entradas antiguas sin información
 de Core reciben temporalmente `*` y `mova doctor` las marca como aviso para
 que se actualicen de forma explícita.
 
@@ -117,15 +118,11 @@ versión nueva y archivos actuales del proveedor. Solo se aplican cambios que
 no hayan sido modificados por el proveedor; los conflictos se muestran y
 detienen la operación. Se exige un repositorio Git limpio antes de escribir.
 
-## 3. Capacidades nativas seleccionables
+## 3. Capacidades nativas seleccionables — implementado
 
-La shell incorpora actualmente todos los plugins oficiales de Capacitor. Esto
-es útil para la demo y el catálogo, pero tiene consecuencias en una aplicación
-real: algunos plugins exigen Android 28, configuración Gradle, claves,
-permisos, entitlements o aumentan el tamaño final de la aplicación.
-
-El siguiente diseño recomendable es registrar explícitamente las capacidades
-que utiliza cada aplicación:
+La shell conserva los contratos y adaptadores del catálogo oficial de
+Capacitor, pero una aplicación nueva no instala plugins específicos. Cada app
+declara expresamente las capacidades que necesita:
 
 ```json
 {
@@ -135,7 +132,7 @@ que utiliza cada aplicación:
 }
 ```
 
-La CLI podría ofrecer comandos como:
+El CLI ofrece:
 
 ```bash
 mova cap enable camera geolocation
@@ -143,12 +140,13 @@ mova cap disable local-llm
 mova cap doctor android
 ```
 
-La shell mantendría el mismo contrato de `@open-mova/core`, pero cada
-aplicación instalaría y configuraría solo las capacidades elegidas. Esto
-reduciría el tamaño, los permisos, los requisitos nativos y los problemas de
-compilación.
+El catálogo de la shell declara el paquete, versión, plataformas, permisos,
+SDK mínimo y notas de configuración. El CLI instala y retira dependencias,
+regenera el provider Angular, aplica permisos y SDK mínimo en Android y
+sincroniza las plataformas existentes. Core mantiene siempre el mismo
+contrato; una capacidad deshabilitada informa que no está disponible.
 
-Cada capacidad debería poder declarar también sus requisitos:
+Cada capacidad declara también sus requisitos:
 
 - Plataformas compatibles.
 - Versión mínima de Android o iOS.

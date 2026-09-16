@@ -22,6 +22,8 @@ estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 - Convertir la configuración de microfrontales en rutas Angular.
 - Implementar los plugins oficiales de Capacitor y proporcionarlos por
   inyección de dependencias.
+- Instalar y registrar únicamente las capacidades elegidas por cada
+  aplicación.
 
 Los microfrontales no forman parte del código fuente de la shell. Cada uno se
 desarrolla y se instala como un proyecto independiente.
@@ -50,6 +52,7 @@ open-mova-shell/
 │   └── main.ts
 ├── angular.json
 ├── capacitor.config.ts
+├── native-capabilities.catalog.json # Paquetes y requisitos por capacidad
 └── federation.config.js
 ```
 
@@ -140,8 +143,13 @@ Antes de sincronizar una app de producción, sustituye las URLs `localhost` del
 manifiesto compilado por URLs HTTPS versionadas. En aplicaciones creadas con
 Open Mova, `mova cap sync` hace esa sustitución a partir de `mova.config.json`.
 
-La shell registra `NATIVE_CAPABILITIES` en `src/app/app.config.ts`. La
-implementación de `src/native-capabilities/` usa los plugins oficiales de
+La shell registra `NATIVE_CAPABILITIES` en `src/app/app.config.ts`. Una shell
+nueva no instala plugins específicos. `mova cap enable camera` añade el
+paquete necesario y regenera `native-capabilities.provider.ts` para importar
+solo su adaptador. Las capacidades deshabilitadas conservan el contrato, pero
+devuelven `isAvailable() === false` y un error accionable si se invocan.
+
+La implementación de `src/native-capabilities/` usa los plugins oficiales de
 Capacitor; el contrato y el token Angular viven en `@open-mova/core`.
 La shell es quien proporciona las implementaciones reales por DI. El MF solo
 inyecta el contrato de `@open-mova/core`, por lo que no importa Capacitor ni
@@ -160,9 +168,11 @@ un token por DI no aísla permisos entre remotos en la misma página.
 
 ## Catálogo de capacidades
 
-La shell implementa el catálogo de plugins oficiales de Capacitor v8. Cada
-adaptador vive en su propio directorio y el provider los reúne en un único
-objeto `NativeCapabilities`. El MF consume ese contrato a través de
+La shell contiene adaptadores para el catálogo oficial de Capacitor v8. Cada
+adaptador vive en su propio directorio y
+`native-capabilities.catalog.json` declara su paquete, versión, plataformas,
+permisos y requisitos. El provider reúne solo los adaptadores habilitados en
+un único objeto `NativeCapabilities`. El MF consume ese contrato a través de
 `@open-mova/core`; nunca importa `@capacitor/*` ni accede a `window`.
 
 El adaptador común ofrece `isAvailable()`, `invoke()` y `subscribe()` a todos

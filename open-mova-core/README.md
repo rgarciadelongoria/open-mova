@@ -12,6 +12,10 @@ Define el contrato `NativeCapabilities` v1, el token de DI Angular y
 `injectNativeCapabilities()`. No depende de Capacitor: los plugins reales solo
 se instalan y se ejecutan dentro de la shell.
 
+También define el contrato de compatibilidad de los microfrontales y el formato
+de su manifiesto. Core describe la API pública; la aplicación decide qué
+capacidades instala y el CLI prepara la shell para ellas.
+
 ## Instalación
 
 El microfrontal y la shell deben usar una versión compatible de Angular.
@@ -28,6 +32,8 @@ Puede contener, por ejemplo:
 - Tipos de configuración compartidos.
 - Interfaces para capacidades nativas.
 - Utilidades que no pertenezcan a una aplicación concreta.
+- Contratos de compatibilidad entre la shell y los microfrontales.
+- Tipos para los manifiestos de microfrontales.
 
 ## Qué no debe contener
 
@@ -84,8 +90,32 @@ El contrato expone una capacidad por cada plugin oficial soportado:
 `systemBars`, `textZoom` y `toast`. La lista completa de métodos y eventos de
 cada capacidad se encuentra en `NATIVE_CAPABILITY_API`.
 
+Que una capacidad forme parte del contrato no significa que esté instalada en
+todas las aplicaciones. Una aplicación nueva puede empezar con:
+
+```json
+{
+  "native": {
+    "capabilities": []
+  }
+}
+```
+
+Cuando el proveedor activa una capacidad con `mova cap enable camera`, el CLI
+instala el plugin correspondiente y la shell proporciona su implementación.
+Si la capacidad no está activada, sigue existiendo en el contrato para que la
+API sea estable, pero `isAvailable()` devuelve `false` y sus operaciones
+informan de cómo habilitarla. El microfrontal no debe importar directamente
+ningún paquete `@capacitor/*`.
+
 Las opciones y el resultado no exponen tipos de Capacitor. Esto evita que el MF
 se acople a su versión; algunas operaciones avanzadas pueden requerir valores
 propios de plataforma, como `Date` o `Blob`. Las operaciones más estables y
 habituales conservan métodos explícitos: `device.getInfo()`,
 `camera.takePhoto()` y `camera.choosePhoto()`.
+
+La shell y los microfrontales comparten Core como singleton mediante Native
+Federation. Por eso los contratos deben ser pequeños, estables y compatibles
+con versiones anteriores siempre que sea posible. Un cambio incompatible
+requiere aumentar la versión del contrato y coordinar la versión de Core con
+la shell y los microfrontales que lo consuman.

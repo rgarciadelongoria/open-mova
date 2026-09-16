@@ -8,6 +8,9 @@ CLI de terminal para crear y mantener aplicaciones Open Mova. Se ejecuta desde l
 
 El CLI descarga la shell, el core y la plantilla de microfrontales desde tags estables del repositorio de Open Mova. No contiene copias de esas plantillas. Cada aplicación guarda en `mova.config.json` el tag y el commit con los que fue creada.
 
+Las aplicaciones nuevas empiezan sin plugins específicos de Capacitor. Solo se
+instalan cuando se habilita explícitamente una capacidad con `mova cap enable`.
+
 ## Índice de comandos
 
 - [`mova --help` y `mova --version`](#mova---help-y-mova---version)
@@ -23,6 +26,10 @@ El CLI descarga la shell, el core y la plantilla de microfrontales desde tags es
 - [`mova shell`](#mova-shell)
 - [`mova shell versions`](#mova-shell-versions)
 - [`mova cap`](#mova-cap)
+- [`mova cap list`](#mova-cap-list)
+- [`mova cap enable`](#mova-cap-enable)
+- [`mova cap disable`](#mova-cap-disable)
+- [`mova cap doctor`](#mova-cap-doctor)
 - [`mova cap add`](#mova-cap-add)
 - [`mova cap sync`](#mova-cap-sync)
 - [`mova cap open`](#mova-cap-open)
@@ -66,9 +73,12 @@ mova cap --help
 ### `mova create`
 
 Crea una aplicación completa. Descarga una shell versionada, el core y un MF
-inicial `home`. Ese MF incluye por defecto el `productionRemoteEntry` de la
-demo oficial de Open Mova, para probar Capacitor sin desplegar un MF propio.
-Sustitúyelo antes de publicar la aplicación.
+inicial `home`. La aplicación se crea sin plugins específicos de Capacitor;
+activa solo los que necesites con `mova cap enable`.
+
+Ese MF incluye por defecto el `productionRemoteEntry` de la demo oficial de
+Open Mova, para probar Capacitor sin desplegar un MF propio. Sustitúyelo antes
+de publicar la aplicación.
 
 ```bash
 mova create mi-aplicacion
@@ -229,6 +239,61 @@ mova cap add android
 mova cap add ios
 ```
 
+### `mova cap list`
+
+Muestra el catálogo de capacidades nativas. `✓` indica que la capacidad está
+habilitada y `○` que está disponible pero no instalada.
+
+```bash
+mova cap list
+```
+
+### `mova cap enable`
+
+Habilita una o varias capacidades. Instala únicamente sus paquetes npm,
+actualiza `mova.config.json`, regenera el provider Angular y sincroniza las
+plataformas nativas que ya existan.
+
+```bash
+mova cap enable camera device geolocation
+```
+
+La configuración activa queda registrada en `mova.config.json`:
+
+```json
+{
+  "native": {
+    "capabilities": ["camera", "device"]
+  }
+}
+```
+
+El CLI usa el catálogo de la shell para conocer el paquete y la configuración
+requerida de cada capacidad. El provider Angular se genera automáticamente;
+no es necesario editar la shell a mano.
+
+### `mova cap disable`
+
+Deshabilita capacidades y elimina los paquetes que ninguna otra capacidad
+activa necesita. El contrato de Core permanece disponible, pero
+`isAvailable()` devuelve `false` y cualquier operación explica cómo volver a
+habilitar la capacidad.
+
+```bash
+mova cap disable geolocation
+```
+
+### `mova cap doctor`
+
+Muestra plataformas compatibles, permisos, SDK mínimo y configuración manual
+de las capacidades activas.
+
+```bash
+mova cap doctor
+mova cap doctor android
+mova cap doctor ios
+```
+
 ### `mova cap sync`
 
 Sincroniza la shell compilada, los recursos y los plugins con la plataforma. Sin plataforma, sincroniza todas las plataformas añadidas.
@@ -238,9 +303,8 @@ mova cap sync android
 mova cap sync
 ```
 
-En Android, el CLI aplica también los requisitos técnicos de los plugins
-incluidos por la shell: configura el repositorio AAR de Background Runner y
-eleva `minSdkVersion` a 28 cuando está instalado Local LLM. También añade la
+En Android, el CLI aplica los requisitos declarados por las capacidades
+activas: permisos, SDK mínimo, el repositorio AAR de Background Runner y la
 entrada obligatoria de Google Maps. Para usar mapas reales, define una clave
 restringida antes de sincronizar:
 
@@ -274,7 +338,8 @@ mova cap open ios
 ### `mova cap`
 
 Es el grupo de comandos para preparar y abrir los proyectos nativos de
-Capacitor. Sus subcomandos son `add`, `sync` y `open`.
+Capacitor. También permite seleccionar capacidades mediante `list`, `enable`,
+`disable` y `doctor`. Consulta todos sus comandos con `mova cap --help`.
 
 ## Flujo habitual
 
@@ -283,6 +348,7 @@ mova create mi-aplicacion
 cd mi-aplicacion
 npm install
 npm --prefix mfs/home install
+mova cap enable camera device
 mova start
 ```
 
@@ -314,6 +380,14 @@ aplica la configuración específica de los plugins instalados:
 
 ```bash
 mova cap add android
+```
+
+Antes o después de añadir la plataforma puedes habilitar solo lo que use la
+aplicación:
+
+```bash
+mova cap enable camera device
+mova cap doctor android
 ```
 
 Si utilizas Google Maps, proporciona la clave antes de sincronizar:
@@ -367,6 +441,13 @@ Añade y sincroniza la plataforma iOS:
 ```bash
 mova cap add ios
 mova cap sync ios
+```
+
+Activa previamente las capacidades que necesites y revisa sus requisitos:
+
+```bash
+mova cap enable camera device
+mova cap doctor ios
 ```
 
 Revisa en Xcode los permisos y la configuración nativa que necesiten los

@@ -13,13 +13,14 @@ import {
 function createApplicationFixture() {
   const root = mkdtempSync(join(tmpdir(), 'open-mova-cli-test-'));
   const configuration = {
-    schemaVersion: 2,
+    schemaVersion: 3,
     name: 'demo-app',
     shell: {
       repository: 'https://example.com/open-mova.git',
       version: 'v0.2.1',
       commit: '0123456789abcdef',
     },
+    native: { capabilities: [] },
     microfrontends: [
       {
         name: 'home',
@@ -56,8 +57,8 @@ test('migra configuraciones antiguas en memoria sin sobrescribirlas', (context) 
   writeFileSync(join(fixture.root, 'mova.config.json'), `${JSON.stringify(legacy, null, 2)}\n`);
 
   const document = readApplicationConfigurationDocument(fixture.root);
-  assert.equal(document.configuration.schemaVersion, 2);
-  assert.equal(document.migrations.length, 1);
+  assert.equal(document.configuration.schemaVersion, 3);
+  assert.equal(document.migrations.length, 2);
 });
 
 test('rechaza un módulo federado que no expone las rutas esperadas', (context) => {

@@ -32,6 +32,24 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   const initialConfiguration = readJson(join(applicationRoot, 'mova.config.json'));
   assert.equal(initialConfiguration.shell.version, 'v1.0.0');
   assert.equal(initialConfiguration.microfrontends.length, 1);
+  assert.deepEqual(initialConfiguration.native.capabilities, []);
+
+  const enableCapability = runCli(['cap', 'enable', 'cookies'], applicationRoot, environment);
+  assert.equal(enableCapability.status, 0, enableCapability.stderr);
+  assert.deepEqual(readJson(join(applicationRoot, 'mova.config.json')).native.capabilities, [
+    'cookies',
+  ]);
+  assert.match(
+    readFileSync(
+      join(applicationRoot, 'src', 'native-capabilities', 'native-capabilities.provider.ts'),
+      'utf8',
+    ),
+    /import \{ cookiesCapability \}/,
+  );
+
+  const disableCapability = runCli(['cap', 'disable', 'cookies'], applicationRoot, environment);
+  assert.equal(disableCapability.status, 0, disableCapability.stderr);
+  assert.deepEqual(readJson(join(applicationRoot, 'mova.config.json')).native.capabilities, []);
 
   const createMicrofrontend = runCli(
     ['mf', 'create', 'catalog', '--template-version', 'v1.0.0'],

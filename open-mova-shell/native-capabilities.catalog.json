@@ -1,0 +1,347 @@
+{
+  "schemaVersion": 1,
+  "capabilities": [
+    {
+      "name": "actionSheet",
+      "implementation": "action-sheet/action-sheet.capability",
+      "exportName": "actionSheetCapability",
+      "package": "@capacitor/action-sheet",
+      "version": "^8.1.1",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "app",
+      "implementation": "app/app.capability",
+      "exportName": "appCapability",
+      "package": "@capacitor/app",
+      "version": "^8.1.1",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "appLauncher",
+      "implementation": "app-launcher/app-launcher.capability",
+      "exportName": "appLauncherCapability",
+      "package": "@capacitor/app-launcher",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "backgroundRunner",
+      "implementation": "background-runner/background-runner.capability",
+      "exportName": "backgroundRunnerCapability",
+      "package": "@capacitor/background-runner",
+      "version": "^3.0.0",
+      "platforms": ["android", "ios"],
+      "notes": ["Requiere configurar sus tareas nativas antes de usarlas en producción."]
+    },
+    {
+      "name": "barcodeScanner",
+      "implementation": "barcode-scanner/barcode-scanner.capability",
+      "exportName": "barcodeScannerCapability",
+      "package": "@capacitor/barcode-scanner",
+      "version": "^3.1.2",
+      "platforms": ["android", "ios"],
+      "permissions": {
+        "android": ["android.permission.CAMERA"],
+        "ios": ["NSCameraUsageDescription"]
+      }
+    },
+    {
+      "name": "browser",
+      "implementation": "browser/browser.capability",
+      "exportName": "browserCapability",
+      "package": "@capacitor/browser",
+      "version": "^8.0.4",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "calendar",
+      "implementation": "calendar/calendar.capability",
+      "exportName": "calendarCapability",
+      "package": "@capacitor/calendar",
+      "version": "^1.0.1",
+      "platforms": ["android", "ios"],
+      "permissions": {
+        "android": ["android.permission.READ_CALENDAR", "android.permission.WRITE_CALENDAR"],
+        "ios": ["NSCalendarsFullAccessUsageDescription"]
+      }
+    },
+    {
+      "name": "camera",
+      "implementation": "camera/camera.capability",
+      "exportName": "cameraCapability",
+      "package": "@capacitor/camera",
+      "version": "^8.2.4",
+      "platforms": ["android", "ios", "web"],
+      "permissions": {
+        "android": ["android.permission.CAMERA"],
+        "ios": [
+          "NSCameraUsageDescription",
+          "NSPhotoLibraryUsageDescription",
+          "NSPhotoLibraryAddUsageDescription"
+        ]
+      }
+    },
+    {
+      "name": "clipboard",
+      "implementation": "clipboard/clipboard.capability",
+      "exportName": "clipboardCapability",
+      "package": "@capacitor/clipboard",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "contacts",
+      "implementation": "contacts/contacts.capability",
+      "exportName": "contactsCapability",
+      "package": "@capacitor/contacts",
+      "version": "^1.0.1",
+      "platforms": ["android", "ios"],
+      "permissions": {
+        "android": ["android.permission.READ_CONTACTS", "android.permission.WRITE_CONTACTS"],
+        "ios": ["NSContactsUsageDescription"]
+      }
+    },
+    {
+      "name": "cookies",
+      "implementation": "cookies/cookies.capability",
+      "exportName": "cookiesCapability",
+      "package": "@capacitor/core",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "device",
+      "implementation": "device/device.capability",
+      "exportName": "deviceCapability",
+      "package": "@capacitor/device",
+      "version": "^8.0.3",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "dialog",
+      "implementation": "dialog/dialog.capability",
+      "exportName": "dialogCapability",
+      "package": "@capacitor/dialog",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "fileTransfer",
+      "implementation": "file-transfer/file-transfer.capability",
+      "exportName": "fileTransferCapability",
+      "package": "@capacitor/file-transfer",
+      "version": "^2.0.5",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "fileViewer",
+      "implementation": "file-viewer/file-viewer.capability",
+      "exportName": "fileViewerCapability",
+      "package": "@capacitor/file-viewer",
+      "version": "^2.0.3",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "filesystem",
+      "implementation": "filesystem/filesystem.capability",
+      "exportName": "filesystemCapability",
+      "package": "@capacitor/filesystem",
+      "version": "^8.1.3",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "geolocation",
+      "implementation": "geolocation/geolocation.capability",
+      "exportName": "geolocationCapability",
+      "package": "@capacitor/geolocation",
+      "version": "^8.2.2",
+      "platforms": ["android", "ios", "web"],
+      "permissions": {
+        "android": [
+          "android.permission.ACCESS_COARSE_LOCATION",
+          "android.permission.ACCESS_FINE_LOCATION"
+        ],
+        "ios": ["NSLocationWhenInUseUsageDescription"]
+      }
+    },
+    {
+      "name": "googleMaps",
+      "implementation": "google-maps/google-maps.capability",
+      "exportName": "googleMapsCapability",
+      "package": "@capacitor/google-maps",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"],
+      "minimumAndroidSdk": 24,
+      "notes": ["Requiere una clave de Google Maps por plataforma."]
+    },
+    {
+      "name": "haptics",
+      "implementation": "haptics/haptics.capability",
+      "exportName": "hapticsCapability",
+      "package": "@capacitor/haptics",
+      "version": "^8.0.2",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "healthFitness",
+      "implementation": "health-fitness/health-fitness.capability",
+      "exportName": "healthFitnessCapability",
+      "package": "@capacitor/health-fitness",
+      "version": "^1.0.1",
+      "platforms": ["android", "ios"],
+      "notes": [
+        "Requiere declarar los tipos de datos de salud usados y sus permisos por plataforma."
+      ]
+    },
+    {
+      "name": "http",
+      "implementation": "http/http.capability",
+      "exportName": "httpCapability",
+      "package": "@capacitor/core",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "inAppBrowser",
+      "implementation": "in-app-browser/in-app-browser.capability",
+      "exportName": "inAppBrowserCapability",
+      "package": "@capacitor/inappbrowser",
+      "version": "^4.0.3",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "keyboard",
+      "implementation": "keyboard/keyboard.capability",
+      "exportName": "keyboardCapability",
+      "package": "@capacitor/keyboard",
+      "version": "^8.0.5",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "localLlm",
+      "implementation": "local-llm/local-llm.capability",
+      "exportName": "localLlmCapability",
+      "package": "@capacitor/local-llm",
+      "version": "^1.0.0",
+      "platforms": ["android", "ios"],
+      "minimumAndroidSdk": 28,
+      "notes": [
+        "Capacidad experimental con requisitos elevados de dispositivo y sistema operativo."
+      ]
+    },
+    {
+      "name": "localNotifications",
+      "implementation": "local-notifications/local-notifications.capability",
+      "exportName": "localNotificationsCapability",
+      "package": "@capacitor/local-notifications",
+      "version": "^8.3.1",
+      "platforms": ["android", "ios"],
+      "permissions": { "android": ["android.permission.POST_NOTIFICATIONS"] }
+    },
+    {
+      "name": "motion",
+      "implementation": "motion/motion.capability",
+      "exportName": "motionCapability",
+      "package": "@capacitor/motion",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"],
+      "permissions": { "ios": ["NSMotionUsageDescription"] }
+    },
+    {
+      "name": "network",
+      "implementation": "network/network.capability",
+      "exportName": "networkCapability",
+      "package": "@capacitor/network",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "preferences",
+      "implementation": "preferences/preferences.capability",
+      "exportName": "preferencesCapability",
+      "package": "@capacitor/preferences",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "privacyScreen",
+      "implementation": "privacy-screen/privacy-screen.capability",
+      "exportName": "privacyScreenCapability",
+      "package": "@capacitor/privacy-screen",
+      "version": "^2.0.1",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "pushNotifications",
+      "implementation": "push-notifications/push-notifications.capability",
+      "exportName": "pushNotificationsCapability",
+      "package": "@capacitor/push-notifications",
+      "version": "^8.1.2",
+      "platforms": ["android", "ios"],
+      "permissions": { "android": ["android.permission.POST_NOTIFICATIONS"] },
+      "notes": ["Requiere configurar Firebase en Android y notificaciones push en iOS."]
+    },
+    {
+      "name": "screenOrientation",
+      "implementation": "screen-orientation/screen-orientation.capability",
+      "exportName": "screenOrientationCapability",
+      "package": "@capacitor/screen-orientation",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "screenReader",
+      "implementation": "screen-reader/screen-reader.capability",
+      "exportName": "screenReaderCapability",
+      "package": "@capacitor/screen-reader",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "share",
+      "implementation": "share/share.capability",
+      "exportName": "shareCapability",
+      "package": "@capacitor/share",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    },
+    {
+      "name": "splashScreen",
+      "implementation": "splash-screen/splash-screen.capability",
+      "exportName": "splashScreenCapability",
+      "package": "@capacitor/splash-screen",
+      "version": "^8.0.2",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "statusBar",
+      "implementation": "status-bar/status-bar.capability",
+      "exportName": "statusBarCapability",
+      "package": "@capacitor/status-bar",
+      "version": "^8.0.3",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "systemBars",
+      "implementation": "system-bars/system-bars.capability",
+      "exportName": "systemBarsCapability",
+      "package": "@capacitor/core",
+      "platforms": ["android", "ios"]
+    },
+    {
+      "name": "textZoom",
+      "implementation": "text-zoom/text-zoom.capability",
+      "exportName": "textZoomCapability",
+      "package": "@capacitor/text-zoom",
+      "version": "^8.0.1",
+      "platforms": ["ios"]
+    },
+    {
+      "name": "toast",
+      "implementation": "toast/toast.capability",
+      "exportName": "toastCapability",
+      "package": "@capacitor/toast",
+      "version": "^8.0.1",
+      "platforms": ["android", "ios", "web"]
+    }
+  ]
+}

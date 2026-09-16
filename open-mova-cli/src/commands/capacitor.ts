@@ -7,6 +7,12 @@ import {
   requireApplicationRoot,
 } from '../application/configuration.js';
 import { configureAndroidProject } from '../application/android-configuration.js';
+import {
+  diagnoseNativeCapabilities,
+  disableNativeCapabilities,
+  enableNativeCapabilities,
+  listNativeCapabilities,
+} from '../application/native-capabilities.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { localBinaryName, npmCommand, useCommandShell } from '../utils/platform.js';
 
@@ -14,6 +20,49 @@ type Platform = 'android' | 'ios';
 
 export function registerCapacitorCommands(program: Command): void {
   const capacitor = program.command('cap').description('Prepara la shell para Android o iOS');
+
+  capacitor
+    .command('list')
+    .description('Lista las capacidades nativas disponibles y habilitadas')
+    .action(() => {
+      const root = requireApplicationRoot(process.cwd());
+      for (const { definition, enabled } of listNativeCapabilities(root)) {
+        console.log(
+          `${enabled ? '✓' : '○'} ${definition.name} (${definition.platforms.join(', ')})`,
+        );
+      }
+    });
+
+  capacitor
+    .command('enable <capabilities...>')
+    .description('Instala y habilita capacidades nativas en la aplicación')
+    .action((capabilities: string[]) => {
+      const root = requireApplicationRoot(process.cwd());
+      enableNativeCapabilities(root, capabilities);
+      synchronizeExistingNativeProjects(root);
+      console.log(`Capacidades habilitadas: ${capabilities.join(', ')}.`);
+    });
+
+  capacitor
+    .command('disable <capabilities...>')
+    .description('Deshabilita capacidades y elimina los plugins que ya no se usan')
+    .action((capabilities: string[]) => {
+      const root = requireApplicationRoot(process.cwd());
+      disableNativeCapabilities(root, capabilities);
+      synchronizeExistingNativeProjects(root);
+      console.log(`Capacidades deshabilitadas: ${capabilities.join(', ')}.`);
+    });
+
+  capacitor
+    .command('doctor [platform]')
+    .description('Muestra requisitos y configuración pendiente de las capacidades')
+    .action((platform?: string) => {
+      const root = requireApplicationRoot(process.cwd());
+      const selectedPlatform = platform ? parsePlatform(platform) : undefined;
+      for (const message of diagnoseNativeCapabilities(root, selectedPlatform)) {
+        console.log(message);
+      }
+    });
 
   capacitor
     .command('add <platform>')
@@ -112,6 +161,17 @@ function configureExistingPlatforms(
 ): void {
   if (existsSync(join(root, 'android'))) {
     configureNativePlatform(root, 'android', configuration);
+  }
+}
+
+function synchronizeExistingNativeProjects(root: string): void {
+  const platforms: Platform[] = ['android', 'ios'];
+
+  for (const platform of platforms) {
+    if (existsSync(join(root, platform))) {
+      runCapacitor(root, ['sync', platform]);
+      configureNativePlatform(root, platform, readApplicationConfiguration(root));
+    }
   }
 }
 

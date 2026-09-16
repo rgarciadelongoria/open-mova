@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-export const LATEST_CONFIGURATION_SCHEMA_VERSION = 2;
+export const LATEST_CONFIGURATION_SCHEMA_VERSION = 3;
 
 export interface ConfigurationMigrationResult {
   readonly value: unknown;
@@ -30,7 +30,73 @@ export function migrateConfiguration(
     migrations.push('1 → 2: declarar la compatibilidad de Core de cada microfrontal');
   }
 
+  if (migrated.schemaVersion === 2) {
+    migrated = migrateVersionTwo(migrated, applicationRoot);
+    migrations.push('2 → 3: declarar las capacidades nativas habilitadas');
+  }
+
   return { value: migrated, migrations };
+}
+
+function migrateVersionTwo(
+  configuration: Record<string, unknown>,
+  applicationRoot: string,
+): Record<string, unknown> {
+  const currentNative = isRecord(configuration.native) ? configuration.native : {};
+
+  return {
+    ...configuration,
+    schemaVersion: 3,
+    native: {
+      ...currentNative,
+      // Las aplicaciones anteriores incluían todos los plugins. Se conservan
+      // explícitamente hasta que el equipo decida deshabilitarlos.
+      capabilities: readLegacyCapabilities(configuration, applicationRoot),
+    },
+  };
+}
+
+function readLegacyCapabilities(
+  configuration: Record<string, unknown>,
+  applicationRoot: string,
+): readonly string[] {
+  if (isRecord(configuration.native) && Array.isArray(configuration.native.capabilities)) {
+    return configuration.native.capabilities.filter(
+      (capability): capability is string => typeof capability === 'string',
+    );
+  }
+
+  const packageConfiguration = readJson(join(applicationRoot, 'package.json'));
+  const catalog = readJson(join(applicationRoot, 'native-capabilities.catalog.json'));
+  const dependencies = isRecord(packageConfiguration?.dependencies)
+    ? packageConfiguration.dependencies
+    : {};
+
+  if (!Array.isArray(catalog?.capabilities)) return [];
+
+  return catalog.capabilities
+    .filter(
+      (capability): capability is Record<string, unknown> & { name: string; package: string } =>
+        isRecord(capability) &&
+        typeof capability.name === 'string' &&
+        typeof capability.package === 'string',
+    )
+    .filter(
+      (capability) =>
+        capability.package === '@capacitor/core' || capability.package in dependencies,
+    )
+    .map((capability) => capability.name as string);
+}
+
+function readJson(path: string): Record<string, unknown> | undefined {
+  if (!existsSync(path)) return undefined;
+
+  try {
+    const value: unknown = JSON.parse(readFileSync(path, 'utf8'));
+    return isRecord(value) ? value : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function migrateVersionOne(

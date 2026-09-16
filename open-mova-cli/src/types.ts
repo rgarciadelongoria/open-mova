@@ -1,5 +1,5 @@
 export interface OpenMovaApplicationConfiguration {
-  readonly schemaVersion: 2;
+  readonly schemaVersion: 3;
   readonly name: string;
   readonly shell?: {
     readonly repository: string;
@@ -12,6 +12,8 @@ export interface OpenMovaApplicationConfiguration {
 }
 
 export interface NativeConfiguration {
+  /** Capacidades instaladas y proporcionadas por la shell. */
+  readonly capabilities: readonly string[];
   readonly googleMaps?: {
     /** Clave de Android Maps. También puede venir de OPEN_MOVA_GOOGLE_MAPS_ANDROID_API_KEY. */
     readonly androidApiKey?: string;

@@ -143,6 +143,15 @@ function validateApplicationConfiguration(
       throw new Error(`${configurationPath} contiene una configuración nativa no válida.`);
     }
 
+    if (
+      !Array.isArray(value.native.capabilities) ||
+      value.native.capabilities.some((capability) => typeof capability !== 'string')
+    ) {
+      throw new Error(`${configurationPath} contiene capacidades nativas no válidas.`);
+    }
+
+    const capabilities = [...new Set(value.native.capabilities as string[])].sort();
+
     if (value.native.googleMaps !== undefined) {
       if (
         !isRecord(value.native.googleMaps) ||
@@ -152,12 +161,13 @@ function validateApplicationConfiguration(
       }
 
       native = {
+        capabilities,
         googleMaps: {
           androidApiKey: value.native.googleMaps.androidApiKey,
         },
       };
     } else {
-      native = {};
+      native = { capabilities };
     }
   }
 

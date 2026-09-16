@@ -14,6 +14,7 @@ import {
 } from './project-update.js';
 import { findIncompatibleMicrofrontends } from './core-compatibility.js';
 import { readRequiredCoreVersion } from './microfrontend-manifest.js';
+import { synchronizeNativeCapabilityDependencies } from './native-capabilities.js';
 
 const GENERATED_PATHS = new Set([
   'package.json',
@@ -143,6 +144,7 @@ export function applyShellUpdate(
     ...configuration,
     shell: plan.target,
   };
+  synchronizeNativeCapabilityDependencies(applicationRoot, updatedConfiguration);
   writeApplicationConfiguration(applicationRoot, updatedConfiguration);
   synchronizeShellConfiguration(applicationRoot, updatedConfiguration);
 }

@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
+import { readNativeCapabilityCatalog } from './shell-configuration.js';
 
 interface PackageConfiguration {
   readonly dependencies?: Readonly<Record<string, string>>;
@@ -12,7 +13,8 @@ export function configureAndroidProject(
 ): void {
   const packageConfiguration = readPackageConfiguration(applicationRoot);
 
-  configureMinimumSdk(applicationRoot, packageConfiguration);
+  configureMinimumSdk(applicationRoot, configuration);
+  configurePermissions(applicationRoot, configuration);
   configureBackgroundRunner(applicationRoot, packageConfiguration);
   configureGoogleMaps(applicationRoot, configuration, packageConfiguration);
 }
@@ -76,9 +78,16 @@ function configureGoogleMaps(
 
 function configureMinimumSdk(
   applicationRoot: string,
-  packageConfiguration: PackageConfiguration,
+  configuration: OpenMovaApplicationConfiguration,
 ): void {
-  if (!packageConfiguration.dependencies?.['@capacitor/local-llm']) return;
+  const enabled = new Set(configuration.native?.capabilities ?? []);
+  const requiredMinimumSdk = Math.max(
+    0,
+    ...readNativeCapabilityCatalog(applicationRoot)
+      .capabilities.filter((capability) => enabled.has(capability.name))
+      .map((capability) => capability.minimumAndroidSdk ?? 0),
+  );
+  if (requiredMinimumSdk === 0) return;
 
   const variablesPath = join(applicationRoot, 'android', 'variables.gradle');
   if (!existsSync(variablesPath)) {
@@ -92,9 +101,49 @@ function configureMinimumSdk(
   if (!Number.isFinite(currentMinimumSdk)) {
     throw new Error('No se ha encontrado minSdkVersion en android/variables.gradle.');
   }
-  if (currentMinimumSdk >= 28) return;
+  if (currentMinimumSdk >= requiredMinimumSdk) return;
 
-  writeFileSync(variablesPath, variables.replace(minimumSdkPattern, 'minSdkVersion = 28'), 'utf8');
+  writeFileSync(
+    variablesPath,
+    variables.replace(minimumSdkPattern, `minSdkVersion = ${requiredMinimumSdk}`),
+    'utf8',
+  );
+}
+
+function configurePermissions(
+  applicationRoot: string,
+  configuration: OpenMovaApplicationConfiguration,
+): void {
+  const manifestPath = join(
+    applicationRoot,
+    'android',
+    'app',
+    'src',
+    'main',
+    'AndroidManifest.xml',
+  );
+  if (!existsSync(manifestPath)) return;
+
+  const enabled = new Set(configuration.native?.capabilities ?? []);
+  const permissions = [
+    ...new Set(
+      readNativeCapabilityCatalog(applicationRoot)
+        .capabilities.filter((capability) => enabled.has(capability.name))
+        .flatMap((capability) => capability.permissions?.android ?? []),
+    ),
+  ];
+  let manifest = readFileSync(manifestPath, 'utf8');
+  const applicationTag = /\s*<application\b/;
+
+  for (const permission of permissions) {
+    if (manifest.includes(`android:name="${permission}"`)) continue;
+    manifest = manifest.replace(
+      applicationTag,
+      `\n    <uses-permission android:name="${permission}" />\n\n    <application`,
+    );
+  }
+
+  writeFileSync(manifestPath, manifest, 'utf8');
 }
 
 function configureBackgroundRunner(

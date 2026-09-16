@@ -45,9 +45,10 @@ export function registerCreateCommand(program: Command): void {
         configureDownloadedShell(temporaryApplication, applicationName, !options.empty);
 
         let configuration: OpenMovaApplicationConfiguration = {
-          schemaVersion: 2,
+          schemaVersion: 3,
           name: applicationName,
           shell,
+          native: { capabilities: [] },
           microfrontends: [],
         };
 
