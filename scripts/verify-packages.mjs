@@ -22,16 +22,20 @@ try {
 
   writeFileSync(
     join(consumerDirectory, 'package.json'),
-    `${JSON.stringify({
-      name: 'open-mova-package-consumer',
-      private: true,
-      type: 'module',
-      dependencies: {
-        '@angular/core': corePackage.devDependencies['@angular/core'],
-        '@open-mova/cli': `file:${cliTarball}`,
-        '@open-mova/core': `file:${coreTarball}`,
+    `${JSON.stringify(
+      {
+        name: 'open-mova-package-consumer',
+        private: true,
+        type: 'module',
+        dependencies: {
+          '@angular/core': corePackage.devDependencies['@angular/core'],
+          '@open-mova/cli': `file:${cliTarball}`,
+          '@open-mova/core': `file:${coreTarball}`,
+        },
       },
-    }, null, 2)}\n`,
+      null,
+      2,
+    )}\n`,
   );
 
   run(npm, ['install', '--ignore-scripts', '--no-audit', '--no-fund'], consumerDirectory);
@@ -41,7 +45,7 @@ try {
       '--input-type=module',
       '--eval',
       "const core = await import('@open-mova/core'); " +
-        "if (!core.NATIVE_CAPABILITY_API || !core.NATIVE_CAPABILITIES) process.exit(1);",
+        'if (!core.NATIVE_CAPABILITY_API || !core.NATIVE_CAPABILITIES) process.exit(1);',
     ],
     consumerDirectory,
   );

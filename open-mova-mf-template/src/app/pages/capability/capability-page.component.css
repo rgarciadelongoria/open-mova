@@ -55,14 +55,22 @@
 
 .api-item strong {
   color: #72e0c2;
-  font: 700 0.88rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    700 0.88rem/1.4 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
 }
 
 .api-item pre {
   overflow: auto;
   margin: 12px 0 0;
   color: #d9e6f8;
-  font: 0.78rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    0.78rem/1.55 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   white-space: pre-wrap;
 }
 
@@ -84,7 +92,11 @@
   border-radius: 10px;
   color: #d9e6f8;
   background: #091426;
-  font: 0.82rem/1.55 ui-monospace, SFMono-Regular, Menlo, monospace;
+  font:
+    0.82rem/1.55 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
   white-space: pre-wrap;
 }
 

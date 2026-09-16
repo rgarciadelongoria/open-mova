@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { CAPABILITY_CATALOG } from './capabilities/capability-catalog';
 import { DemoLayoutComponent } from './layout/demo-layout.component';
 import { CapabilityPageComponent } from './pages/capability/capability-page.component';

@@ -6,13 +6,14 @@ import test from 'node:test';
 import {
   addMicrofrontend,
   findApplicationRoot,
+  readApplicationConfigurationDocument,
   readApplicationConfiguration,
 } from '../dist/application/configuration.js';
 
 function createApplicationFixture() {
   const root = mkdtempSync(join(tmpdir(), 'open-mova-cli-test-'));
   const configuration = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     name: 'demo-app',
     shell: {
       repository: 'https://example.com/open-mova.git',
@@ -26,14 +27,12 @@ function createApplicationFixture() {
         remoteName: 'home-microfrontend',
         exposedModule: './Routes',
         developmentRemoteEntry: 'http://localhost:4300/remoteEntry.json',
+        compatibility: { requiredCoreVersion: '^0.2.2' },
       },
     ],
   };
 
-  writeFileSync(
-    join(root, 'mova.config.json'),
-    `${JSON.stringify(configuration, null, 2)}\n`,
-  );
+  writeFileSync(join(root, 'mova.config.json'), `${JSON.stringify(configuration, null, 2)}\n`);
 
   return { root, configuration };
 }
@@ -49,6 +48,18 @@ test('encuentra y valida una aplicación desde uno de sus subdirectorios', (cont
   assert.deepEqual(readApplicationConfiguration(fixture.root), fixture.configuration);
 });
 
+test('migra configuraciones antiguas en memoria sin sobrescribirlas', (context) => {
+  const fixture = createApplicationFixture();
+  context.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  const legacy = { ...fixture.configuration, schemaVersion: 1 };
+  delete legacy.microfrontends[0].compatibility;
+  writeFileSync(join(fixture.root, 'mova.config.json'), `${JSON.stringify(legacy, null, 2)}\n`);
+
+  const document = readApplicationConfigurationDocument(fixture.root);
+  assert.equal(document.configuration.schemaVersion, 2);
+  assert.equal(document.migrations.length, 1);
+});
+
 test('rechaza un módulo federado que no expone las rutas esperadas', (context) => {
   const fixture = createApplicationFixture();
   context.after(() => rmSync(fixture.root, { recursive: true, force: true }));
@@ -59,23 +70,21 @@ test('rechaza un módulo federado que no expone las rutas esperadas', (context) 
     `${JSON.stringify(fixture.configuration, null, 2)}\n`,
   );
 
-  assert.throws(
-    () => readApplicationConfiguration(fixture.root),
-    /solo admite "\.\/Routes"/,
-  );
+  assert.throws(() => readApplicationConfiguration(fixture.root), /solo admite "\.\/Routes"/);
 });
 
 test('impide registrar rutas o nombres de remoto duplicados', () => {
   const fixture = createApplicationFixture();
 
   assert.throws(
-    () => addMicrofrontend(fixture.configuration, {
-      name: 'catalog',
-      route: 'home',
-      remoteName: 'catalog-microfrontend',
-      exposedModule: './Routes',
-      developmentRemoteEntry: 'http://localhost:4400/remoteEntry.json',
-    }),
+    () =>
+      addMicrofrontend(fixture.configuration, {
+        name: 'catalog',
+        route: 'home',
+        remoteName: 'catalog-microfrontend',
+        exposedModule: './Routes',
+        developmentRemoteEntry: 'http://localhost:4400/remoteEntry.json',
+      }),
     /entra en conflicto/,
   );
 

@@ -1,14 +1,21 @@
-import { loadRemoteModule } from '@angular-architects/native-federation';
-import { Routes } from '@angular/router';
+import type { Routes } from '@angular/router';
 import { microfrontends } from './application.config';
+import { loadCompatibleRemoteRoutes } from './microfrontends/remote-loader';
+import { RemoteLoadErrorComponent } from './microfrontends/remote-load-error.component';
 
-const remoteRoutes: Routes = microfrontends.map(
-  ({ path, remote, exposedModule }) => ({
-    path,
-    loadChildren: () =>
-      loadRemoteModule(remote, exposedModule).then((module) => module.routes),
-  }),
-);
+const remoteRoutes: Routes = microfrontends.map((microfrontend) => ({
+  path: microfrontend.path,
+  loadChildren: () =>
+    loadCompatibleRemoteRoutes(microfrontend).catch((error: unknown) => [
+      {
+        path: '',
+        component: RemoteLoadErrorComponent,
+        data: {
+          message: error instanceof Error ? error.message : 'Error desconocido.',
+        },
+      },
+    ]),
+}));
 
 export const routes: Routes = [
   {

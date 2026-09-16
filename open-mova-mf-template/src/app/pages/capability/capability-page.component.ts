@@ -3,13 +3,16 @@ import { ActivatedRoute } from '@angular/router';
 import { injectNativeCapabilities } from '@open-mova/core';
 import type { CapabilityExample, DemoCapability } from '../../capabilities/capability-catalog';
 
-type CapabilityRegistry = Record<string, {
-  isAvailable(): boolean;
-  invoke<TResult>(
-    operation: string,
-    options?: Readonly<Record<string, unknown>>,
-  ): Promise<TResult>;
-}>;
+type CapabilityRegistry = Record<
+  string,
+  {
+    isAvailable(): boolean;
+    invoke<TResult>(
+      operation: string,
+      options?: Readonly<Record<string, unknown>>,
+    ): Promise<TResult>;
+  }
+>;
 
 @Component({
   standalone: true,
@@ -34,7 +37,9 @@ export class CapabilityPageComponent {
 
   async run(example: CapabilityExample): Promise<void> {
     if (!example.runnable) {
-      this.result.set(example.note ?? 'Este ejemplo requiere configuración adicional antes de ejecutarse.');
+      this.result.set(
+        example.note ?? 'Este ejemplo requiere configuración adicional antes de ejecutarse.',
+      );
       return;
     }
 
@@ -55,7 +60,9 @@ export class CapabilityPageComponent {
         value === undefined ? 'Operación completada.' : JSON.stringify(value, null, 2),
       );
     } catch (error) {
-      this.result.set(error instanceof Error ? error.message : 'La operación no se pudo completar.');
+      this.result.set(
+        error instanceof Error ? error.message : 'La operación no se pudo completar.',
+      );
     }
   }
 }

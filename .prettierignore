@@ -1,0 +1,8 @@
+**/node_modules
+**/dist
+**/.angular
+**/android
+**/ios
+**/package-lock.json
+assets
+.git

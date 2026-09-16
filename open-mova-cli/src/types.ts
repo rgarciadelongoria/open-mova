@@ -1,5 +1,5 @@
 export interface OpenMovaApplicationConfiguration {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly name: string;
   readonly shell?: {
     readonly repository: string;
@@ -26,6 +26,10 @@ export interface MicrofrontendConfiguration {
   readonly developmentRemoteEntry: string;
   readonly productionRemoteEntry?: string;
   readonly sourcePath?: string;
+  readonly compatibility: {
+    /** Rango de @open-mova/core declarado y publicado por el microfrontal. */
+    readonly requiredCoreVersion: string;
+  };
   readonly template?: {
     readonly repository: string;
     readonly version: string;

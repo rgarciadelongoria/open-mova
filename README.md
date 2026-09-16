@@ -18,7 +18,8 @@ open-mova/
 ├── open-mova-shell/        # Contenedor y capacidades nativas
 ├── open-mova-core/         # Contratos y acceso Angular por DI
 ├── open-mova-mf-template/  # Única fuente de microfrontal y demo local
-└── open-mova-cli/          # Comandos mova
+├── open-mova-cli/          # Comandos mova
+└── tooling/                # Lint, formato y pruebas end-to-end
 ```
 
 ## Microfrontal Demo publicado
@@ -37,6 +38,7 @@ Requiere Node.js 22, npm y Git. Desde la raíz:
 npm --prefix open-mova-mf-template install
 npm --prefix open-mova-shell install
 npm --prefix open-mova-cli install
+npm --prefix tooling install
 ```
 
 `open-mova-core` se instala desde npm en la shell y el template. Instala sus
@@ -74,19 +76,23 @@ el CLI recibe su propia configuración en `mova.config.json`.
 
 ## Comandos de coordinación
 
-| Comando | Función |
-| --- | --- |
-| `npm start` | Iniciar shell en 4200. |
-| `npm run start:demo` | Iniciar remoto en 4300. |
-| `npm run start:cli` | Ejecutar CLI en desarrollo. |
-| `npm run typecheck` | Comprobar tipado de todos los proyectos. |
-| `npm run build` | Compilar todos los proyectos. |
-| `npm test` | Compilar y ejecutar las pruebas automáticas. |
-| `npm run pack:check` | Empaquetar Core y CLI e instalarlos en un proyecto temporal. |
-| `npm run build:core` | Compilar contratos. |
-| `npm run build:shell` | Compilar shell. |
-| `npm run build:demo` | Compilar microfrontal de referencia. |
-| `npm run build:cli` | Compilar CLI. |
+| Comando                | Función                                                      |
+| ---------------------- | ------------------------------------------------------------ |
+| `npm start`            | Iniciar shell en 4200.                                       |
+| `npm run start:demo`   | Iniciar remoto en 4300.                                      |
+| `npm run start:cli`    | Ejecutar CLI en desarrollo.                                  |
+| `npm run typecheck`    | Comprobar tipado de todos los proyectos.                     |
+| `npm run build`        | Compilar todos los proyectos.                                |
+| `npm test`             | Compilar y ejecutar las pruebas automáticas.                 |
+| `npm run pack:check`   | Empaquetar Core y CLI e instalarlos en un proyecto temporal. |
+| `npm run lint`         | Comprobar las reglas de calidad del código.                  |
+| `npm run format:check` | Comprobar el formato sin modificar archivos.                 |
+| `npm run format`       | Aplicar el formato compartido.                               |
+| `npm run test:e2e`     | Probar en navegador la integración entre shell y MF.         |
+| `npm run build:core`   | Compilar contratos.                                          |
+| `npm run build:shell`  | Compilar shell.                                              |
+| `npm run build:demo`   | Compilar microfrontal de referencia.                         |
+| `npm run build:cli`    | Compilar CLI.                                                |
 
 Consulta los README de cada proyecto para sus comandos y responsabilidades.
 Para crear una aplicación o un microfrontal, empieza por

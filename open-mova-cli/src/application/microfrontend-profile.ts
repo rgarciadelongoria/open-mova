@@ -1,6 +1,7 @@
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { toDisplayName, toRemoteName } from '../utils/names.js';
+import { readRequiredCoreVersion, writeMicrofrontendManifest } from './microfrontend-manifest.js';
 
 export type MicrofrontendProfile = 'minimal' | 'demo';
 
@@ -22,7 +23,6 @@ export function configureDownloadedMicrofrontend(
   packageJson.scripts.build = `ng build ${projectName}`;
 
   if (profile === 'minimal') {
-    delete packageJson.dependencies['@open-mova/core'];
     writeFileSync(join(destination, 'src/app/app.routes.ts'), minimalRoutes(name));
     writeFileSync(join(destination, 'src/app/app.config.ts'), minimalAppConfig());
   }
@@ -50,6 +50,12 @@ export function configureDownloadedMicrofrontend(
   writeFileSync(
     appPath,
     readFileSync(appPath, 'utf8').replace('mova-demo-microfrontend', `mova-${name}-microfrontend`),
+  );
+  writeMicrofrontendManifest(
+    destination,
+    name,
+    toRemoteName(name),
+    readRequiredCoreVersion(destination),
   );
 
   // El lock heredado ya no representa el proyecto renombrado ni su dependencia local.

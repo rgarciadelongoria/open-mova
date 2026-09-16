@@ -1,12 +1,13 @@
 import { existsSync, readFileSync, rmSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
-import type {
-  MicrofrontendConfiguration,
-  OpenMovaApplicationConfiguration,
-} from '../types.js';
+import type { MicrofrontendConfiguration, OpenMovaApplicationConfiguration } from '../types.js';
 import { normalizeName, toRemoteName } from '../utils/names.js';
-import { configureDownloadedMicrofrontend, type MicrofrontendProfile } from './microfrontend-profile.js';
+import {
+  configureDownloadedMicrofrontend,
+  type MicrofrontendProfile,
+} from './microfrontend-profile.js';
 import { downloadTaggedProject, type ShellVersion } from './shell-repository.js';
+import { readRequiredCoreVersion } from './microfrontend-manifest.js';
 
 export interface CreateMicrofrontendOptions {
   readonly name: string;
@@ -26,6 +27,7 @@ export interface ExistingMicrofrontendOptions {
   readonly remoteEntry?: string;
   readonly productionRemoteEntry?: string;
   readonly port?: number;
+  readonly coreVersion?: string;
 }
 
 export function createMicrofrontend(
@@ -47,9 +49,7 @@ export function createMicrofrontend(
   const profile = options.profile ?? 'minimal';
   let template: ShellVersion;
   try {
-    template = downloadTaggedProject(
-      'open-mova-mf-template', destination, options.templateVersion,
-    );
+    template = downloadTaggedProject('open-mova-mf-template', destination, options.templateVersion);
     configureDownloadedMicrofrontend(destination, name, port, profile);
   } catch (error) {
     rmSync(destination, { recursive: true, force: true });
@@ -66,6 +66,9 @@ export function createMicrofrontend(
       ? { productionRemoteEntry: options.productionRemoteEntry }
       : {}),
     sourcePath: toConfigurationPath(applicationRoot, destination),
+    compatibility: {
+      requiredCoreVersion: readRequiredCoreVersion(destination),
+    },
     template: { ...template, project: 'open-mova-mf-template', profile },
   };
 }
@@ -85,13 +88,10 @@ export function inspectExistingMicrofrontend(
     : undefined;
   const discovered = sourceDirectory
     ? inspectLocalProject(sourceDirectory)
-    : { remoteName: undefined, port: undefined };
+    : { remoteName: undefined, port: undefined, requiredCoreVersion: undefined };
   const remoteName = options.remoteName ?? discovered.remoteName;
   const inferredName = remoteName?.replace(/-microfrontend$/, '');
-  const name = normalizeName(
-    options.name ?? inferredName ?? '',
-    'El nombre del microfrontal',
-  );
+  const name = normalizeName(options.name ?? inferredName ?? '', 'El nombre del microfrontal');
   const route = normalizeName(options.route ?? name, 'La ruta del microfrontal');
   const resolvedRemoteName = remoteName ?? toRemoteName(name);
   const port = options.port ?? discovered.port;
@@ -105,8 +105,16 @@ export function inspectExistingMicrofrontend(
     (port === undefined ? undefined : `http://localhost:${port}/remoteEntry.json`);
 
   if (!remoteEntry) {
+    throw new Error('No se ha podido detectar el puerto. Indica --remote-entry o --port.');
+  }
+
+  const requiredCoreVersion =
+    options.coreVersion ??
+    discovered.requiredCoreVersion ??
+    readRequiredCoreVersion(applicationRoot);
+  if (!requiredCoreVersion) {
     throw new Error(
-      'No se ha podido detectar el puerto. Indica --remote-entry o --port.',
+      'Indica --core-version para declarar qué versión de @open-mova/core necesita el microfrontal remoto.',
     );
   }
 
@@ -122,12 +130,14 @@ export function inspectExistingMicrofrontend(
     ...(sourceDirectory
       ? { sourcePath: toConfigurationPath(applicationRoot, sourceDirectory) }
       : {}),
+    compatibility: { requiredCoreVersion },
   };
 }
 
 function inspectLocalProject(directory: string): {
   readonly remoteName?: string;
   readonly port?: number;
+  readonly requiredCoreVersion?: string;
 } {
   const federationConfiguration = resolve(directory, 'federation.config.js');
   const angularConfiguration = resolve(directory, 'angular.json');
@@ -147,7 +157,7 @@ function inspectLocalProject(directory: string): {
   const remoteName = federationContent.match(/\bname\s*:\s*['"]([^'"]+)['"]/)?.[1];
   const port = readPort(angularConfiguration);
 
-  return { remoteName, port };
+  return { remoteName, port, requiredCoreVersion: readRequiredCoreVersion(directory) };
 }
 
 function readPort(configurationPath: string): number | undefined {

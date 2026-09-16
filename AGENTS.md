@@ -6,6 +6,7 @@
 - `open-mova-core/` contiene la librería base y sus contratos reutilizables.
 - `open-mova-cli/` contiene el CLI de Open Mova.
 - `open-mova-mf-template/` es la única fuente del microfrontal de referencia; el CLI aplica un perfil demo o mínimo.
+- `tooling/` contiene exclusivamente herramientas internas de calidad y pruebas end-to-end.
 - La raíz contiene solo configuración compartida del monorepo, documentación y automatizaciones comunes.
 
 ## Principios

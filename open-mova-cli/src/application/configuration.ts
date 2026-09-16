@@ -1,11 +1,17 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import type {
-  MicrofrontendConfiguration,
-  OpenMovaApplicationConfiguration,
-} from '../types.js';
+import type { MicrofrontendConfiguration, OpenMovaApplicationConfiguration } from '../types.js';
+import {
+  LATEST_CONFIGURATION_SCHEMA_VERSION,
+  migrateConfiguration,
+} from './configuration-migrations.js';
 
 export const APPLICATION_CONFIGURATION_FILE = 'mova.config.json';
+
+export interface ApplicationConfigurationDocument {
+  readonly configuration: OpenMovaApplicationConfiguration;
+  readonly migrations: readonly string[];
+}
 
 export function findApplicationRoot(startDirectory: string): string | undefined {
   let currentDirectory = resolve(startDirectory);
@@ -40,18 +46,20 @@ export function requireApplicationRoot(startDirectory: string): string {
 export function readApplicationConfiguration(
   applicationRoot: string,
 ): OpenMovaApplicationConfiguration {
+  return readApplicationConfigurationDocument(applicationRoot).configuration;
+}
+
+export function readApplicationConfigurationDocument(
+  applicationRoot: string,
+): ApplicationConfigurationDocument {
   const configurationPath = join(applicationRoot, APPLICATION_CONFIGURATION_FILE);
+  const parsed: unknown = JSON.parse(readFileSync(configurationPath, 'utf8'));
+  const migration = migrateConfiguration(parsed, applicationRoot);
 
-  try {
-    const parsed: unknown = JSON.parse(readFileSync(configurationPath, 'utf8'));
-    return validateApplicationConfiguration(parsed, configurationPath);
-  } catch (error) {
-    if (error instanceof Error) {
-      throw error;
-    }
-
-    throw new Error(`No se ha podido leer ${configurationPath}.`);
-  }
+  return {
+    configuration: validateApplicationConfiguration(migration.value, configurationPath),
+    migrations: migration.migrations,
+  };
 }
 
 export function writeApplicationConfiguration(
@@ -71,9 +79,7 @@ export function addMicrofrontend(
   const routeInUse = configuration.microfrontends.some(
     (entry) => entry.route === microfrontend.route,
   );
-  const nameInUse = configuration.microfrontends.some(
-    (entry) => entry.name === microfrontend.name,
-  );
+  const nameInUse = configuration.microfrontends.some((entry) => entry.name === microfrontend.name);
   const remoteInUse = configuration.microfrontends.some(
     (entry) => entry.remoteName === microfrontend.remoteName,
   );
@@ -102,7 +108,10 @@ function validateApplicationConfiguration(
     throw new Error(`${configurationPath} no contiene un objeto JSON válido.`);
   }
 
-  if (value.schemaVersion !== 1 || typeof value.name !== 'string') {
+  if (
+    value.schemaVersion !== LATEST_CONFIGURATION_SCHEMA_VERSION ||
+    typeof value.name !== 'string'
+  ) {
     throw new Error(`${configurationPath} no tiene el formato de Open Mova esperado.`);
   }
 
@@ -157,7 +166,7 @@ function validateApplicationConfiguration(
   );
 
   return {
-    schemaVersion: 1,
+    schemaVersion: LATEST_CONFIGURATION_SCHEMA_VERSION,
     name: value.name,
     ...(shell ? { shell } : {}),
     ...(native ? { native } : {}),
@@ -202,14 +211,25 @@ function validateMicrofrontend(
     throw new Error(`${configurationPath} contiene una URL de producción no válida.`);
   }
 
-  if (value.template !== undefined && (
-    !isRecord(value.template) ||
-    typeof value.template.repository !== 'string' ||
-    typeof value.template.version !== 'string' ||
-    typeof value.template.commit !== 'string' ||
-    value.template.project !== 'open-mova-mf-template' ||
-    (value.template.profile !== 'minimal' && value.template.profile !== 'demo')
-  )) {
+  if (
+    !isRecord(value.compatibility) ||
+    typeof value.compatibility.requiredCoreVersion !== 'string' ||
+    value.compatibility.requiredCoreVersion.trim() === ''
+  ) {
+    throw new Error(
+      `${configurationPath} contiene un microfrontal sin compatibilidad de Core declarada.`,
+    );
+  }
+
+  if (
+    value.template !== undefined &&
+    (!isRecord(value.template) ||
+      typeof value.template.repository !== 'string' ||
+      typeof value.template.version !== 'string' ||
+      typeof value.template.commit !== 'string' ||
+      value.template.project !== 'open-mova-mf-template' ||
+      (value.template.profile !== 'minimal' && value.template.profile !== 'demo'))
+  ) {
     throw new Error(`${configurationPath} contiene una plantilla de microfrontal no válida.`);
   }
 
@@ -223,7 +243,12 @@ function validateMicrofrontend(
       ? {}
       : { productionRemoteEntry: value.productionRemoteEntry }),
     ...(value.sourcePath === undefined ? {} : { sourcePath: value.sourcePath }),
-    ...(value.template === undefined ? {} : { template: value.template as MicrofrontendConfiguration['template'] }),
+    compatibility: {
+      requiredCoreVersion: value.compatibility.requiredCoreVersion,
+    },
+    ...(value.template === undefined
+      ? {}
+      : { template: value.template as MicrofrontendConfiguration['template'] }),
   };
 }
 

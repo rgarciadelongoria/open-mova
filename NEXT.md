@@ -16,7 +16,11 @@ El siguiente objetivo no debería ser añadir más plugins inmediatamente. La
 prioridad es convertir esta base en una plataforma fiable para que otros
 equipos puedan crear y mantener aplicaciones sin encontrarse sorpresas.
 
-## 1. Estabilidad y calidad
+## 1. Estabilidad y calidad — completado
+
+Esta primera etapa ya está implementada. La calidad se valida tanto en local
+como en integración continua y cubre los límites principales entre Core, CLI,
+shell y microfrontales.
 
 ### Integración continua
 
@@ -25,35 +29,40 @@ en `main`. Actualmente ejecuta:
 
 - Typecheck de todos los proyectos.
 - Build de Core, CLI, shell y template.
-- Pruebas automáticas.
+- ESLint y comprobación de formato con Prettier.
+- Pruebas unitarias y de integración del CLI.
+- Prueba de navegador de la shell con un microfrontal remoto real.
 - Verificación de que `npm pack` de Core y CLI se puede instalar en un
   proyecto limpio.
 
 ### Pruebas automatizadas
 
-Existe una primera base de tests unitarios para el catálogo de capacidades de
-Core y para los nombres, la configuración y la compatibilidad entre plataformas
-del CLI. Los siguientes casos que conviene cubrir son:
+Las pruebas automatizadas cubren:
 
+- El catálogo de capacidades nativas de Core.
+- Los nombres, la configuración y la compatibilidad entre plataformas del CLI.
 - `mova create`.
 - `mova mf create` y `mova mf add`.
 - `mova update --check`.
 - Generación correcta de `mova.config.json`, el manifiesto y las rutas.
 - Configuración Android de Gradle, Maps, permisos y `minSdk`.
+- Diagnóstico del entorno con `mova doctor`.
 
-También conviene añadir una prueba de integración que cree una aplicación,
-arranque una shell y un MF remoto y verifique que las rutas, el Core singleton
-y la inyección de capacidades funcionan juntos.
+Además, una prueba end-to-end arranca la shell y el microfrontal demo en
+procesos independientes. Playwright comprueba que el remoto se carga, que sus
+rutas funcionan y que recibe las capacidades nativas mediante el singleton de
+Core y la inyección de dependencias.
 
 ### Formato y linting
 
-Incorporar reglas automáticas de formato y calidad, por ejemplo con Prettier y
-ESLint. El objetivo es que todos los proyectos mantengan el mismo estilo y
-que los errores sencillos se detecten antes de revisar el código.
+ESLint y Prettier están centralizados en el proyecto privado `tooling/`, sin
+añadir dependencias a la raíz ni a los paquetes distribuibles. Se pueden
+ejecutar con `npm run lint`, `npm run format` y `npm run format:check`, y la CI
+impide integrar código que no supere estas comprobaciones.
 
 ### Diagnóstico del entorno
 
-Crear `mova doctor` para revisar de forma comprensible:
+`mova doctor` revisa de forma comprensible:
 
 - Versiones de Node, npm y Git.
 - Dependencias instaladas.
@@ -63,30 +72,50 @@ Crear `mova doctor` para revisar de forma comprensible:
 - Plataformas Capacitor añadidas.
 - Claves, permisos y versiones compatibles.
 
-## 2. Compatibilidad y actualizaciones
+El comando distingue errores de avisos y devuelve un código de error cuando
+encuentra un problema bloqueante, por lo que puede utilizarse de forma
+interactiva o dentro de automatizaciones.
+
+## 2. Compatibilidad y actualizaciones — implementado
 
 La aplicación ya guarda el tag y el commit de la shell con los que fue creada,
-y `mova update` actualiza la infraestructura técnica. El siguiente paso es
-formalizar la compatibilidad entre Shell, Core y microfrontales.
+`mova update` actualiza la infraestructura técnica y `mova mf update` actualiza
+microfrontales gestionados desde la plantilla. La compatibilidad se valida
+antes de cargar cada remoto.
 
-Cada MF debería declarar qué versión de `@open-mova/core` necesita. La shell
-podría validar esa compatibilidad antes de cargarlo y mostrar un error claro
-cuando las versiones no sean compatibles.
+Cada MF nuevo declara en `mova.config.json` el rango de `@open-mova/core` que
+necesita y publica `assets/open-mova.manifest.json` junto a su
+`remoteEntry.json`. La shell obtiene el manifiesto, comprueba el nombre del
+remoto, el rango de Core y la versión de contrato antes de importar sus rutas.
+Si falla, muestra un error técnico comprensible y no intenta montar el MF.
+
+Core contiene la definición del manifiesto y la comprobación de rangos. El
+CLI utiliza `semver` para detectar incompatibilidades antes de aplicar una
+actualización de shell. La federación mantiene además `@open-mova/core` como
+singleton con versión estricta.
 
 Las actualizaciones deberían quedar separadas por responsabilidad:
 
-| Elemento | Mecanismo |
-| --- | --- |
-| Shell | `mova update` |
-| MF creado desde plantilla | Futuro `mova mf update` |
-| Core | Actualización controlada de la dependencia npm |
-| MF remoto externo | Responsabilidad del proveedor, con validación de compatibilidad |
+| Elemento                  | Mecanismo                                                       |
+| ------------------------- | --------------------------------------------------------------- |
+| Shell                     | `mova update`                                                   |
+| MF creado desde plantilla | `mova mf update`                                                |
+| Core                      | Actualización controlada de la dependencia npm                  |
+| MF remoto externo         | Responsabilidad del proveedor, con validación de compatibilidad |
 
 Esto evita sobrescribir lógica propia de un proveedor al actualizar la
 infraestructura común.
 
-También conviene incorporar migraciones de `mova.config.json` cuando cambie su
-`schemaVersion`, en lugar de obligar a modificar el fichero manualmente.
+`mova.config.json` usa ahora `schemaVersion: 2`, que declara la compatibilidad
+de Core por MF. El CLI migra configuraciones de esquema 1 en memoria y guarda
+la migración al ejecutar `mova update`. Las entradas antiguas sin información
+de Core reciben temporalmente `*` y `mova doctor` las marca como aviso para
+que se actualicen de forma explícita.
+
+Las actualizaciones usan comparación a tres bandas: versión original,
+versión nueva y archivos actuales del proveedor. Solo se aplican cambios que
+no hayan sido modificados por el proveedor; los conflictos se muestran y
+detienen la operación. Se exige un repositorio Git limpio antes de escribir.
 
 ## 3. Capacidades nativas seleccionables
 
@@ -101,11 +130,7 @@ que utiliza cada aplicación:
 ```json
 {
   "native": {
-    "capabilities": [
-      "camera",
-      "device",
-      "geolocation"
-    ]
+    "capabilities": ["camera", "device", "geolocation"]
   }
 }
 ```
@@ -177,7 +202,7 @@ La regla de separación debe mantenerse:
 
 ## 6. Evolución del CLI
 
-Después de `mova doctor`, los comandos con más valor serían:
+Los siguientes comandos con más valor serían:
 
 - `mova mf update`: actualizar con seguridad un MF creado desde una plantilla.
 - `mova mf build`: compilar un remoto individual.
@@ -211,13 +236,12 @@ comportamiento real. Por ejemplo, el README del CLI debe indicar que
 
 ## Orden recomendado
 
-1. CI, tests, linting y `mova doctor`.
-2. Matriz de compatibilidad entre Shell, Core y MFs.
-3. Registro seleccionable de capacidades nativas y diagnóstico de permisos.
-4. Seguridad, versionado y rollback de MFs remotos.
-5. `mova mf update` y gestión de plantillas.
-6. Autenticación, HTTP, guards e interceptores en Core.
-7. Observabilidad, telemetría y despliegue de microfrontales.
+1. Matriz de compatibilidad entre Shell, Core y MFs.
+2. Registro seleccionable de capacidades nativas y diagnóstico de permisos.
+3. Seguridad, versionado y rollback de MFs remotos.
+4. `mova mf update` y gestión de plantillas.
+5. Autenticación, HTTP, guards e interceptores en Core.
+6. Observabilidad, telemetría y despliegue de microfrontales.
 
 La siguiente versión importante debería centrarse en la fiabilidad de la
 plataforma y la experiencia del proveedor, más que en añadir nuevas

@@ -1,6 +1,6 @@
 {
   "name": "@open-mova/cli",
-  "version": "0.1.20",
+  "version": "0.1.22",
   "description": "CLI para crear y mantener aplicaciones Open Mova",
   "license": "MIT",
   "author": "Open Mova contributors",
@@ -44,10 +44,12 @@
     "test:unit": "node --test test/*.test.mjs"
   },
   "dependencies": {
-    "commander": "^14.0.0"
+    "commander": "^14.0.0",
+    "semver": "^7.8.5"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "@types/semver": "^7.8.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.3"
   }

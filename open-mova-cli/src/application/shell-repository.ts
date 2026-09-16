@@ -1,16 +1,10 @@
 import { spawnSync } from 'node:child_process';
-import {
-  cpSync,
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-export const SHELL_REPOSITORY = 'https://github.com/rgarciadelongoria/open-mova.git';
+export const SHELL_REPOSITORY =
+  process.env['OPEN_MOVA_SHELL_REPOSITORY'] ?? 'https://github.com/rgarciadelongoria/open-mova.git';
 
 // El demo publicado permite probar una aplicación recién creada sin desplegar un MF propio.
 export const DEMO_MICROFRONTEND_REMOTE_ENTRY =
@@ -70,9 +64,17 @@ export function downloadTaggedProject(
   try {
     const checkout = join(temporaryDirectory, 'repository');
     runGit([
-      '-c', 'advice.detachedHead=false',
-      'clone', '--quiet', '--depth', '1', '--single-branch',
-      '--branch', version, SHELL_REPOSITORY, checkout,
+      '-c',
+      'advice.detachedHead=false',
+      'clone',
+      '--quiet',
+      '--depth',
+      '1',
+      '--single-branch',
+      '--branch',
+      version,
+      SHELL_REPOSITORY,
+      checkout,
     ]);
 
     const source = join(checkout, project);
@@ -138,8 +140,8 @@ export function configureDownloadedShell(
     writeFileSync(capacitorPath, customizedConfig);
   }
   writeFileSync(join(destination, '.nvmrc'), '22\n');
-  const installSteps = 'npm install\n' +
-    (includesStarterMicrofrontend ? 'npm --prefix mfs/home install\n' : '');
+  const installSteps =
+    'npm install\n' + (includesStarterMicrofrontend ? 'npm --prefix mfs/home install\n' : '');
   const runSteps = includesStarterMicrofrontend
     ? 'Inicia `npm --prefix mfs/home start` y `npm start` en dos terminales. Abre `http://localhost:4200/home/inicio`.\n'
     : 'Registra primero un MF con `mova mf create nombre` y después ejecuta `mova start`.\n';

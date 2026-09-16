@@ -1,0 +1,72 @@
+import { loadRemoteModule } from '@angular-architects/native-federation';
+import type { Routes } from '@angular/router';
+import {
+  checkCoreCompatibility,
+  OPEN_MOVA_CORE_VERSION,
+  parseMicrofrontendManifest,
+} from '@open-mova/core';
+import type { MicrofrontendDefinition } from '../application.config';
+
+interface RemoteRoutesModule {
+  readonly routes: Routes;
+}
+
+let federationManifest: Promise<Record<string, string>> | undefined;
+
+export async function loadCompatibleRemoteRoutes(
+  microfrontend: MicrofrontendDefinition,
+): Promise<Routes> {
+  const remoteEntry = await findRemoteEntry(microfrontend.remote);
+  const manifestUrl = new URL('assets/open-mova.manifest.json', remoteEntry).toString();
+  const response = await fetch(manifestUrl);
+
+  if (!response.ok) {
+    throw new Error(
+      `El MF ${microfrontend.remote} no publica su manifiesto de compatibilidad (${response.status}).`,
+    );
+  }
+
+  const manifest = parseMicrofrontendManifest(await response.json());
+  if (manifest.remoteName !== microfrontend.remote) {
+    throw new Error(
+      `El remoto esperado es ${microfrontend.remote}, pero su manifiesto declara ${manifest.remoteName}.`,
+    );
+  }
+  if (manifest.core.requiredVersion !== microfrontend.requiredCoreVersion) {
+    throw new Error(
+      `La aplicación espera Core ${microfrontend.requiredCoreVersion} para ${microfrontend.remote}, ` +
+        `pero el remoto publica ${manifest.core.requiredVersion}. Regenera la configuración de la shell.`,
+    );
+  }
+
+  const compatibility = checkCoreCompatibility(
+    manifest.core.requiredVersion,
+    OPEN_MOVA_CORE_VERSION,
+  );
+  if (!compatibility.compatible) {
+    throw new Error(compatibility.reason);
+  }
+
+  const remoteModule = (await loadRemoteModule(
+    microfrontend.remote,
+    microfrontend.exposedModule,
+  )) as RemoteRoutesModule;
+  if (!Array.isArray(remoteModule.routes)) {
+    throw new Error(`El MF ${microfrontend.remote} no expone una lista de rutas válida.`);
+  }
+  return remoteModule.routes;
+}
+
+async function findRemoteEntry(remoteName: string): Promise<string> {
+  const manifestUrl = new URL('assets/federation.manifest.json', document.baseURI);
+  federationManifest ??= fetch(manifestUrl).then(async (response) => {
+    if (!response.ok) throw new Error('No se puede leer el manifiesto de federación de la shell.');
+    return (await response.json()) as Record<string, string>;
+  });
+
+  const remoteEntry = (await federationManifest)[remoteName];
+  if (!remoteEntry) {
+    throw new Error(`No existe una URL de federación para el remoto ${remoteName}.`);
+  }
+  return remoteEntry;
+}

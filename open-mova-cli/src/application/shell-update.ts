@@ -1,19 +1,19 @@
-import { spawnSync } from 'node:child_process';
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs';
-import { dirname, join, relative } from 'node:path';
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { synchronizeShellConfiguration } from './shell-configuration.js';
 import { downloadShell, listShellVersions, type ShellVersion } from './shell-repository.js';
 import { writeApplicationConfiguration } from './configuration.js';
+import {
+  applyFileChanges,
+  compareManagedFiles,
+  comparePackageConfiguration,
+  type FileChange,
+  requireCleanGitRepository,
+} from './project-update.js';
+import { findIncompatibleMicrofrontends } from './core-compatibility.js';
+import { readRequiredCoreVersion } from './microfrontend-manifest.js';
 
 const GENERATED_PATHS = new Set([
   'package.json',
@@ -22,11 +22,6 @@ const GENERATED_PATHS = new Set([
   'src/app/application.config.ts',
   'src/assets/federation.manifest.json',
 ]);
-
-interface FileChange {
-  readonly path: string;
-  readonly content?: Buffer;
-}
 
 export interface ShellUpdatePlan {
   readonly currentVersion: string;
@@ -79,6 +74,7 @@ export function createShellUpdatePlan(
       currentDirectory,
       targetDirectory,
       conflicts,
+      GENERATED_PATHS,
     );
     const packageUpdate = comparePackageConfiguration(
       applicationRoot,
@@ -86,6 +82,8 @@ export function createShellUpdatePlan(
       targetDirectory,
       conflicts,
     );
+    const targetCoreVersion = readRequiredCoreVersion(targetDirectory);
+    conflicts.push(...findIncompatibleMicrofrontends(configuration, targetCoreVersion));
     const capacitorUpdate = compareCapacitorConfiguration(
       applicationRoot,
       currentDirectory,
@@ -93,8 +91,8 @@ export function createShellUpdatePlan(
       conflicts,
     );
     const changes = [
-      ...fileChanges.map((change) =>
-        `${change.content ? 'Actualizar' : 'Eliminar'} ${change.path}`,
+      ...fileChanges.map(
+        (change) => `${change.content ? 'Actualizar' : 'Eliminar'} ${change.path}`,
       ),
       ...(packageUpdate ? ['Actualizar package.json', 'Regenerar package-lock.json'] : []),
       ...(capacitorUpdate ? ['Actualizar capacitor.config.ts'] : []),
@@ -129,15 +127,7 @@ export function applyShellUpdate(
 
   requireCleanGitRepository(applicationRoot);
 
-  for (const change of plan.fileChanges) {
-    const destination = join(applicationRoot, change.path);
-    if (change.content) {
-      mkdirSync(dirname(destination), { recursive: true });
-      writeFileSync(destination, change.content);
-    } else {
-      rmSync(destination, { force: true });
-    }
-  }
+  applyFileChanges(applicationRoot, plan.fileChanges);
 
   if (plan.packageContent) {
     writeFileSync(join(applicationRoot, 'package.json'), plan.packageContent, 'utf8');
@@ -146,11 +136,7 @@ export function applyShellUpdate(
     rmSync(join(applicationRoot, 'package-lock.json'), { force: true });
   }
   if (plan.capacitorContent) {
-    writeFileSync(
-      join(applicationRoot, 'capacitor.config.ts'),
-      plan.capacitorContent,
-      'utf8',
-    );
+    writeFileSync(join(applicationRoot, 'capacitor.config.ts'), plan.capacitorContent, 'utf8');
   }
 
   const updatedConfiguration: OpenMovaApplicationConfiguration = {
@@ -159,75 +145,6 @@ export function applyShellUpdate(
   };
   writeApplicationConfiguration(applicationRoot, updatedConfiguration);
   synchronizeShellConfiguration(applicationRoot, updatedConfiguration);
-}
-
-function compareManagedFiles(
-  applicationRoot: string,
-  currentDirectory: string,
-  targetDirectory: string,
-  conflicts: string[],
-): FileChange[] {
-  const paths = new Set([
-    ...listFiles(currentDirectory),
-    ...listFiles(targetDirectory),
-  ]);
-  const changes: FileChange[] = [];
-
-  for (const path of [...paths].sort()) {
-    if (GENERATED_PATHS.has(path)) continue;
-
-    const currentContent = readOptionalFile(join(currentDirectory, path));
-    const targetContent = readOptionalFile(join(targetDirectory, path));
-    const applicationContent = readOptionalFile(join(applicationRoot, path));
-
-    if (buffersEqual(currentContent, targetContent)) continue;
-    if (buffersEqual(applicationContent, currentContent)) {
-      changes.push({ path, ...(targetContent ? { content: targetContent } : {}) });
-      continue;
-    }
-    if (buffersEqual(applicationContent, targetContent)) continue;
-
-    conflicts.push(path);
-  }
-
-  return changes;
-}
-
-function comparePackageConfiguration(
-  applicationRoot: string,
-  currentDirectory: string,
-  targetDirectory: string,
-  conflicts: string[],
-): string | undefined {
-  const application = readJson(join(applicationRoot, 'package.json'));
-  const current = readJson(join(currentDirectory, 'package.json'));
-  const target = readJson(join(targetDirectory, 'package.json'));
-  let changed = false;
-
-  for (const section of ['scripts', 'dependencies', 'devDependencies'] as const) {
-    const applicationSection = readStringMap(application[section]);
-    const currentSection = readStringMap(current[section]);
-    const targetSection = readStringMap(target[section]);
-    const keys = new Set([...Object.keys(currentSection), ...Object.keys(targetSection)]);
-
-    for (const key of keys) {
-      if (currentSection[key] === targetSection[key]) continue;
-      if (applicationSection[key] === currentSection[key]) {
-        if (targetSection[key] === undefined) {
-          delete applicationSection[key];
-        } else {
-          applicationSection[key] = targetSection[key];
-        }
-        changed = true;
-      } else if (applicationSection[key] !== targetSection[key]) {
-        conflicts.push(`package.json#${section}.${key}`);
-      }
-    }
-
-    application[section] = applicationSection;
-  }
-
-  return changed ? `${JSON.stringify(application, null, 2)}\n` : undefined;
 }
 
 function compareCapacitorConfiguration(
@@ -253,61 +170,6 @@ function compareCapacitorConfiguration(
 
   conflicts.push('capacitor.config.ts');
   return undefined;
-}
-
-function requireCleanGitRepository(applicationRoot: string): void {
-  const repository = spawnSync(
-    'git',
-    ['-C', applicationRoot, 'rev-parse', '--is-inside-work-tree'],
-    { encoding: 'utf8' },
-  );
-  if (repository.status !== 0) {
-    throw new Error('Inicializa Git y crea un commit antes de ejecutar mova update.');
-  }
-
-  const status = spawnSync(
-    'git',
-    ['-C', applicationRoot, 'status', '--porcelain', '--untracked-files=all'],
-    { encoding: 'utf8' },
-  );
-  if (status.status !== 0 || status.stdout.trim() !== '') {
-    throw new Error('El repositorio debe estar limpio antes de ejecutar mova update.');
-  }
-}
-
-function listFiles(directory: string): string[] {
-  const files: string[] = [];
-
-  const visit = (currentDirectory: string): void => {
-    for (const entry of readdirSync(currentDirectory, { withFileTypes: true })) {
-      const absolutePath = join(currentDirectory, entry.name);
-      if (entry.isDirectory()) {
-        visit(absolutePath);
-      } else if (entry.isFile()) {
-        files.push(relative(directory, absolutePath));
-      }
-    }
-  };
-
-  visit(directory);
-  return files;
-}
-
-function readOptionalFile(path: string): Buffer | undefined {
-  return existsSync(path) ? readFileSync(path) : undefined;
-}
-
-function buffersEqual(first?: Buffer, second?: Buffer): boolean {
-  return first === undefined ? second === undefined : second !== undefined && first.equals(second);
-}
-
-function readJson(path: string): Record<string, unknown> {
-  return JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>;
-}
-
-function readStringMap(value: unknown): Record<string, string> {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-  return { ...(value as Record<string, string>) };
 }
 
 function readCapacitorIdentity(content: string): { appId: string; appName: string } {

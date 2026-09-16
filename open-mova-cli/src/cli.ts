@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import { registerBuildCommand } from './commands/build.js';
 import { registerCapacitorCommands } from './commands/capacitor.js';
 import { registerCreateCommand } from './commands/create.js';
+import { registerDoctorCommand } from './commands/doctor.js';
 import { registerInfoCommand } from './commands/info.js';
 import { registerMicrofrontendCommands } from './commands/microfrontend.js';
 import { registerStartCommand } from './commands/start.js';
@@ -22,6 +23,7 @@ program
   .version(packageVersion.version);
 
 registerCreateCommand(program);
+registerDoctorCommand(program);
 registerMicrofrontendCommands(program);
 registerStartCommand(program);
 registerShellCommands(program);

@@ -1,9 +1,6 @@
 import { resolve } from 'node:path';
 import type { Command } from 'commander';
-import {
-  findApplicationRoot,
-  readApplicationConfiguration,
-} from '../application/configuration.js';
+import { findApplicationRoot, readApplicationConfiguration } from '../application/configuration.js';
 
 export function registerInfoCommand(program: Command): void {
   program
@@ -25,7 +22,9 @@ export function registerInfoCommand(program: Command): void {
       console.log(`Aplicación Open Mova: ${configuration.name}`);
       console.log(`Raíz de la aplicación: ${applicationRoot}`);
       if (configuration.shell) {
-        console.log(`Shell: ${configuration.shell.version} (${configuration.shell.commit.slice(0, 7)})`);
+        console.log(
+          `Shell: ${configuration.shell.version} (${configuration.shell.commit.slice(0, 7)})`,
+        );
       }
       console.log(`Microfrontales registrados: ${configuration.microfrontends.length}`);
 

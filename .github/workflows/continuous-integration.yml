@@ -34,6 +34,11 @@ jobs:
             open-mova-cli/package-lock.json
             open-mova-shell/package-lock.json
             open-mova-mf-template/package-lock.json
+            tooling/package-lock.json
+
+      - name: Instalar herramientas de calidad
+        run: npm ci
+        working-directory: tooling
 
       - name: Instalar dependencias de Core
         run: npm ci
@@ -59,11 +64,23 @@ jobs:
       - name: Comprobar tipos
         run: npm run typecheck
 
+      - name: Comprobar lint y formato
+        run: |
+          npm run lint
+          npm run format:check
+
       - name: Compilar todos los proyectos
         run: npm run build
 
       - name: Ejecutar pruebas automáticas
         run: npm run test:unit
+
+      - name: Instalar navegador de pruebas
+        run: npx playwright install --with-deps chromium
+        working-directory: tooling
+
+      - name: Verificar shell y microfrontal en navegador
+        run: npm run test:e2e
 
       - name: Verificar paquetes distribuibles
         run: npm run pack:verify

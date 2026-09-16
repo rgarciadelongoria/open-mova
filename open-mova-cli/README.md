@@ -18,6 +18,7 @@ El CLI descarga la shell, el core y la plantilla de microfrontales desde tags es
 - [`mova start`](#mova-start)
 - [`mova build`](#mova-build)
 - [`mova info`](#mova-info)
+- [`mova doctor`](#mova-doctor)
 - [`mova update`](#mova-update)
 - [`mova shell`](#mova-shell)
 - [`mova shell versions`](#mova-shell-versions)
@@ -117,6 +118,32 @@ mova mf add --name catalog --route productos \
 
 El CLI actualiza `mova.config.json`, `src/assets/federation.manifest.json` y `src/app/application.config.ts`.
 
+Para un MF remoto que no tenga un proyecto local, declara explícitamente su
+rango de Core:
+
+```bash
+mova mf add --name catalog --route catalog \
+  --remote catalog-microfrontend \
+  --remote-entry https://cdn.example.com/catalog/remoteEntry.json \
+  --core-version '^0.2.2'
+```
+
+### `mova mf update`
+
+Actualiza un MF local que fue creado desde una plantilla de Open Mova. Compara
+la plantilla original, el proyecto actual y la nueva versión en tres pasos:
+solo aplica cambios que no hayan sido personalizados y deja los conflictos
+para revisión.
+
+```bash
+mova mf update home --check
+mova mf update home --to v0.2.2
+```
+
+El comando conserva el nombre, la ruta, el puerto, el perfil y las
+dependencias propias del proveedor. Si cambia `package.json`, elimina el
+lockfile para que ejecutes `npm install` en el MF.
+
 ### `mova start`
 
 Arranca los MFs locales registrados y después la shell. Los MFs configurados solo con una URL remota no se arrancan localmente.
@@ -141,6 +168,25 @@ Muestra la aplicación detectada, la versión de shell y sus microfrontales. Tam
 ```bash
 mova info
 ```
+
+### `mova doctor`
+
+Diagnostica el entorno de desarrollo y la aplicación encontrada desde el
+directorio actual. Comprueba las herramientas básicas, las dependencias, la
+configuración de la shell y los microfrontales, las URLs de producción y la
+compatibilidad de Core.
+
+Si la aplicación contiene plataformas Capacitor, también revisa los
+requisitos disponibles de Android o iOS, como el SDK, `adb`, emuladores,
+Xcode, CocoaPods, claves y descripciones de permisos.
+
+```bash
+mova doctor
+```
+
+Los avisos informan de elementos opcionales o todavía no configurados. Los
+errores hacen que el comando termine con un código distinto de cero, por lo
+que también puede utilizarse en scripts de validación.
 
 ### `mova update`
 
@@ -337,5 +383,3 @@ mova cap open ios
 En Xcode selecciona un simulador o dispositivo, elige el esquema de la app y
 pulsa **Run**. Después de cambiar la shell o los plugins, ejecuta de nuevo
 `mova cap sync ios` antes de volver a abrir o ejecutar el proyecto.
-
-El CLI todavía no actualiza automáticamente la shell de una aplicación creada ni publica microfrontales. Los comandos móviles requieren una versión de shell que incluya Capacitor.

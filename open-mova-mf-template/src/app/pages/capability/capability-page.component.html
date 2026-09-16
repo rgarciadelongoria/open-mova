@@ -16,7 +16,12 @@
     @if (example.note) {
       <p class="example-note">{{ example.note }}</p>
     }
-    <button class="action-button" type="button" (click)="run(example)" [disabled]="!example.runnable">
+    <button
+      class="action-button"
+      type="button"
+      (click)="run(example)"
+      [disabled]="!example.runnable"
+    >
       {{ example.runnable ? 'Probar ejemplo' : 'Requiere configuración' }}
     </button>
   </article>
@@ -26,8 +31,8 @@
   <p class="eyebrow">API COMPLETA</p>
   <h3>Métodos</h3>
   <p>
-    Todos los métodos oficiales disponibles a través del contrato de Open Mova.
-    Sustituye <code>options</code> por las opciones indicadas para cada plugin.
+    Todos los métodos oficiales disponibles a través del contrato de Open Mova. Sustituye
+    <code>options</code> por las opciones indicadas para cada plugin.
   </p>
   <div class="api-grid">
     @for (operation of capability.operations; track operation) {
@@ -40,9 +45,7 @@
 
   @if (capability.events.length > 0) {
     <h3 class="events-heading">Eventos</h3>
-    <p>
-      Cada suscripción devuelve un manejador que debe eliminarse cuando deje de usarse.
-    </p>
+    <p>Cada suscripción devuelve un manejador que debe eliminarse cuando deje de usarse.</p>
     <div class="api-grid">
       @for (event of capability.events; track event) {
         <article class="api-item">

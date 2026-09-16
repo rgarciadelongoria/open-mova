@@ -1,0 +1,23 @@
+{
+  "name": "@open-mova/tooling",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "lint": "eslint --config eslint.config.mjs ../open-mova-core/src ../open-mova-core/test ../open-mova-cli/src ../open-mova-cli/test ../open-mova-shell/src ../open-mova-mf-template/src ../scripts .",
+    "format": "prettier --config ../prettier.config.mjs --ignore-path ../.prettierignore --write ..",
+    "format:check": "prettier --config ../prettier.config.mjs --ignore-path ../.prettierignore --check ..",
+    "test:e2e": "node test-federation-integration.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
+    "playwright": "^1.63.0",
+    "prettier": "^3.9.7",
+    "typescript-eslint": "^8.70.0"
+  }
+}

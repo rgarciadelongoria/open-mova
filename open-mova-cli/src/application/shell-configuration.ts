@@ -26,15 +26,14 @@ export function synchronizeShellConfiguration(
   );
 }
 
-function renderApplicationConfiguration(
-  configuration: OpenMovaApplicationConfiguration,
-): string {
+function renderApplicationConfiguration(configuration: OpenMovaApplicationConfiguration): string {
   const entries = configuration.microfrontends
     .map(
       (microfrontend) => `  {
     path: ${JSON.stringify(microfrontend.route)},
     remote: ${JSON.stringify(microfrontend.remoteName)},
     exposedModule: './Routes',
+    requiredCoreVersion: ${JSON.stringify(microfrontend.compatibility.requiredCoreVersion)},
   },`,
     )
     .join('\n');
@@ -43,6 +42,7 @@ function renderApplicationConfiguration(
   readonly path: string;
   readonly remote: string;
   readonly exposedModule: './Routes';
+  readonly requiredCoreVersion: string;
 }
 
 // Este fichero lo mantiene el CLI a partir de mova.config.json.

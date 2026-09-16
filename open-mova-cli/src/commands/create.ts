@@ -2,10 +2,7 @@ import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path';
 import type { Command } from 'commander';
 import { createMicrofrontend } from '../application/microfrontend.js';
-import {
-  addMicrofrontend,
-  writeApplicationConfiguration,
-} from '../application/configuration.js';
+import { addMicrofrontend, writeApplicationConfiguration } from '../application/configuration.js';
 import { synchronizeShellConfiguration } from '../application/shell-configuration.js';
 import {
   configureDownloadedShell,
@@ -31,18 +28,14 @@ export function registerCreateCommand(program: Command): void {
     .option('--shell-version <tag>', 'tag de la shell, por ejemplo v0.1.4')
     .action((name: string, options: CreateCommandOptions) => {
       const applicationName = normalizeName(name, 'El nombre de la aplicación');
-      const applicationRoot = resolve(
-        options.directory ?? join(process.cwd(), applicationName),
-      );
+      const applicationRoot = resolve(options.directory ?? join(process.cwd(), applicationName));
 
       if (existsSync(applicationRoot)) {
         throw new Error(`Ya existe un directorio en ${applicationRoot}.`);
       }
 
       mkdirSync(dirname(applicationRoot), { recursive: true });
-      const temporaryApplication = mkdtempSync(
-        join(dirname(applicationRoot), '.mova-create-'),
-      );
+      const temporaryApplication = mkdtempSync(join(dirname(applicationRoot), '.mova-create-'));
 
       let shellVersion: string;
 
@@ -52,24 +45,20 @@ export function registerCreateCommand(program: Command): void {
         configureDownloadedShell(temporaryApplication, applicationName, !options.empty);
 
         let configuration: OpenMovaApplicationConfiguration = {
-          schemaVersion: 1,
+          schemaVersion: 2,
           name: applicationName,
           shell,
           microfrontends: [],
         };
 
         if (!options.empty) {
-          const starterMicrofrontend = createMicrofrontend(
-            temporaryApplication,
-            configuration,
-            {
-              name: 'home',
-              directory: join('mfs', 'home'),
-              profile: 'demo',
-              templateVersion: shell.version,
-              productionRemoteEntry: DEMO_MICROFRONTEND_REMOTE_ENTRY,
-            },
-          );
+          const starterMicrofrontend = createMicrofrontend(temporaryApplication, configuration, {
+            name: 'home',
+            directory: join('mfs', 'home'),
+            profile: 'demo',
+            templateVersion: shell.version,
+            productionRemoteEntry: DEMO_MICROFRONTEND_REMOTE_ENTRY,
+          });
 
           configuration = addMicrofrontend(configuration, starterMicrofrontend);
         }

@@ -1,12 +1,9 @@
 import type { Command } from 'commander';
 import {
-  readApplicationConfiguration,
+  readApplicationConfigurationDocument,
   requireApplicationRoot,
 } from '../application/configuration.js';
-import {
-  applyShellUpdate,
-  createShellUpdatePlan,
-} from '../application/shell-update.js';
+import { applyShellUpdate, createShellUpdatePlan } from '../application/shell-update.js';
 
 interface UpdateCommandOptions {
   readonly check?: boolean;
@@ -21,10 +18,15 @@ export function registerUpdateCommand(program: Command): void {
     .option('--to <tag>', 'versión de destino, por ejemplo v0.2.0')
     .action((options: UpdateCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
-      const configuration = readApplicationConfiguration(applicationRoot);
+      const document = readApplicationConfigurationDocument(applicationRoot);
+      const configuration = document.configuration;
       const plan = createShellUpdatePlan(applicationRoot, configuration, options.to);
 
       printPlan(plan);
+      if (document.migrations.length > 0) {
+        console.log('Migraciones de mova.config.json:');
+        for (const migration of document.migrations) console.log(`- ${migration}`);
+      }
       if (options.check) return;
 
       if (plan.conflicts.length > 0) {
@@ -32,15 +34,20 @@ export function registerUpdateCommand(program: Command): void {
           'Se han detectado archivos modificados. Resuelve los conflictos antes de actualizar.',
         );
       }
-      if (plan.changes.length === 0) {
+      if (plan.changes.length === 0 && document.migrations.length === 0) {
         console.log('La aplicación ya está actualizada.');
         return;
       }
 
       applyShellUpdate(applicationRoot, configuration, plan);
       console.log(`Aplicación actualizada a ${plan.target.version}.`);
+      if (document.migrations.length > 0) {
+        console.log('mova.config.json se ha migrado al esquema actual.');
+      }
       if (plan.removePackageLock) {
-        console.log('Ejecuta npm install para instalar dependencias y regenerar package-lock.json.');
+        console.log(
+          'Ejecuta npm install para instalar dependencias y regenerar package-lock.json.',
+        );
       }
       console.log('Después ejecuta mova build para verificar la aplicación.');
     });

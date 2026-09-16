@@ -16,14 +16,9 @@ module.exports = withNativeFederation({
     },
   },
 
-  skip: [
-    'rxjs/ajax',
-    'rxjs/fetch',
-    'rxjs/testing',
-    'rxjs/webSocket',
-  ],
+  skip: ['rxjs/ajax', 'rxjs/fetch', 'rxjs/testing', 'rxjs/webSocket'],
 
   features: {
-    ignoreUnusedDeps: true
-  }
+    ignoreUnusedDeps: true,
+  },
 });

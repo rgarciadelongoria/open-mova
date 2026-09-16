@@ -26,15 +26,12 @@ export function createNativePluginCapability<TCapability>(
       }
 
       const invoke = method as PluginMethod;
-      return options === undefined
-        ? invoke.call(plugin)
-        : invoke.call(plugin, options);
+      return options === undefined ? invoke.call(plugin) : invoke.call(plugin, options);
     },
 
     async subscribe(
       event: string,
       listener: (payload: unknown) => void,
-      _options?: NativeOptions,
     ): Promise<NativeSubscription> {
       const addListener = pluginRecord['addListener'];
 
@@ -42,7 +39,11 @@ export function createNativePluginCapability<TCapability>(
         throw new Error(`La capacidad nativa ${pluginName} no emite eventos.`);
       }
 
-      return (addListener as PluginMethod).call(plugin, event, listener) as Promise<NativeSubscription>;
+      return (addListener as PluginMethod).call(
+        plugin,
+        event,
+        listener,
+      ) as Promise<NativeSubscription>;
     },
   } as TCapability;
 }

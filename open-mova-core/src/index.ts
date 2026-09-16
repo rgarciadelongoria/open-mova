@@ -1,3 +1,10 @@
+export {
+  checkCoreCompatibility,
+  MICROFRONTEND_MANIFEST_SCHEMA_VERSION,
+  OPEN_MOVA_CORE_VERSION,
+  parseMicrofrontendManifest,
+} from './compatibility.js';
+export type { CompatibilityResult, OpenMovaMicrofrontendManifest } from './compatibility.js';
 export type {
   ActionSheetCapability,
   AppCapability,
@@ -47,8 +54,4 @@ export type {
   TextZoomCapability,
   ToastCapability,
 } from './native.js';
-export {
-  NATIVE_CAPABILITIES,
-  NATIVE_CAPABILITY_API,
-  injectNativeCapabilities,
-} from './native.js';
+export { NATIVE_CAPABILITIES, NATIVE_CAPABILITY_API, injectNativeCapabilities } from './native.js';

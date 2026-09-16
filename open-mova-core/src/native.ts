@@ -17,14 +17,7 @@ export const NATIVE_CAPABILITY_API = {
       'toggleBackButtonHandler',
       'removeAllListeners',
     ],
-    events: [
-      'appStateChange',
-      'pause',
-      'resume',
-      'appUrlOpen',
-      'appRestoredResult',
-      'backButton',
-    ],
+    events: ['appStateChange', 'pause', 'resume', 'appUrlOpen', 'appRestoredResult', 'backButton'],
   },
   appLauncher: { operations: ['canOpenUrl', 'openUrl'], events: [] },
   backgroundRunner: {
@@ -310,14 +303,7 @@ export const NATIVE_CAPABILITY_API = {
   share: { operations: ['canShare', 'share'], events: [] },
   splashScreen: { operations: ['show', 'hide'], events: [] },
   statusBar: {
-    operations: [
-      'setStyle',
-      'setBackgroundColor',
-      'show',
-      'hide',
-      'getInfo',
-      'setOverlaysWebView',
-    ],
+    operations: ['setStyle', 'setBackgroundColor', 'show', 'hide', 'getInfo', 'setOverlaysWebView'],
     events: ['statusBarVisibilityChanged', 'statusBarOverlayChanged'],
   },
   systemBars: { operations: ['setStyle', 'show', 'hide', 'setAnimation'], events: [] },
