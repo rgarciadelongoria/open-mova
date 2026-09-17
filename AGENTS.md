@@ -53,3 +53,9 @@
 - Escribir comentarios breves solo cuando expliquen una decisión que no sea evidente.
 - Ejecutar las comprobaciones relevantes desde la raíz antes de finalizar un cambio transversal.
 - No incluir secretos ni artefactos generados en Git. La raíz no debe tener dependencias ni `node_modules` propios.
+
+## Gestión de issues
+
+- Cuando se solicite implementar una issue, leer primero su descripción y comentarios en GitHub.
+- Tras implementar, verificar y subir la solución, comentar la issue con un resumen, el commit y el tag o publicación npm cuando corresponda.
+- Cerrar la issue después de publicar la solución. Si queda bloqueada o requiere una decisión del usuario, mantenerla abierta y explicar el motivo.
