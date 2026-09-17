@@ -20,6 +20,36 @@
   color: #72e0c2;
 }
 
+.capability-warning {
+  margin-top: 24px;
+  padding: 20px 24px;
+  border: 1px solid #b88d43;
+  border-radius: 16px;
+  background: rgba(83, 56, 17, 0.25);
+}
+
+.capability-warning p {
+  margin: 0;
+}
+
+.capability-warning p + p {
+  margin-top: 10px;
+}
+
+.capability-warning pre {
+  overflow: auto;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  color: #ffe1a4;
+  background: #261b0c;
+  font:
+    0.82rem/1.55 ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace;
+}
+
 .example-card {
   margin-top: 24px;
   padding: 24px;

@@ -5,9 +5,19 @@
     <p>{{ capability.description }}</p>
   </div>
   <span class="availability" [class.is-available]="isAvailable()">
-    {{ isAvailable() ? 'Disponible' : 'No disponible en esta plataforma' }}
+    {{ isAvailable() ? 'Disponible' : 'Capacidad no habilitada' }}
   </span>
 </div>
+@if (!isAvailable()) {
+  <section class="capability-warning" role="alert">
+    <p class="eyebrow">CAPACIDAD NO HABILITADA</p>
+    <p>
+      Esta aplicación todavía no ha habilitado {{ capability.label }}. Ejecuta este comando desde la
+      raíz de la aplicación y vuelve a iniciar la shell.
+    </p>
+    <pre><code>mova cap enable {{ capability.id }}</code></pre>
+  </section>
+}
 @for (example of capability.examples; track example.title) {
   <article class="example-card">
     <h3>{{ example.title }}</h3>
