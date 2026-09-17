@@ -1,11 +1,6 @@
 import type { Command } from 'commander';
 import { inspectDevelopmentEnvironment, type DoctorCheckStatus } from '../application/doctor.js';
-
-const STATUS_SYMBOL: Readonly<Record<DoctorCheckStatus, string>> = {
-  ok: '✓',
-  warning: '!',
-  error: '✗',
-};
+import { terminal } from '../ui/terminal.js';
 
 export function registerDoctorCommand(program: Command): void {
   program
@@ -14,16 +9,25 @@ export function registerDoctorCommand(program: Command): void {
     .action(() => {
       const report = inspectDevelopmentEnvironment(process.cwd());
 
-      console.log('Diagnóstico de Open Mova');
+      terminal.heading('Diagnóstico', 'Comprobación del entorno y de la aplicación actual.');
       for (const check of report.checks) {
-        console.log(`${STATUS_SYMBOL[check.status]} ${check.message}`);
-        if (check.detail) console.log(`  ${check.detail}`);
+        printCheck(check.status, check.message);
+        if (check.detail) terminal.item(check.detail);
       }
 
       const errors = report.checks.filter((check) => check.status === 'error').length;
       const warnings = report.checks.filter((check) => check.status === 'warning').length;
-      console.log(`Resultado: ${errors} errores, ${warnings} avisos.`);
+      terminal.section('Resultado');
+      if (errors > 0) terminal.error(`${errors} errores, ${warnings} avisos.`);
+      else if (warnings > 0) terminal.warning(`${errors} errores, ${warnings} avisos.`);
+      else terminal.success('Sin errores ni avisos.');
 
       if (errors > 0) process.exitCode = 1;
     });
+}
+
+function printCheck(status: DoctorCheckStatus, message: string): void {
+  if (status === 'ok') terminal.success(message);
+  else if (status === 'warning') terminal.warning(message);
+  else terminal.error(message);
 }

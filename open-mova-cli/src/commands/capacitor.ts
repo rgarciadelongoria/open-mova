@@ -16,6 +16,7 @@ import {
 } from '../application/native-capabilities.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { localBinaryName, npmCommand, useCommandShell } from '../utils/platform.js';
+import { terminal } from '../ui/terminal.js';
 
 type Platform = 'android' | 'ios';
 
@@ -27,9 +28,11 @@ export function registerCapacitorCommands(program: Command): void {
     .description('Lista las capacidades nativas disponibles y habilitadas')
     .action(() => {
       const root = requireApplicationRoot(process.cwd());
+      terminal.heading('Capacidades nativas');
       for (const { definition, enabled } of listNativeCapabilities(root)) {
-        console.log(
-          `${enabled ? '✓' : '○'} ${definition.name} (${definition.platforms.join(', ')})`,
+        terminal.item(
+          `${definition.name} (${definition.platforms.join(', ')})`,
+          enabled ? 'success' : 'muted',
         );
       }
     });
@@ -41,7 +44,7 @@ export function registerCapacitorCommands(program: Command): void {
       const root = requireApplicationRoot(process.cwd());
       enableNativeCapabilities(root, capabilities);
       synchronizeExistingNativeProjects(root);
-      console.log(`Capacidades habilitadas: ${capabilities.join(', ')}.`);
+      terminal.success(`Capacidades habilitadas: ${capabilities.join(', ')}.`);
     });
 
   capacitor
@@ -51,7 +54,7 @@ export function registerCapacitorCommands(program: Command): void {
       const root = requireApplicationRoot(process.cwd());
       disableNativeCapabilities(root, capabilities);
       synchronizeExistingNativeProjects(root);
-      console.log(`Capacidades deshabilitadas: ${capabilities.join(', ')}.`);
+      terminal.success(`Capacidades deshabilitadas: ${capabilities.join(', ')}.`);
     });
 
   capacitor
@@ -60,9 +63,9 @@ export function registerCapacitorCommands(program: Command): void {
     .action((platform?: string) => {
       const root = requireApplicationRoot(process.cwd());
       const selectedPlatform = platform ? parsePlatform(platform) : undefined;
-      for (const message of diagnoseNativeCapabilities(root, selectedPlatform)) {
-        console.log(message);
-      }
+      terminal.heading('Diagnóstico de capacidades');
+      for (const message of diagnoseNativeCapabilities(root, selectedPlatform))
+        terminal.item(message);
     });
 
   capacitor
@@ -122,21 +125,22 @@ function printCapabilityRequirements(root: string, platform?: Platform): void {
   const enabled = listNativeCapabilities(root).filter((status) => status.enabled);
 
   if (enabled.length === 0) {
-    console.log('No hay capacidades nativas habilitadas.');
+    terminal.warning('No hay capacidades nativas habilitadas.');
     return;
   }
 
+  terminal.heading('Permisos y requisitos nativos');
   for (const { definition } of enabled) {
-    console.log(`\n${definition.name}`);
-    console.log(`- Plataformas: ${definition.platforms.join(', ')}`);
+    terminal.section(definition.name);
+    terminal.keyValue('Plataformas', definition.platforms.join(', '));
 
     if (platform && !definition.platforms.includes(platform)) {
-      console.log(`- No es compatible con ${platform}.`);
+      terminal.warning(`No es compatible con ${platform}.`);
       continue;
     }
 
     if ((!platform || platform === 'android') && definition.minimumAndroidSdk) {
-      console.log(`- Android: SDK mínimo ${definition.minimumAndroidSdk}.`);
+      terminal.keyValue('Android', `SDK mínimo ${definition.minimumAndroidSdk}`);
     }
 
     printPlatformValues('Permisos Android', definition.permissions?.android, platform, 'android');
@@ -150,7 +154,7 @@ function printCapabilityRequirements(root: string, platform?: Platform): void {
     printPlatformValues('Credenciales iOS', definition.credentials?.ios, platform, 'ios');
     printPlatformValues('Credenciales web', definition.credentials?.web, platform, undefined);
 
-    for (const note of definition.notes ?? []) console.log(`- Requisito: ${note}`);
+    for (const note of definition.notes ?? []) terminal.item(`Requisito: ${note}`);
   }
 }
 
@@ -162,7 +166,7 @@ function printPlatformValues(
 ): void {
   if (!values || (targetPlatform && selectedPlatform && targetPlatform !== selectedPlatform))
     return;
-  console.log(`- ${label}: ${values.join(', ')}.`);
+  terminal.keyValue(label, values.join(', '));
 }
 
 function buildMobileShell(root: string): void {

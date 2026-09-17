@@ -34,6 +34,10 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   assert.equal(initialConfiguration.microfrontends.length, 1);
   assert.deepEqual(initialConfiguration.native.capabilities, []);
 
+  const unattendedUpdate = runCli(['update', '--to', 'v1.1.0'], applicationRoot, environment);
+  assert.equal(unattendedUpdate.status, 0, unattendedUpdate.stderr);
+  assert.match(unattendedUpdate.stdout, /Actualización cancelada/);
+
   const validateConfiguration = runCli(['config', 'validate'], applicationRoot, environment);
   assert.equal(validateConfiguration.status, 0, validateConfiguration.stderr);
   assert.match(validateConfiguration.stdout, /mova\.config\.json es válido/);

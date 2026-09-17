@@ -7,6 +7,7 @@ import {
   requireApplicationRoot,
 } from '../application/configuration.js';
 import { npmCommand, useCommandShell } from '../utils/platform.js';
+import { terminal } from '../ui/terminal.js';
 
 interface StartCommandOptions {
   readonly shellOnly?: boolean;
@@ -45,7 +46,7 @@ export function registerStartCommand(program: Command): void {
 
       projects.push({ directory: applicationRoot, label: 'Shell' });
 
-      console.log('Iniciando proyectos. Pulsa Ctrl+C para detenerlos.');
+      terminal.heading('Servidores de desarrollo', 'Pulsa Ctrl+C para detenerlos.');
       await startProjects(projects);
     });
 }
@@ -54,7 +55,7 @@ async function startProjects(
   projects: readonly { readonly directory: string; readonly label: string }[],
 ): Promise<void> {
   const children = projects.map(({ directory, label }) => {
-    console.log(`- ${label}: ${directory}`);
+    terminal.item(`${label}: ${directory}`, 'accent');
     return spawn(npmCommand(), ['run', 'start'], {
       cwd: directory,
       stdio: 'inherit',

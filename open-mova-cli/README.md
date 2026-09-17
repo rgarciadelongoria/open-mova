@@ -264,12 +264,15 @@ archivos personalizados: los muestra como conflictos.
 mova update --check
 mova update
 mova update --to v0.2.0
+mova update --yes
 ```
 
 `--check` solo muestra el plan. Para aplicar cambios, el proyecto debe estar en
 un repositorio Git limpio. Si cambia `package.json`, el CLI elimina el lockfile
 obsoleto y pide ejecutar `npm install`; después se debe comprobar con
-`mova build`.
+`mova build`. Antes de escribir archivos, el CLI muestra un aviso y pide
+confirmación para que guardes el estado actual en un commit o rama segura.
+`--yes` omite la pregunta únicamente para automatizaciones controladas.
 
 ### `mova shell versions`
 

@@ -15,6 +15,7 @@ import {
   createMicrofrontendUpdatePlan,
 } from '../application/microfrontend-update.js';
 import { buildLocalMicrofrontend } from '../application/microfrontend-build.js';
+import { terminal } from '../ui/terminal.js';
 
 interface CreateMicrofrontendCommandOptions {
   readonly directory?: string;
@@ -84,9 +85,13 @@ export function registerMicrofrontendCommands(program: Command): void {
       writeApplicationConfiguration(applicationRoot, updatedConfiguration);
       synchronizeShellConfiguration(applicationRoot, updatedConfiguration);
 
-      console.log(`Microfrontal "${microfrontendConfiguration.name}" creado.`);
-      console.log(`Ruta pública: /${microfrontendConfiguration.route}`);
-      console.log(`Directorio: ${microfrontendConfiguration.sourcePath}`);
+      terminal.heading('Microfrontal creado');
+      terminal.success(`"${microfrontendConfiguration.name}" está registrado en la aplicación.`);
+      terminal.keyValue('Ruta pública', `/${microfrontendConfiguration.route}`);
+      terminal.keyValue(
+        'Directorio',
+        microfrontendConfiguration.sourcePath ?? 'sin directorio local',
+      );
     });
 
   microfrontend
@@ -117,8 +122,9 @@ export function registerMicrofrontendCommands(program: Command): void {
       writeApplicationConfiguration(applicationRoot, updatedConfiguration);
       synchronizeShellConfiguration(applicationRoot, updatedConfiguration);
 
-      console.log(`Microfrontal "${microfrontendConfiguration.name}" registrado.`);
-      console.log(`Ruta pública: /${microfrontendConfiguration.route}`);
+      terminal.heading('Microfrontal registrado');
+      terminal.success(`"${microfrontendConfiguration.name}" está disponible en la aplicación.`);
+      terminal.keyValue('Ruta pública', `/${microfrontendConfiguration.route}`);
     });
 
   microfrontend
@@ -137,26 +143,27 @@ export function registerMicrofrontendCommands(program: Command): void {
         options.to,
       );
 
-      console.log(`Plantilla actual: ${plan.currentVersion}`);
-      console.log(`Plantilla destino: ${plan.target.version}`);
-      for (const change of plan.changes) console.log(`- ${change}`);
+      terminal.heading('Actualización de microfrontal');
+      terminal.keyValue('Plantilla actual', plan.currentVersion);
+      terminal.keyValue('Plantilla destino', plan.target.version);
+      for (const change of plan.changes) terminal.item(change, 'accent');
       if (plan.conflicts.length > 0) {
-        console.log('Conflictos que no se sobrescribirán:');
-        for (const conflict of plan.conflicts) console.log(`- ${conflict}`);
+        terminal.section('Conflictos que no se sobrescribirán');
+        for (const conflict of plan.conflicts) terminal.item(conflict, 'warning');
       }
       if (options.check) return;
       if (plan.conflicts.length > 0) {
         throw new Error('Resuelve los conflictos antes de actualizar el microfrontal.');
       }
       if (plan.changes.length === 0) {
-        console.log('El microfrontal ya está actualizado.');
+        terminal.success('El microfrontal ya está actualizado.');
         return;
       }
 
       applyMicrofrontendUpdate(applicationRoot, configuration, plan);
-      console.log(`Microfrontal "${normalizedName}" actualizado a ${plan.target.version}.`);
+      terminal.success(`Microfrontal "${normalizedName}" actualizado a ${plan.target.version}.`);
       if (plan.removePackageLock) {
-        console.log(`Ejecuta npm install en ${plan.projectRoot}.`);
+        terminal.warning(`Ejecuta npm install en ${plan.projectRoot}.`);
       }
     });
 
@@ -169,7 +176,7 @@ export function registerMicrofrontendCommands(program: Command): void {
       const normalizedName = normalizeName(name, 'El nombre del microfrontal');
       const build = buildLocalMicrofrontend(applicationRoot, configuration, normalizedName);
 
-      console.log(
+      terminal.success(
         `Microfrontal "${build.configuration.name}" compilado en ${build.outputDirectory}.`,
       );
     });

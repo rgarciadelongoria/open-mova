@@ -4,10 +4,12 @@ import {
   requireApplicationRoot,
 } from '../application/configuration.js';
 import { applyShellUpdate, createShellUpdatePlan } from '../application/shell-update.js';
+import { confirm, terminal } from '../ui/terminal.js';
 
 interface UpdateCommandOptions {
   readonly check?: boolean;
   readonly to?: string;
+  readonly yes?: boolean;
 }
 
 export function registerUpdateCommand(program: Command): void {
@@ -16,7 +18,8 @@ export function registerUpdateCommand(program: Command): void {
     .description('Actualiza la infraestructura de Open Mova de una aplicación')
     .option('--check', 'mostrar los cambios sin modificar archivos')
     .option('--to <tag>', 'versión de destino, por ejemplo v0.2.0')
-    .action((options: UpdateCommandOptions) => {
+    .option('-y, --yes', 'confirmar la actualización sin interacción')
+    .action(async (options: UpdateCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const document = readApplicationConfigurationDocument(applicationRoot);
       const configuration = document.configuration;
@@ -24,8 +27,8 @@ export function registerUpdateCommand(program: Command): void {
 
       printPlan(plan);
       if (document.migrations.length > 0) {
-        console.log('Migraciones de mova.config.json:');
-        for (const migration of document.migrations) console.log(`- ${migration}`);
+        terminal.section('Migraciones de mova.config.json');
+        for (const migration of document.migrations) terminal.item(migration);
       }
       if (options.check) return;
 
@@ -35,34 +38,55 @@ export function registerUpdateCommand(program: Command): void {
         );
       }
       if (plan.changes.length === 0 && document.migrations.length === 0) {
-        console.log('La aplicación ya está actualizada.');
+        terminal.success('La aplicación ya está actualizada.');
         return;
       }
 
+      terminal.section('Antes de actualizar');
+      terminal.warning(
+        'Guarda el estado actual en un commit o una rama segura de Git antes de continuar.',
+      );
+      terminal.item('La actualización modificará únicamente la infraestructura gestionada.');
+      terminal.item('Los conflictos detectados no se sobrescriben automáticamente.');
+
+      if (!options.yes) {
+        const confirmed = await confirm('¿Quieres aplicar esta actualización?');
+        if (!confirmed) {
+          terminal.warning(
+            'Actualización cancelada. Usa --yes solo en automatizaciones controladas.',
+          );
+          return;
+        }
+      }
+
       applyShellUpdate(applicationRoot, configuration, plan);
-      console.log(`Aplicación actualizada a ${plan.target.version}.`);
+      terminal.success(`Aplicación actualizada a ${plan.target.version}.`);
       if (document.migrations.length > 0) {
-        console.log('mova.config.json se ha migrado al esquema actual.');
+        terminal.info('mova.config.json se ha migrado al esquema actual.');
       }
       if (plan.removePackageLock) {
-        console.log(
+        terminal.warning(
           'Ejecuta npm install para instalar dependencias y regenerar package-lock.json.',
         );
       }
-      console.log('Después ejecuta mova build para verificar la aplicación.');
+      terminal.info('Después ejecuta mova build para verificar la aplicación.');
     });
 }
 
 function printPlan(plan: ReturnType<typeof createShellUpdatePlan>): void {
-  console.log(`Shell actual: ${plan.currentVersion}`);
-  console.log(`Shell destino: ${plan.target.version}`);
+  terminal.heading(
+    'Actualización de aplicación',
+    'Revisión de cambios antes de modificar archivos.',
+  );
+  terminal.keyValue('Shell actual', plan.currentVersion);
+  terminal.keyValue('Shell destino', plan.target.version);
 
   if (plan.changes.length > 0) {
-    console.log('Cambios:');
-    for (const change of plan.changes) console.log(`- ${change}`);
+    terminal.section('Cambios propuestos');
+    for (const change of plan.changes) terminal.item(change, 'accent');
   }
   if (plan.conflicts.length > 0) {
-    console.log('Conflictos que no se sobrescribirán:');
-    for (const conflict of plan.conflicts) console.log(`- ${conflict}`);
+    terminal.section('Conflictos que no se sobrescribirán');
+    for (const conflict of plan.conflicts) terminal.item(conflict, 'warning');
   }
 }

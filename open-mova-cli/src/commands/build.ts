@@ -9,6 +9,7 @@ import {
 import { createProductionRemoteManifest } from '../application/remote-security.js';
 import { buildLocalMicrofrontend } from '../application/microfrontend-build.js';
 import { npmCommand, useCommandShell } from '../utils/platform.js';
+import { terminal } from '../ui/terminal.js';
 
 interface BuildCommandOptions {
   readonly production?: boolean;
@@ -55,11 +56,11 @@ function writeProductionManifest(
     `${JSON.stringify(manifest, null, 2)}\n`,
     'utf8',
   );
-  console.log('El artefacto de producción usa únicamente remotos HTTPS de confianza.');
+  terminal.success('El artefacto de producción usa únicamente remotos HTTPS de confianza.');
 }
 
 function runShellBuild(applicationRoot: string): void {
-  console.log('Compilando shell...');
+  terminal.info('Compilando shell...');
 
   const result = spawnSync(npmCommand(), ['run', 'build'], {
     cwd: applicationRoot,

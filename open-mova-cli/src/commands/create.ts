@@ -12,6 +12,7 @@ import {
 import type { OpenMovaApplicationConfiguration } from '../types.js';
 import { normalizeName } from '../utils/names.js';
 import { changeDirectoryCommand } from '../utils/platform.js';
+import { terminal } from '../ui/terminal.js';
 
 interface CreateCommandOptions {
   readonly directory?: string;
@@ -79,12 +80,13 @@ export function registerCreateCommand(program: Command): void {
         rmSync(temporaryApplication, { recursive: true, force: true });
       }
 
-      console.log(`Aplicación creada en ${applicationRoot} con shell ${shellVersion}.`);
-      console.log('Instala las dependencias antes de iniciar el desarrollo:');
-      console.log(`  ${changeDirectoryCommand(applicationRoot)}`);
-      console.log('  npm install');
+      terminal.heading('Aplicación creada', 'La shell y el microfrontal inicial están preparados.');
+      terminal.success(`Creada en ${applicationRoot} con shell ${shellVersion}.`);
+      terminal.section('Siguientes pasos');
+      terminal.command(changeDirectoryCommand(applicationRoot));
+      terminal.command('npm install');
       if (!options.empty) {
-        console.log('  npm --prefix mfs/home install');
+        terminal.command('npm --prefix mfs/home install');
       }
     });
 }

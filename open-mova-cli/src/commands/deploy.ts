@@ -6,6 +6,7 @@ import {
   requireApplicationRoot,
 } from '../application/configuration.js';
 import { normalizeName } from '../utils/names.js';
+import { terminal } from '../ui/terminal.js';
 
 export function registerDeployCommand(program: Command): void {
   program
@@ -18,8 +19,11 @@ export function registerDeployCommand(program: Command): void {
       const build = buildLocalMicrofrontend(applicationRoot, configuration, name);
       const descriptor = writeMicrofrontendDeploymentDescriptor(build);
 
-      console.log(`Artefacto listo en ${build.outputDirectory}.`);
-      console.log(`Publica todo ese directorio y conserva ${descriptor.remoteEntry} y sus assets.`);
-      console.log('El CLI no realiza el despliegue ni selecciona el proveedor de hosting.');
+      terminal.heading('Artefacto de microfrontal');
+      terminal.success(`Listo en ${build.outputDirectory}.`);
+      terminal.info(
+        `Publica todo ese directorio y conserva ${descriptor.remoteEntry} y sus assets.`,
+      );
+      terminal.item('El CLI no realiza el despliegue ni selecciona el proveedor de hosting.');
     });
 }

@@ -3,6 +3,7 @@ import {
   readApplicationConfigurationDocument,
   requireApplicationRoot,
 } from '../application/configuration.js';
+import { terminal } from '../ui/terminal.js';
 
 export function registerConfigCommand(program: Command): void {
   const config = program
@@ -21,13 +22,13 @@ export function registerConfigCommand(program: Command): void {
     .description('Valida la configuración efectiva de la aplicación')
     .action(() => {
       const document = readDocument();
-      console.log(
+      terminal.success(
         `mova.config.json es válido para el esquema ${document.configuration.schemaVersion}.`,
       );
 
       if (document.migrations.length > 0) {
-        console.log('Se aplicarán estas migraciones al usar mova update:');
-        for (const migration of document.migrations) console.log(`- ${migration}`);
+        terminal.section('Migraciones pendientes');
+        for (const migration of document.migrations) terminal.item(migration);
       }
     });
 }
@@ -37,8 +38,8 @@ function printConfiguration(): void {
   console.log(JSON.stringify(document.configuration, null, 2));
 
   if (document.migrations.length > 0) {
-    console.log('\nMigraciones pendientes:');
-    for (const migration of document.migrations) console.log(`- ${migration}`);
+    console.error('\nMigraciones pendientes:');
+    for (const migration of document.migrations) console.error(`- ${migration}`);
   }
 }
 

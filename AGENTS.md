@@ -54,6 +54,13 @@
 - Ejecutar las comprobaciones relevantes desde la raíz antes de finalizar un cambio transversal.
 - No incluir secretos ni artefactos generados en Git. La raíz no debe tener dependencias ni `node_modules` propios.
 
+## Interfaz del CLI
+
+- Centralizar la presentación de terminal en `open-mova-cli/src/ui/terminal.ts`; no introducir secuencias ANSI ni estilos aislados en cada comando.
+- Usar una jerarquía coherente: encabezado para una operación, éxito para acciones completadas, información para progreso, aviso para decisiones o requisitos y error para fallos.
+- Respetar `NO_COLOR`, terminales no interactivos y `TERM=dumb`. Las salidas que deban ser procesables, como `mova config show`, deben conservar JSON puro en `stdout`.
+- Antes de una operación de actualización que escriba archivos, mostrar el plan, advertir que se cree un commit o rama segura y pedir confirmación explícita. `--yes` queda reservado para automatizaciones controladas.
+
 ## Gestión de issues
 
 - Cuando se solicite implementar una issue, leer primero su descripción y comentarios en GitHub.

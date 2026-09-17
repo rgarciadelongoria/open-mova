@@ -13,6 +13,7 @@ import { registerMicrofrontendCommands } from './commands/microfrontend.js';
 import { registerStartCommand } from './commands/start.js';
 import { registerShellCommands } from './commands/shell.js';
 import { registerUpdateCommand } from './commands/update.js';
+import { terminal } from './ui/terminal.js';
 
 const program = new Command();
 const packageVersion = JSON.parse(
@@ -41,6 +42,6 @@ try {
 } catch (error) {
   const message = error instanceof Error ? error.message : 'Error inesperado.';
 
-  console.error(`Error: ${message}`);
+  terminal.error(message);
   process.exitCode = 1;
 }

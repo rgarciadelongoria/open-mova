@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import type { MicrofrontendConfiguration, OpenMovaApplicationConfiguration } from '../types.js';
 import { npmCommand, useCommandShell } from '../utils/platform.js';
+import { terminal } from '../ui/terminal.js';
 
 export interface BuiltMicrofrontend {
   readonly configuration: MicrofrontendConfiguration;
@@ -46,7 +47,7 @@ export function buildLocalMicrofrontend(
 }
 
 function runBuild(directory: string, label: string): void {
-  console.log(`Compilando ${label}...`);
+  terminal.info(`Compilando ${label}...`);
 
   const result = spawnSync(npmCommand(), ['run', 'build'], {
     cwd: directory,
