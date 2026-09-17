@@ -4,7 +4,9 @@ import { readFileSync } from 'node:fs';
 import { Command } from 'commander';
 import { registerBuildCommand } from './commands/build.js';
 import { registerCapacitorCommands } from './commands/capacitor.js';
+import { registerConfigCommand } from './commands/config.js';
 import { registerCreateCommand } from './commands/create.js';
+import { registerDeployCommand } from './commands/deploy.js';
 import { registerDoctorCommand } from './commands/doctor.js';
 import { registerInfoCommand } from './commands/info.js';
 import { registerMicrofrontendCommands } from './commands/microfrontend.js';
@@ -23,11 +25,13 @@ program
   .version(packageVersion.version);
 
 registerCreateCommand(program);
+registerConfigCommand(program);
 registerDoctorCommand(program);
 registerMicrofrontendCommands(program);
 registerStartCommand(program);
 registerShellCommands(program);
 registerBuildCommand(program);
+registerDeployCommand(program);
 registerCapacitorCommands(program);
 registerInfoCommand(program);
 registerUpdateCommand(program);

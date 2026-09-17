@@ -1,12 +1,13 @@
 import { existsSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { join } from 'node:path';
 import type { Command } from 'commander';
 import {
   readApplicationConfiguration,
   requireApplicationRoot,
 } from '../application/configuration.js';
 import { createProductionRemoteManifest } from '../application/remote-security.js';
+import { buildLocalMicrofrontend } from '../application/microfrontend-build.js';
 import { npmCommand, useCommandShell } from '../utils/platform.js';
 
 interface BuildCommandOptions {
@@ -27,18 +28,10 @@ export function registerBuildCommand(program: Command): void {
           continue;
         }
 
-        const projectDirectory = resolve(applicationRoot, microfrontend.sourcePath);
-
-        if (!existsSync(projectDirectory)) {
-          throw new Error(
-            `No se encuentra el microfrontal "${microfrontend.name}" en ${projectDirectory}.`,
-          );
-        }
-
-        runBuild(projectDirectory, `microfrontal ${microfrontend.name}`);
+        buildLocalMicrofrontend(applicationRoot, configuration, microfrontend.name);
       }
 
-      runBuild(applicationRoot, 'shell');
+      runShellBuild(applicationRoot);
 
       if (options.production) {
         writeProductionManifest(applicationRoot, configuration);
@@ -65,16 +58,17 @@ function writeProductionManifest(
   console.log('El artefacto de producción usa únicamente remotos HTTPS de confianza.');
 }
 
-function runBuild(directory: string, label: string): void {
-  console.log(`Compilando ${label}...`);
+function runShellBuild(applicationRoot: string): void {
+  console.log('Compilando shell...');
 
   const result = spawnSync(npmCommand(), ['run', 'build'], {
-    cwd: directory,
+    cwd: applicationRoot,
     stdio: 'inherit',
     shell: useCommandShell(),
   });
 
+  if (result.error) throw result.error;
   if (result.status !== 0) {
-    throw new Error(`La compilación de ${label} no ha finalizado correctamente.`);
+    throw new Error('La compilación de la shell no ha finalizado correctamente.');
   }
 }

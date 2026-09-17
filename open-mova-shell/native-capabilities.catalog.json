@@ -172,6 +172,13 @@
       "version": "^8.0.1",
       "platforms": ["android", "ios", "web"],
       "minimumAndroidSdk": 24,
+      "credentials": {
+        "android": [
+          "OPEN_MOVA_GOOGLE_MAPS_ANDROID_API_KEY o native.googleMaps.androidApiKey en mova.config.json"
+        ],
+        "ios": ["Clave de Google Maps configurada en el proyecto iOS"],
+        "web": ["Clave de Google Maps configurada por la aplicación web"]
+      },
       "notes": ["Requiere una clave de Google Maps por plataforma."]
     },
     {

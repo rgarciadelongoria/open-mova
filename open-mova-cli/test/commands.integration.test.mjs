@@ -34,11 +34,23 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   assert.equal(initialConfiguration.microfrontends.length, 1);
   assert.deepEqual(initialConfiguration.native.capabilities, []);
 
+  const validateConfiguration = runCli(['config', 'validate'], applicationRoot, environment);
+  assert.equal(validateConfiguration.status, 0, validateConfiguration.stderr);
+  assert.match(validateConfiguration.stdout, /mova\.config\.json es válido/);
+
+  const showConfiguration = runCli(['config', 'show'], applicationRoot, environment);
+  assert.equal(showConfiguration.status, 0, showConfiguration.stderr);
+  assert.equal(JSON.parse(showConfiguration.stdout).schemaVersion, 4);
+
   const enableCapability = runCli(['cap', 'enable', 'cookies'], applicationRoot, environment);
   assert.equal(enableCapability.status, 0, enableCapability.stderr);
   assert.deepEqual(readJson(join(applicationRoot, 'mova.config.json')).native.capabilities, [
     'cookies',
   ]);
+
+  const permissions = runCli(['cap', 'permissions'], applicationRoot, environment);
+  assert.equal(permissions.status, 0, permissions.stderr);
+  assert.match(permissions.stdout, /cookies/);
   assert.match(
     readFileSync(
       join(applicationRoot, 'src', 'native-capabilities', 'native-capabilities.provider.ts'),
@@ -97,6 +109,22 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   assert.equal(update.status, 0, update.stderr);
   assert.match(update.stdout, /Shell destino: v1\.1\.0/);
   assert.match(update.stdout, /Actualizar src\/framework-update\.txt/);
+
+  const updateMicrofrontend = runCli(
+    ['mf', 'update', 'home', '--check', '--to', 'v1.1.0'],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(updateMicrofrontend.status, 0, updateMicrofrontend.stderr);
+  assert.match(updateMicrofrontend.stdout, /Plantilla destino: v1\.1\.0/);
+
+  const help = runCli(['--help'], applicationRoot, environment);
+  assert.equal(help.status, 0, help.stderr);
+  assert.match(help.stdout, /deploy <microfrontend>/);
+
+  const microfrontendHelp = runCli(['mf', '--help'], applicationRoot, environment);
+  assert.equal(microfrontendHelp.status, 0, microfrontendHelp.stderr);
+  assert.match(microfrontendHelp.stdout, /build <name>/);
 });
 
 function createFrameworkRepository(temporaryRoot) {

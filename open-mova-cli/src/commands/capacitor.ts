@@ -66,6 +66,15 @@ export function registerCapacitorCommands(program: Command): void {
     });
 
   capacitor
+    .command('permissions [platform]')
+    .description('Muestra permisos, credenciales y requisitos de las capacidades habilitadas')
+    .action((platform?: string) => {
+      const root = requireApplicationRoot(process.cwd());
+      const selectedPlatform = platform ? parsePlatform(platform) : undefined;
+      printCapabilityRequirements(root, selectedPlatform);
+    });
+
+  capacitor
     .command('add <platform>')
     .description('Crea el proyecto nativo de la plataforma')
     .action((platform: string) => {
@@ -107,6 +116,53 @@ function parsePlatform(value: string): Platform {
   }
 
   return value;
+}
+
+function printCapabilityRequirements(root: string, platform?: Platform): void {
+  const enabled = listNativeCapabilities(root).filter((status) => status.enabled);
+
+  if (enabled.length === 0) {
+    console.log('No hay capacidades nativas habilitadas.');
+    return;
+  }
+
+  for (const { definition } of enabled) {
+    console.log(`\n${definition.name}`);
+    console.log(`- Plataformas: ${definition.platforms.join(', ')}`);
+
+    if (platform && !definition.platforms.includes(platform)) {
+      console.log(`- No es compatible con ${platform}.`);
+      continue;
+    }
+
+    if ((!platform || platform === 'android') && definition.minimumAndroidSdk) {
+      console.log(`- Android: SDK mínimo ${definition.minimumAndroidSdk}.`);
+    }
+
+    printPlatformValues('Permisos Android', definition.permissions?.android, platform, 'android');
+    printPlatformValues('Permisos iOS', definition.permissions?.ios, platform, 'ios');
+    printPlatformValues(
+      'Credenciales Android',
+      definition.credentials?.android,
+      platform,
+      'android',
+    );
+    printPlatformValues('Credenciales iOS', definition.credentials?.ios, platform, 'ios');
+    printPlatformValues('Credenciales web', definition.credentials?.web, platform, undefined);
+
+    for (const note of definition.notes ?? []) console.log(`- Requisito: ${note}`);
+  }
+}
+
+function printPlatformValues(
+  label: string,
+  values: readonly string[] | undefined,
+  selectedPlatform: Platform | undefined,
+  targetPlatform: Platform | undefined,
+): void {
+  if (!values || (targetPlatform && selectedPlatform && targetPlatform !== selectedPlatform))
+    return;
+  console.log(`- ${label}: ${values.join(', ')}.`);
 }
 
 function buildMobileShell(root: string): void {

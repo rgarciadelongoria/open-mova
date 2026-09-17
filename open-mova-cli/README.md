@@ -15,11 +15,17 @@ instalan cuando se habilita explícitamente una capacidad con `mova cap enable`.
 
 - [`mova --help` y `mova --version`](#mova---help-y-mova---version)
 - [`mova create`](#mova-create)
+- [`mova config`](#mova-config)
+- [`mova config show`](#mova-config-show)
+- [`mova config validate`](#mova-config-validate)
 - [`mova mf`](#mova-mf)
 - [`mova mf create`](#mova-mf-create)
 - [`mova mf add`](#mova-mf-add)
+- [`mova mf build`](#mova-mf-build)
+- [`mova mf update`](#mova-mf-update)
 - [`mova start`](#mova-start)
 - [`mova build`](#mova-build)
+- [`mova deploy`](#mova-deploy)
 - [`mova info`](#mova-info)
 - [`mova doctor`](#mova-doctor)
 - [`mova update`](#mova-update)
@@ -30,6 +36,7 @@ instalan cuando se habilita explícitamente una capacidad con `mova cap enable`.
 - [`mova cap enable`](#mova-cap-enable)
 - [`mova cap disable`](#mova-cap-disable)
 - [`mova cap doctor`](#mova-cap-doctor)
+- [`mova cap permissions`](#mova-cap-permissions)
 - [`mova cap add`](#mova-cap-add)
 - [`mova cap sync`](#mova-cap-sync)
 - [`mova cap open`](#mova-cap-open)
@@ -88,6 +95,21 @@ mova create mi-aplicacion --empty
 ```
 
 Sin `--shell-version` se usa el tag estable más reciente (`vMAJOR.MINOR.PATCH`). `--empty` omite el MF inicial.
+
+### `mova config`
+
+Consulta la configuración efectiva de la aplicación sin editar los ficheros
+TypeScript generados por el CLI.
+
+```bash
+mova config
+mova config show
+mova config validate
+```
+
+`show` imprime el contenido validado de `mova.config.json`. `validate` confirma
+el esquema que utiliza el CLI e informa de las migraciones que se aplicarían al
+ejecutar `mova update`, sin modificar archivos.
 
 ### `mova mf`
 
@@ -154,6 +176,19 @@ El comando conserva el nombre, la ruta, el puerto, el perfil y las
 dependencias propias del proveedor. Si cambia `package.json`, elimina el
 lockfile para que ejecutes `npm install` en el MF.
 
+### `mova mf build`
+
+Compila únicamente un MF local y comprueba que Native Federation haya generado
+`dist/browser/remoteEntry.json`.
+
+```bash
+mova mf build home
+```
+
+No compila la shell. Es útil para validar o preparar el artefacto de un
+proveedor de forma independiente. Un MF registrado solo por URL remota no se
+puede compilar desde la aplicación.
+
 ### `mova start`
 
 Arranca los MFs locales registrados y después la shell. Los MFs configurados solo con una URL remota no se arrancan localmente.
@@ -176,6 +211,21 @@ mova build --production
 
 Consulta la guía de [remotos en producción](../docs/production-remotes.md)
 antes de desplegar la shell.
+
+### `mova deploy`
+
+Genera el artefacto de un MF local para que el CI de su proveedor lo publique.
+No elige CDN, hosting ni modifica la URL de producción de la aplicación.
+
+```bash
+mova deploy home
+```
+
+El comando compila el MF y deja el resultado en `mfs/home/dist/browser` junto
+con `open-mova-deployment.json`. El pipeline debe publicar **todo** ese
+directorio, conservando los nombres de los assets y de `remoteEntry.json`.
+Después se registra la URL HTTPS versionada resultante como
+`productionRemoteEntry` en `mova.config.json`.
 
 ### `mova info`
 
@@ -300,6 +350,21 @@ mova cap doctor android
 mova cap doctor ios
 ```
 
+### `mova cap permissions`
+
+Muestra, para las capacidades habilitadas, los permisos de Android e iOS, las
+credenciales configurables y los requisitos adicionales declarados en el
+catálogo de la shell.
+
+```bash
+mova cap permissions
+mova cap permissions android
+mova cap permissions ios
+```
+
+El comando no modifica permisos ni instala plugins; sirve para revisar la
+configuración antes de `mova cap sync` y abrir el proyecto nativo.
+
 ### `mova cap sync`
 
 Sincroniza la shell compilada, los recursos y los plugins con la plataforma. Sin plataforma, sincroniza todas las plataformas añadidas.
@@ -345,7 +410,8 @@ mova cap open ios
 
 Es el grupo de comandos para preparar y abrir los proyectos nativos de
 Capacitor. También permite seleccionar capacidades mediante `list`, `enable`,
-`disable` y `doctor`. Consulta todos sus comandos con `mova cap --help`.
+`disable`, `doctor` y `permissions`. Consulta todos sus comandos con
+`mova cap --help`.
 
 ## Flujo habitual
 

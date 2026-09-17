@@ -14,6 +14,7 @@ import {
   applyMicrofrontendUpdate,
   createMicrofrontendUpdatePlan,
 } from '../application/microfrontend-update.js';
+import { buildLocalMicrofrontend } from '../application/microfrontend-build.js';
 
 interface CreateMicrofrontendCommandOptions {
   readonly directory?: string;
@@ -157,6 +158,20 @@ export function registerMicrofrontendCommands(program: Command): void {
       if (plan.removePackageLock) {
         console.log(`Ejecuta npm install en ${plan.projectRoot}.`);
       }
+    });
+
+  microfrontend
+    .command('build <name>')
+    .description('Compila un microfrontal local sin compilar la shell')
+    .action((name: string) => {
+      const applicationRoot = requireApplicationRoot(process.cwd());
+      const configuration = readApplicationConfiguration(applicationRoot);
+      const normalizedName = normalizeName(name, 'El nombre del microfrontal');
+      const build = buildLocalMicrofrontend(applicationRoot, configuration, normalizedName);
+
+      console.log(
+        `Microfrontal "${build.configuration.name}" compilado en ${build.outputDirectory}.`,
+      );
     });
 }
 
