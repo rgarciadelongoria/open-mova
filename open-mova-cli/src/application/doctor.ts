@@ -2,7 +2,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { findApplicationRoot, readApplicationConfigurationDocument } from './configuration.js';
-import { npmCommand } from '../utils/platform.js';
+import { npmCommand, useCommandShell } from '../utils/platform.js';
 import { areCoreRangesCompatible } from './core-compatibility.js';
 
 export type DoctorCheckStatus = 'ok' | 'warning' | 'error';
@@ -28,7 +28,7 @@ export function inspectDevelopmentEnvironment(startDirectory: string): DoctorRep
   const applicationRoot = findApplicationRoot(resolve(startDirectory));
 
   checks.push(checkNodeVersion());
-  checks.push(checkCommand(npmCommand(), ['--version'], 'npm', true, 'npm'));
+  checks.push(checkCommand(npmCommand(), ['--version'], 'npm', true, 'npm', useCommandShell()));
   checks.push(checkCommand('git', ['--version'], 'Git', true));
 
   if (!applicationRoot) {
@@ -160,8 +160,10 @@ function checkCommand(
   label: string,
   required: boolean,
   id = command,
+  shell = false,
 ): DoctorCheck {
-  const result = spawnSync(command, [...args], { encoding: 'utf8' });
+  // npm is a .cmd script on Windows and needs cmd.exe to execute it reliably.
+  const result = spawnSync(command, [...args], { encoding: 'utf8', shell });
   const available = !result.error && result.status === 0;
   const version = available ? (result.stdout || result.stderr).trim().split(/\r?\n/)[0] : undefined;
 

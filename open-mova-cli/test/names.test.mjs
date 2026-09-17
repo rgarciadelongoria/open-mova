@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { normalizeName, toDisplayName, toPascalCase, toRemoteName } from '../dist/utils/names.js';
-import { changeDirectoryCommand } from '../dist/utils/platform.js';
+import { changeDirectoryCommand, useCommandShell } from '../dist/utils/platform.js';
 
 test('normaliza nombres de proyectos y microfrontales', () => {
   assert.equal(normalizeName('Mi Catálogo', 'Nombre'), 'mi-cat-logo');
@@ -17,4 +17,10 @@ test('rechaza nombres vacíos', () => {
 
 test('genera un cambio de directorio copiable también en Windows', () => {
   assert.equal(changeDirectoryCommand('C:\\Open Mova\\demo-app'), 'cd "C:/Open Mova/demo-app"');
+});
+
+test('usa la shell del sistema solo para comandos Windows', () => {
+  assert.equal(useCommandShell('win32'), true);
+  assert.equal(useCommandShell('darwin'), false);
+  assert.equal(useCommandShell('linux'), false);
 });

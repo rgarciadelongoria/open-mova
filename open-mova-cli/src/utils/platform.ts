@@ -6,8 +6,8 @@ export function localBinaryName(name: string): string {
   return process.platform === 'win32' ? `${name}.cmd` : name;
 }
 
-export function useCommandShell(): boolean {
-  return process.platform === 'win32';
+export function useCommandShell(platform = process.platform): boolean {
+  return platform === 'win32';
 }
 
 /** Genera un comando copiable en PowerShell y en cmd, también con espacios. */
