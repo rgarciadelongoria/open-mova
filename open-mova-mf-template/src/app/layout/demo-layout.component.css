@@ -13,7 +13,9 @@ body {
   margin: 0 auto;
   padding: 64px max(20px, calc((100% - 760px) / 2));
   color: #e8eef8;
-  background: radial-gradient(circle at top right, #203c66, #101827 55%);
+  /* El fondo se ancla al viewport para no variar según la altura de cada ruta. */
+  background: radial-gradient(900px 620px at top right, #203c66, #101827 70%);
+  background-attachment: fixed;
   font-family: 'DM Sans', system-ui, sans-serif;
   font-synthesis: none;
 }
