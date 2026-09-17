@@ -13,7 +13,7 @@ import {
 function createApplicationFixture() {
   const root = mkdtempSync(join(tmpdir(), 'open-mova-cli-test-'));
   const configuration = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     name: 'demo-app',
     shell: {
       repository: 'https://example.com/open-mova.git',
@@ -21,6 +21,7 @@ function createApplicationFixture() {
       commit: '0123456789abcdef',
     },
     native: { capabilities: [] },
+    security: { trustedRemoteOrigins: [] },
     microfrontends: [
       {
         name: 'home',
@@ -57,8 +58,8 @@ test('migra configuraciones antiguas en memoria sin sobrescribirlas', (context) 
   writeFileSync(join(fixture.root, 'mova.config.json'), `${JSON.stringify(legacy, null, 2)}\n`);
 
   const document = readApplicationConfigurationDocument(fixture.root);
-  assert.equal(document.configuration.schemaVersion, 3);
-  assert.equal(document.migrations.length, 2);
+  assert.equal(document.configuration.schemaVersion, 4);
+  assert.equal(document.migrations.length, 3);
 });
 
 test('rechaza un módulo federado que no expone las rutas esperadas', (context) => {
@@ -89,5 +90,22 @@ test('impide registrar rutas o nombres de remoto duplicados', () => {
     /entra en conflicto/,
   );
 
+  rmSync(fixture.root, { recursive: true, force: true });
+});
+
+test('registra el origen HTTPS de un remoto como origen de confianza', () => {
+  const fixture = createApplicationFixture();
+
+  const configuration = addMicrofrontend(fixture.configuration, {
+    name: 'catalog',
+    route: 'catalog',
+    remoteName: 'catalog-microfrontend',
+    exposedModule: './Routes',
+    developmentRemoteEntry: 'https://cdn.example.com/catalog/1.4.0/remoteEntry.json',
+    productionRemoteEntry: 'https://cdn.example.com/catalog/1.4.0/remoteEntry.json',
+    compatibility: { requiredCoreVersion: '^0.2.2' },
+  });
+
+  assert.deepEqual(configuration.security.trustedRemoteOrigins, ['https://cdn.example.com']);
   rmSync(fixture.root, { recursive: true, force: true });
 });

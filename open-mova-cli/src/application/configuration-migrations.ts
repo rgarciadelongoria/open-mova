@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-export const LATEST_CONFIGURATION_SCHEMA_VERSION = 3;
+export const LATEST_CONFIGURATION_SCHEMA_VERSION = 4;
 
 export interface ConfigurationMigrationResult {
   readonly value: unknown;
@@ -35,7 +35,46 @@ export function migrateConfiguration(
     migrations.push('2 → 3: declarar las capacidades nativas habilitadas');
   }
 
+  if (migrated.schemaVersion === 3) {
+    migrated = migrateVersionThree(migrated);
+    migrations.push('3 → 4: declarar los orígenes de remotos de confianza');
+  }
+
   return { value: migrated, migrations };
+}
+
+function migrateVersionThree(configuration: Record<string, unknown>): Record<string, unknown> {
+  const trustedRemoteOrigins = new Set<string>();
+
+  if (Array.isArray(configuration.microfrontends)) {
+    for (const microfrontend of configuration.microfrontends) {
+      if (!isRecord(microfrontend)) continue;
+
+      for (const entry of [
+        microfrontend.productionRemoteEntry,
+        microfrontend.developmentRemoteEntry,
+      ]) {
+        if (typeof entry !== 'string') continue;
+        const origin = toHttpsOrigin(entry);
+        if (origin) trustedRemoteOrigins.add(origin);
+      }
+    }
+  }
+
+  return {
+    ...configuration,
+    schemaVersion: 4,
+    security: { trustedRemoteOrigins: [...trustedRemoteOrigins].sort() },
+  };
+}
+
+function toHttpsOrigin(value: string): string | undefined {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' ? url.origin : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function migrateVersionTwo(

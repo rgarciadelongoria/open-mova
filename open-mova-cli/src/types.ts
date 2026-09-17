@@ -1,5 +1,5 @@
 export interface OpenMovaApplicationConfiguration {
-  readonly schemaVersion: 3;
+  readonly schemaVersion: 4;
   readonly name: string;
   readonly shell?: {
     readonly repository: string;
@@ -8,7 +8,14 @@ export interface OpenMovaApplicationConfiguration {
   };
   /** Configuración opcional de las capacidades nativas de la aplicación. */
   readonly native?: NativeConfiguration;
+  /** Orígenes HTTPS de confianza desde los que se pueden cargar remotos en producción. */
+  readonly security: RemoteSecurityConfiguration;
   readonly microfrontends: readonly MicrofrontendConfiguration[];
+}
+
+export interface RemoteSecurityConfiguration {
+  /** Un origen es protocolo, host y puerto, sin ruta: https://cdn.example.com. */
+  readonly trustedRemoteOrigins: readonly string[];
 }
 
 export interface NativeConfiguration {

@@ -30,6 +30,20 @@ como `productionRemoteEntry` del MF inicial creado por `mova create`. Sirve
 para pruebas rápidas y simuladores; una aplicación real debe sustituirla por
 la URL HTTPS y versionada de su propio microfrontal.
 
+## Remotos en producción
+
+Antes de desplegar, registra en `mova.config.json` los orígenes HTTPS de
+confianza y una URL versionada por cada MF. Genera el artefacto final con:
+
+```bash
+mova doctor
+mova build --production
+```
+
+La guía de [remotos en producción](docs/production-remotes.md) explica la
+política de orígenes, CSP, CORS, rollback y el modelo de confianza entre
+proveedores.
+
 ## Preparación
 
 Requiere Node.js 22, npm y Git. Desde la raíz:

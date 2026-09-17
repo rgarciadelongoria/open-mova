@@ -6,6 +6,7 @@ import {
   readApplicationConfiguration,
   requireApplicationRoot,
 } from '../application/configuration.js';
+import { createProductionRemoteManifest } from '../application/remote-security.js';
 import { configureAndroidProject } from '../application/android-configuration.js';
 import {
   diagnoseNativeCapabilities,
@@ -115,7 +116,7 @@ function buildMobileShell(root: string): void {
     );
   }
   const configuration = readApplicationConfiguration(root);
-  const manifest = createProductionManifest(configuration);
+  const manifest = createProductionRemoteManifest(configuration);
   run(root, npmCommand(), ['run', 'build']);
 
   const webDirectory = join(root, 'dist', 'browser');
@@ -129,30 +130,6 @@ function buildMobileShell(root: string): void {
     `${JSON.stringify(manifest, null, 2)}\n`,
     'utf8',
   );
-}
-
-function createProductionManifest(
-  configuration: OpenMovaApplicationConfiguration,
-): Record<string, string> {
-  return Object.fromEntries(
-    configuration.microfrontends.map((microfrontend) => {
-      const entry = microfrontend.productionRemoteEntry;
-      if (!entry || !isHttpsUrl(entry)) {
-        throw new Error(
-          `Configura productionRemoteEntry con HTTPS para el microfrontal "${microfrontend.name}" en mova.config.json.`,
-        );
-      }
-      return [microfrontend.remoteName, entry];
-    }),
-  );
-}
-
-function isHttpsUrl(value: string): boolean {
-  try {
-    return new URL(value).protocol === 'https:';
-  } catch {
-    return false;
-  }
 }
 
 function configureExistingPlatforms(

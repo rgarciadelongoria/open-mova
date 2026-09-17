@@ -17,6 +17,7 @@ export async function loadCompatibleRemoteRoutes(
   microfrontend: MicrofrontendDefinition,
 ): Promise<Routes> {
   const remoteEntry = await findRemoteEntry(microfrontend.remote);
+  assertAllowedRemoteOrigin(remoteEntry, microfrontend);
   const manifestUrl = new URL('assets/open-mova.manifest.json', remoteEntry).toString();
   const response = await fetch(manifestUrl);
 
@@ -55,6 +56,25 @@ export async function loadCompatibleRemoteRoutes(
     throw new Error(`El MF ${microfrontend.remote} no expone una lista de rutas válida.`);
   }
   return remoteModule.routes;
+}
+
+function assertAllowedRemoteOrigin(
+  remoteEntry: string,
+  microfrontend: MicrofrontendDefinition,
+): void {
+  let origin: string;
+
+  try {
+    origin = new URL(remoteEntry).origin;
+  } catch {
+    throw new Error(`La URL del remoto ${microfrontend.remote} no es válida.`);
+  }
+
+  if (!microfrontend.allowedOrigins.includes(origin)) {
+    throw new Error(
+      `El origen ${origin} del remoto ${microfrontend.remote} no está permitido por esta aplicación.`,
+    );
+  }
 }
 
 async function findRemoteEntry(remoteName: string): Promise<string> {

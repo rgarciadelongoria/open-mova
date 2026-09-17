@@ -1,18 +1,24 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { existsSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import type { Command } from 'commander';
 import {
   readApplicationConfiguration,
   requireApplicationRoot,
 } from '../application/configuration.js';
+import { createProductionRemoteManifest } from '../application/remote-security.js';
 import { npmCommand, useCommandShell } from '../utils/platform.js';
+
+interface BuildCommandOptions {
+  readonly production?: boolean;
+}
 
 export function registerBuildCommand(program: Command): void {
   program
     .command('build')
     .description('Compila los microfrontales locales y después la shell')
-    .action(() => {
+    .option('--production', 'usar remotos HTTPS versionados y de confianza en el artefacto final')
+    .action((options: BuildCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
 
@@ -33,7 +39,30 @@ export function registerBuildCommand(program: Command): void {
       }
 
       runBuild(applicationRoot, 'shell');
+
+      if (options.production) {
+        writeProductionManifest(applicationRoot, configuration);
+      }
     });
+}
+
+function writeProductionManifest(
+  applicationRoot: string,
+  configuration: ReturnType<typeof readApplicationConfiguration>,
+): void {
+  const outputDirectory = join(applicationRoot, 'dist', 'browser');
+
+  if (!existsSync(join(outputDirectory, 'index.html'))) {
+    throw new Error(`No se encuentra la shell compilada en ${outputDirectory}.`);
+  }
+
+  const manifest = createProductionRemoteManifest(configuration);
+  writeFileSync(
+    join(outputDirectory, 'assets', 'federation.manifest.json'),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+    'utf8',
+  );
+  console.log('El artefacto de producción usa únicamente remotos HTTPS de confianza.');
 }
 
 function runBuild(directory: string, label: string): void {

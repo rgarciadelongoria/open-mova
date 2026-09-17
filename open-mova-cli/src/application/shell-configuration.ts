@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
+import { allowedRemoteOrigins } from './remote-security.js';
 
 export interface NativeCapabilityDefinition {
   readonly name: string;
@@ -121,6 +122,7 @@ function renderApplicationConfiguration(configuration: OpenMovaApplicationConfig
     remote: ${JSON.stringify(microfrontend.remoteName)},
     exposedModule: './Routes',
     requiredCoreVersion: ${JSON.stringify(microfrontend.compatibility.requiredCoreVersion)},
+    allowedOrigins: ${JSON.stringify(allowedRemoteOrigins(microfrontend, configuration))},
   },`,
     )
     .join('\n');
@@ -130,6 +132,7 @@ function renderApplicationConfiguration(configuration: OpenMovaApplicationConfig
   readonly remote: string;
   readonly exposedModule: './Routes';
   readonly requiredCoreVersion: string;
+  readonly allowedOrigins: readonly string[];
 }
 
 // Este fichero lo mantiene el CLI a partir de mova.config.json.

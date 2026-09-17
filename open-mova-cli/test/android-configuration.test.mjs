@@ -61,12 +61,13 @@ test('aplica los requisitos Android de los plugins instalados', (context) => {
   );
 
   configureAndroidProject(root, {
-    schemaVersion: 3,
+    schemaVersion: 4,
     name: 'demo-app',
     native: {
       capabilities: ['backgroundRunner', 'googleMaps', 'localLlm'],
       googleMaps: { androidApiKey: 'key<&>"\'' },
     },
+    security: { trustedRemoteOrigins: [] },
     microfrontends: [],
   });
 

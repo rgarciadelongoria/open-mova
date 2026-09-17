@@ -5,6 +5,7 @@ import {
   LATEST_CONFIGURATION_SCHEMA_VERSION,
   migrateConfiguration,
 } from './configuration-migrations.js';
+import { trustedOriginsForMicrofrontend } from './remote-security.js';
 
 export const APPLICATION_CONFIGURATION_FILE = 'mova.config.json';
 
@@ -94,8 +95,14 @@ export function addMicrofrontend(
     );
   }
 
+  const trustedRemoteOrigins = new Set(configuration.security.trustedRemoteOrigins);
+  for (const origin of trustedOriginsForMicrofrontend(microfrontend)) {
+    trustedRemoteOrigins.add(origin);
+  }
+
   return {
     ...configuration,
+    security: { trustedRemoteOrigins: [...trustedRemoteOrigins].sort() },
     microfrontends: [...configuration.microfrontends, microfrontend],
   };
 }
@@ -171,6 +178,23 @@ function validateApplicationConfiguration(
     }
   }
 
+  if (!isRecord(value.security) || !Array.isArray(value.security.trustedRemoteOrigins)) {
+    throw new Error(`${configurationPath} contiene una política de remotos no válida.`);
+  }
+
+  if (value.security.trustedRemoteOrigins.some((origin) => typeof origin !== 'string')) {
+    throw new Error(`${configurationPath} contiene un origen remoto no válido.`);
+  }
+
+  const trustedRemoteOrigins = [...new Set(value.security.trustedRemoteOrigins as string[])].sort();
+  for (const origin of trustedRemoteOrigins) {
+    if (!isHttpsOrigin(origin)) {
+      throw new Error(
+        `${configurationPath} solo admite orígenes HTTPS sin ruta en security.trustedRemoteOrigins.`,
+      );
+    }
+  }
+
   const microfrontends = value.microfrontends.map((entry) =>
     validateMicrofrontend(entry, configurationPath),
   );
@@ -180,6 +204,7 @@ function validateApplicationConfiguration(
     name: value.name,
     ...(shell ? { shell } : {}),
     ...(native ? { native } : {}),
+    security: { trustedRemoteOrigins },
     microfrontends,
   };
 }
@@ -264,4 +289,13 @@ function validateMicrofrontend(
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
+}
+
+function isHttpsOrigin(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && url.origin === value;
+  } catch {
+    return false;
+  }
 }

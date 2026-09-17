@@ -165,11 +165,17 @@ mova start --shell-only
 
 ### `mova build`
 
-Compila los microfrontales locales y la shell.
+Compila los microfrontales locales y la shell. Con `--production`, exige URLs
+HTTPS versionadas y orígenes de confianza, y deja el manifiesto de producción
+en `dist/browser`.
 
 ```bash
 mova build
+mova build --production
 ```
+
+Consulta la guía de [remotos en producción](../docs/production-remotes.md)
+antes de desplegar la shell.
 
 ### `mova info`
 

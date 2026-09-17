@@ -19,6 +19,7 @@ estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 
 - Inicializar Native Federation.
 - Leer el manifiesto de remotos.
+- Rechazar remotos cuyo origen no esté permitido por la aplicación.
 - Convertir la configuración de microfrontales en rutas Angular.
 - Implementar los plugins oficiales de Capacitor y proporcionarlos por
   inyección de dependencias.
@@ -87,6 +88,12 @@ La lógica de `app.routes.ts` recorre el registro y crea las rutas
 automáticamente. Si el MF expone `first-route` y se registra con `path: 'demo'`,
 la URL resultante será `/demo/first-route`. Las rutas internas pertenecen al
 MF; la shell solo aporta el prefijo y lo monta en su `router-outlet`.
+
+Cada entrada generada también declara `allowedOrigins`. Antes de descargar un
+`remoteEntry.json`, la shell comprueba que su origen esté en esa lista. El CLI
+la genera a partir del remoto local y de `security.trustedRemoteOrigins` de la
+aplicación. Consulta la guía de [remotos en producción](../docs/production-remotes.md)
+para CSP, CORS, rollback y límites de confianza.
 
 ## Desarrollo de la shell
 

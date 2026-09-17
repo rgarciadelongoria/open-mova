@@ -4,6 +4,8 @@ import { join, resolve } from 'node:path';
 import { findApplicationRoot, readApplicationConfigurationDocument } from './configuration.js';
 import { npmCommand, useCommandShell } from '../utils/platform.js';
 import { areCoreRangesCompatible } from './core-compatibility.js';
+import { isHttpsUrl, isTrustedRemoteOrigin } from './remote-security.js';
+import type { OpenMovaApplicationConfiguration } from '../types.js';
 
 export type DoctorCheckStatus = 'ok' | 'warning' | 'error';
 
@@ -102,7 +104,7 @@ export function inspectDevelopmentEnvironment(startDirectory: string): DoctorRep
       }
     }
 
-    checks.push(checkProductionRemote(microfrontend.name, microfrontend.productionRemoteEntry));
+    checks.push(checkProductionRemote(microfrontend, configuration));
   }
 
   const hasAndroid = existsSync(join(applicationRoot, 'android'));
@@ -243,28 +245,35 @@ function checkCoreCompatibility(
   };
 }
 
-function checkProductionRemote(name: string, remoteEntry: string | undefined): DoctorCheck {
-  const isHttps = remoteEntry === undefined ? false : isHttpsUrl(remoteEntry);
+function checkProductionRemote(
+  microfrontend: OpenMovaApplicationConfiguration['microfrontends'][number],
+  configuration: OpenMovaApplicationConfiguration,
+): DoctorCheck {
+  const remoteEntry = microfrontend.productionRemoteEntry;
 
-  return isHttps
-    ? {
-        id: `microfrontend:${name}:production`,
-        status: 'ok',
-        message: `El MF ${name} tiene una URL HTTPS de producción.`,
-      }
-    : {
-        id: `microfrontend:${name}:production`,
-        status: 'warning',
-        message: `El MF ${name} no tiene una URL HTTPS de producción válida.`,
-      };
-}
-
-function isHttpsUrl(value: string): boolean {
-  try {
-    return new URL(value).protocol === 'https:';
-  } catch {
-    return false;
+  if (!remoteEntry || !isHttpsUrl(remoteEntry)) {
+    return {
+      id: `microfrontend:${microfrontend.name}:production`,
+      status: 'warning',
+      message: `El MF ${microfrontend.name} no tiene una URL HTTPS de producción válida.`,
+    };
   }
+
+  if (!isTrustedRemoteOrigin(remoteEntry, configuration)) {
+    return {
+      id: `microfrontend:${microfrontend.name}:production`,
+      status: 'error',
+      message: `El origen de producción del MF ${microfrontend.name} no es de confianza.`,
+      detail:
+        'Añádelo a security.trustedRemoteOrigins antes de generar el artefacto de producción.',
+    };
+  }
+
+  return {
+    id: `microfrontend:${microfrontend.name}:production`,
+    status: 'ok',
+    message: `El MF ${microfrontend.name} tiene una URL HTTPS de producción de confianza.`,
+  };
 }
 
 function checkAndroidSdk(): DoctorCheck {

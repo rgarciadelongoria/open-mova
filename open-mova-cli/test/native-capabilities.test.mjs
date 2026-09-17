@@ -13,10 +13,21 @@ test('genera un proveedor que solo importa las capacidades habilitadas', (contex
   const root = createFixture();
   context.after(() => rmSync(root, { recursive: true, force: true }));
   const configuration = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     name: 'demo-app',
     native: { capabilities: ['camera'] },
-    microfrontends: [],
+    security: { trustedRemoteOrigins: [] },
+    microfrontends: [
+      {
+        name: 'home',
+        route: 'home',
+        remoteName: 'home-microfrontend',
+        exposedModule: './Routes',
+        developmentRemoteEntry: 'http://localhost:4300/remoteEntry.json',
+        productionRemoteEntry: 'https://cdn.example.com/home/1.0.0/remoteEntry.json',
+        compatibility: { requiredCoreVersion: '^0.2.2' },
+      },
+    ],
   };
   writeFileSync(join(root, 'mova.config.json'), `${JSON.stringify(configuration, null, 2)}\n`);
 
@@ -29,6 +40,9 @@ test('genera un proveedor que solo importa las capacidades habilitadas', (contex
   assert.match(provider, /import \{ cameraCapability \}/);
   assert.doesNotMatch(provider, /import \{ deviceCapability \}/);
   assert.match(provider, /device: createUnavailableNativeCapability/);
+
+  const routes = readFileSync(join(root, 'src', 'app', 'application.config.ts'), 'utf8');
+  assert.match(routes, /allowedOrigins: \["http:\/\/localhost:4300"\]/);
 
   const statuses = listNativeCapabilities(root);
   assert.equal(statuses.find((status) => status.definition.name === 'camera')?.enabled, true);

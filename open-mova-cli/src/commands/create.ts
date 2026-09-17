@@ -45,10 +45,15 @@ export function registerCreateCommand(program: Command): void {
         configureDownloadedShell(temporaryApplication, applicationName, !options.empty);
 
         let configuration: OpenMovaApplicationConfiguration = {
-          schemaVersion: 3,
+          schemaVersion: 4,
           name: applicationName,
           shell,
           native: { capabilities: [] },
+          security: {
+            trustedRemoteOrigins: options.empty
+              ? []
+              : [new URL(DEMO_MICROFRONTEND_REMOTE_ENTRY).origin],
+          },
           microfrontends: [],
         };
 
