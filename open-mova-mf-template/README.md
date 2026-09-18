@@ -5,8 +5,8 @@
 # Microfrontal de demostración
 
 Este es el único proyecto fuente de microfrontal que utiliza el CLI. Se publica
-junto con la shell en los tags `vX.Y.Z` del monorepo. La shell de desarrollo lo
-carga como remoto en `/demo` desde el puerto `4300`.
+junto con la release del framework en los tags `vX.Y.Z` del monorepo. La shell
+de desarrollo lo carga como remoto en `/demo` desde el puerto `4300`.
 
 El perfil **demo** es una guía interactiva pequeña de tres capacidades nativas:
 Device, Camera y Share. Cada una tiene su propia URL y pruebas ejecutables; el
@@ -25,10 +25,21 @@ Al abrir el MF sin shell se pueden recorrer las tres pantallas, pero las
 capacidades se muestran como no disponibles y los ejemplos nativos requieren
 abrirlo a través de una shell.
 
-El CLI descarga este proyecto sin duplicar su configuración Angular. Para
-`mova create`, lo copia como `mfs/home` con perfil demo. Para `mova mf create`,
-lo personaliza con el perfil **minimal**: sustituye las rutas de demostración
-por una única ruta inicial y quita la dependencia de core.
+El CLI descarga este proyecto sin mantener una copia propia de la plantilla.
+Con `mova create`, lo copia como `mfs/home` con el perfil **demo**. Con
+`mova mf create`, usa el mismo proyecto con el perfil **minimal**: sustituye
+las rutas de demostración por una única ruta inicial y elimina la dependencia
+de Core si el microfrontal no necesita capacidades nativas.
+
+También puedes crear un microfrontal con la demo explícitamente:
+
+```bash
+mova mf create catalog --demo
+```
+
+El perfil demo debe usar el mismo tag que la shell de la aplicación. El perfil
+minimal está pensado para empezar desde una base vacía y añadir las rutas y la
+lógica del proveedor.
 
 ## Desarrollo local
 
@@ -57,11 +68,13 @@ src/app/
 │   └── demo-layout.component.html
 └── pages/
     ├── home/
-    ├── capability/
+    │   ├── home.component.ts
+    │   ├── home.component.html
+    │   └── home.component.css
+    └── capability/
     │   ├── capability-page.component.ts
     │   ├── capability-page.component.html
     │   └── capability-page.component.css
-    └── home/
 ```
 
 `capability-catalog.ts` contiene los textos, ejemplos ejecutables, orden del
