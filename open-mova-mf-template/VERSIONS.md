@@ -1,5 +1,7 @@
 # Versiones principales
 
+<div align="center">
+
 | Dependencia       | Versión                                          |
 | ----------------- | ------------------------------------------------ |
 | Node.js           | 22 o posterior                                   |
@@ -9,3 +11,5 @@
 | Capacitor         | No depende directamente; lo proporciona la shell |
 | `@open-mova/core` | `^0.2.2`                                         |
 | TypeScript        | `^5.9.3`                                         |
+
+</div>

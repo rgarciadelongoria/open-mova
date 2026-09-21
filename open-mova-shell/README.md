@@ -2,6 +2,8 @@
   <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
+<div align="center">
+
 | Dependencia       | Versión        |
 | ----------------- | -------------- |
 | Node.js           | 22 o posterior |
@@ -10,6 +12,8 @@
 | Native Federation | `^21.2.6`      |
 | Capacitor         | `^8.5.2`       |
 | TypeScript        | `^5.9.3`       |
+
+</div>
 
 # Open Mova Shell
 

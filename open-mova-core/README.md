@@ -2,6 +2,8 @@
   <img src="https://raw.githubusercontent.com/rgarciadelongoria/open-mova/main/assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
+<div align="center">
+
 | Dependencia | Versión                 |
 | ----------- | ----------------------- |
 | Node.js     | 22 o posterior          |
@@ -9,6 +11,8 @@
 | Angular     | `^21.2.23`              |
 | TypeScript  | `^5.9.3`                |
 | Capacitor   | No depende directamente |
+
+</div>
 
 # Open Mova Core
 

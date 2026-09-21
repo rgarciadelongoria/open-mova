@@ -1,5 +1,7 @@
 # Versiones principales
 
+<div align="center">
+
 | Dependencia       | Versión        |
 | ----------------- | -------------- |
 | Node.js           | 22 o posterior |
@@ -8,3 +10,5 @@
 | Native Federation | `^21.2.6`      |
 | Capacitor         | `^8.5.2`       |
 | TypeScript        | `^5.9.3`       |
+
+</div>

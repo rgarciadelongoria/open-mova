@@ -2,6 +2,8 @@
   <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
+<div align="center">
+
 | Dependencia       | Versión                                          |
 | ----------------- | ------------------------------------------------ |
 | Node.js           | 22 o posterior                                   |
@@ -11,6 +13,8 @@
 | Capacitor         | No depende directamente; lo proporciona la shell |
 | `@open-mova/core` | `^0.2.2`                                         |
 | TypeScript        | `^5.9.3`                                         |
+
+</div>
 
 # Microfrontal de demostración
 
