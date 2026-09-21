@@ -15,18 +15,20 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 ## Tecnologías
 
-<div>
-  <a href="https://native-federation.com" target="_blank" rel="noopener noreferrer"><img src="assets/technology/native-federation.png" alt="Native Federation" width="24" height="24" style="vertical-align: middle;"></a>&nbsp;
-  <a href="https://native-federation.com" target="_blank" rel="noopener noreferrer" style="vertical-align: middle;">Native Federation</a>
-</div>
-<div>
-  <a href="https://angular.dev" target="_blank" rel="noopener noreferrer"><img src="assets/technology/angular.svg" alt="Angular" width="24" height="24" style="vertical-align: middle;"></a>&nbsp;
-  <a href="https://angular.dev" target="_blank" rel="noopener noreferrer" style="vertical-align: middle;">Angular</a>
-</div>
-<div>
-  <a href="https://capacitorjs.com" target="_blank" rel="noopener noreferrer"><img src="assets/technology/capacitor.png" alt="Capacitor" width="24" height="24" style="vertical-align: middle;"></a>&nbsp;
-  <a href="https://capacitorjs.com" target="_blank" rel="noopener noreferrer" style="vertical-align: middle;">Capacitor</a>
-</div>
+<table>
+  <tr>
+    <td align="center" valign="middle"><img src="assets/technology/native-federation.png" alt="Native Federation" width="24" height="24"></td>
+    <td valign="middle"><a href="https://native-federation.com" target="_blank" rel="noopener noreferrer">Native Federation</a></td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle"><img src="assets/technology/angular.svg" alt="Angular" width="24" height="24"></td>
+    <td valign="middle"><a href="https://angular.dev" target="_blank" rel="noopener noreferrer">Angular</a></td>
+  </tr>
+  <tr>
+    <td align="center" valign="middle"><img src="assets/technology/capacitor.png" alt="Capacitor" width="24" height="24"></td>
+    <td valign="middle"><a href="https://capacitorjs.com" target="_blank" rel="noopener noreferrer">Capacitor</a></td>
+  </tr>
+</table>
 
 ## Proyectos
 
@@ -34,7 +36,7 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 | Proyecto                 | Versión  | npm                                                                                                                                                                                       |
 | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framework                | `0.2.12` |                                                                                                                                                                                           |
+| `@open-mova`             | `0.2.12` |                                                                                                                                                                                           |
 | `@open-mova/core`        | `0.2.3`  | <a href="https://www.npmjs.com/package/@open-mova/core" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a> |
 | `@open-mova/cli`         | `0.1.26` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  |
 | `@open-mova/shell`       | `0.2.5`  |                                                                                                                                                                                           |
