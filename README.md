@@ -9,6 +9,12 @@ Capacitor. Cada aplicación tiene una shell técnica y carga microfrontales
 **remotos**; no se empaquetan dentro de la shell. Este repositorio es un
 monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
+## Tecnologías
+
+- 🧩 [Native Federation](https://native-federation.com)
+- 🅰️ [Angular](https://angular.dev)
+- 📱 [Capacitor](https://capacitorjs.com)
+
 ## Proyectos
 
 ```text

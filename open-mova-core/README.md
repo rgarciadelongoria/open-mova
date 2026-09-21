@@ -24,31 +24,6 @@ El microfrontal y la shell deben usar una versión compatible de Angular.
 npm install @open-mova/core
 ```
 
-## Qué debe contener
-
-Puede contener, por ejemplo:
-
-- Contratos para servicios comunes.
-- Tipos de configuración compartidos.
-- Interfaces para capacidades nativas.
-- Utilidades que no pertenezcan a una aplicación concreta.
-- Contratos de compatibilidad entre la shell y los microfrontales.
-- Tipos para los manifiestos de microfrontales.
-
-## Qué no debe contener
-
-El core no debe incluir:
-
-- Componentes ni lógica de interfaz de una aplicación.
-- Dependencias de Capacitor.
-- Lógica de negocio de un proveedor.
-- Configuración de la shell.
-- Código específico de un microfrontal.
-
-La separación permite definir un contrato en el core y dejar que la shell
-aporte su implementación. Por ejemplo, el core podría definir una interfaz de
-almacenamiento y la shell implementarla más adelante con una API web o nativa.
-
 ## Desarrollo
 
 Este proyecto es autónomo y tiene sus propias dependencias:
