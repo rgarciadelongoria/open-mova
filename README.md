@@ -15,9 +15,9 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 ## Tecnologías
 
-- 🧩 <a href="https://native-federation.com" target="_blank" rel="noopener noreferrer">Native Federation</a>
-- 🅰️ <a href="https://angular.dev" target="_blank" rel="noopener noreferrer">Angular</a>
-- 📱 <a href="https://capacitorjs.com" target="_blank" rel="noopener noreferrer">Capacitor</a>
+- <a href="https://native-federation.com" target="_blank" rel="noopener noreferrer"><img src="assets/technology/native-federation.png" alt="Native Federation" width="24" height="24"></a> <a href="https://native-federation.com" target="_blank" rel="noopener noreferrer">Native Federation</a>
+- <a href="https://angular.dev" target="_blank" rel="noopener noreferrer"><img src="assets/technology/angular.svg" alt="Angular" width="24" height="24"></a> <a href="https://angular.dev" target="_blank" rel="noopener noreferrer">Angular</a>
+- <a href="https://capacitorjs.com" target="_blank" rel="noopener noreferrer"><img src="assets/technology/capacitor.png" alt="Capacitor" width="24" height="24"></a> <a href="https://capacitorjs.com" target="_blank" rel="noopener noreferrer">Capacitor</a>
 
 ## Proyectos
 
