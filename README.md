@@ -17,17 +17,6 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 ## Proyectos
 
-```text
-open-mova/
-├── .github/                # Automatizaciones y workflows
-├── assets/                 # Recursos de marca y documentación
-├── open-mova-shell/        # Contenedor y capacidades nativas
-├── open-mova-core/         # Contratos y acceso Angular por DI
-├── open-mova-mf-template/  # Única fuente de microfrontal y demo local
-├── open-mova-cli/          # Comandos mova
-└── tooling/                # Lint, formato y pruebas end-to-end
-```
-
 <div align="center">
 
 | Proyecto              | Versión  |
@@ -39,6 +28,17 @@ open-mova/
 | Microfrontal template | `0.2.6`  |
 
 </div>
+
+```text
+open-mova/
+├── .github/                # Automatizaciones y workflows
+├── assets/                 # Recursos de marca y documentación
+├── open-mova-shell/        # Contenedor y capacidades nativas
+├── open-mova-core/         # Contratos y acceso Angular por DI
+├── open-mova-mf-template/  # Única fuente de microfrontal y demo local
+├── open-mova-cli/          # Comandos mova
+└── tooling/                # Lint, formato y pruebas end-to-end
+```
 
 ## Microfrontal Demo publicado
 
