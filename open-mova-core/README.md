@@ -2,6 +2,14 @@
   <img src="https://raw.githubusercontent.com/rgarciadelongoria/open-mova/main/assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
+| Dependencia | Versión                 |
+| ----------- | ----------------------- |
+| Node.js     | 22 o posterior          |
+| npm         | 10 o posterior          |
+| Angular     | `^21.2.23`              |
+| TypeScript  | `^5.9.3`                |
+| Capacitor   | No depende directamente |
+
 # Open Mova Core
 
 `open-mova-core` es la librería base del framework. Su objetivo es contener

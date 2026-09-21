@@ -2,6 +2,14 @@
   <img src="https://raw.githubusercontent.com/rgarciadelongoria/open-mova/main/assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
+| Dependencia | Versión        |
+| ----------- | -------------- |
+| Node.js     | 22 o posterior |
+| npm         | 10 o posterior |
+| TypeScript  | `^5.9.3`       |
+| Commander   | `^14.0.0`      |
+| semver      | `^7.8.5`       |
+
 # Open Mova CLI
 
 CLI de terminal para crear y mantener aplicaciones Open Mova. Se ejecuta desde la raíz de cada aplicación con el comando `mova`.

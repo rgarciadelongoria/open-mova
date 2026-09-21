@@ -2,6 +2,15 @@
   <img src="../assets/brand/open-mova-logo-title-rectangle.png" alt="Open Mova" width="720">
 </p>
 
+| Dependencia       | Versión        |
+| ----------------- | -------------- |
+| Node.js           | 22 o posterior |
+| npm               | 10 o posterior |
+| Angular           | `^21.2.23`     |
+| Native Federation | `^21.2.6`      |
+| Capacitor         | `^8.5.2`       |
+| TypeScript        | `^5.9.3`       |
+
 # Open Mova Shell
 
 La shell es el host técnico de Open Mova. Carga los microfrontales mediante
