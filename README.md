@@ -9,6 +9,10 @@ Capacitor. Cada aplicación tiene una shell técnica y carga microfrontales
 **remotos**; no se empaquetan dentro de la shell. Este repositorio es un
 monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
+<p align="center">
+  <img src="assets/architecture/open-mova-architecture.png" alt="Arquitectura de Open Mova" width="960">
+</p>
+
 ## Tecnologías
 
 - 🧩 <a href="https://native-federation.com" target="_blank" rel="noopener noreferrer">Native Federation</a>
