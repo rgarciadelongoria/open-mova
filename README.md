@@ -28,6 +28,18 @@ open-mova/
 └── tooling/                # Lint, formato y pruebas end-to-end
 ```
 
+<div align="center">
+
+| Proyecto              | Versión  |
+| --------------------- | -------- |
+| Framework             | `0.2.12` |
+| `@open-mova/core`     | `0.2.3`  |
+| `@open-mova/cli`      | `0.1.26` |
+| `@open-mova/shell`    | `0.2.5`  |
+| Microfrontal template | `0.2.6`  |
+
+</div>
+
 ## Microfrontal Demo publicado
 
 Cada tag `vX.Y.Z` publica el microfrontal demo en GitHub Pages. La URL estable

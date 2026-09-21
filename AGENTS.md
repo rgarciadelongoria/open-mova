@@ -43,6 +43,11 @@
 - Antes de una release, identificar los proyectos afectados y elegir para cada
   uno su incremento semver. Actualizar sus lockfiles cuando cambie la versión
   de ese paquete.
+- Siempre que se solicite subir la versión del framework, revisar todos los
+  `VERSIONS.md` del repositorio y actualizar las versiones de dependencias y
+  proyectos que hayan cambiado. La tabla del README raíz debe reflejar siempre
+  las versiones actuales del framework y de cada proyecto, sin incrementar
+  versiones de proyectos que no hayan sido afectados.
 - Una versión de framework no obliga a publicar core ni CLI. Del mismo modo,
   no publicar una versión de npm vacía solo para igualarla al tag del
   workspace.
