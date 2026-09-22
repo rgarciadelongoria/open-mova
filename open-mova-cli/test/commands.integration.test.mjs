@@ -124,11 +124,12 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
 
   const help = runCli(['--help'], applicationRoot, environment);
   assert.equal(help.status, 0, help.stderr);
-  assert.match(help.stdout, /deploy <microfrontend>/);
+  assert.doesNotMatch(help.stdout, /deploy <microfrontend>/);
 
   const microfrontendHelp = runCli(['mf', '--help'], applicationRoot, environment);
   assert.equal(microfrontendHelp.status, 0, microfrontendHelp.stderr);
   assert.match(microfrontendHelp.stdout, /build <name>/);
+  assert.match(microfrontendHelp.stdout, /deploy <name>/);
 });
 
 function createFrameworkRepository(temporaryRoot) {

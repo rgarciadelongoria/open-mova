@@ -1,6 +1,6 @@
 {
   "name": "@open-mova/cli",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "CLI para crear y mantener aplicaciones Open Mova",
   "license": "MIT",
   "author": "Open Mova contributors",

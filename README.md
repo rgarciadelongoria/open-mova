@@ -36,9 +36,9 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 | Proyecto                 | Versión  | npm                                                                                                                                                                                       |
 | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@open-mova`             | `0.2.12` |                                                                                                                                                                                           |
+| `@open-mova`             | `0.2.13` |                                                                                                                                                                                           |
 | `@open-mova/core`        | `0.2.3`  | <a href="https://www.npmjs.com/package/@open-mova/core" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a> |
-| `@open-mova/cli`         | `0.1.26` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  |
+| `@open-mova/cli`         | `0.1.27` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  |
 | `@open-mova/shell`       | `0.2.5`  |                                                                                                                                                                                           |
 | `@open-mova/mf-template` | `0.2.6`  |                                                                                                                                                                                           |
 

@@ -34,10 +34,10 @@ instalan cuando se habilita explícitamente una capacidad con `mova cap enable`.
 - [`mova mf create`](#mova-mf-create)
 - [`mova mf add`](#mova-mf-add)
 - [`mova mf build`](#mova-mf-build)
+- [`mova mf deploy`](#mova-mf-deploy)
 - [`mova mf update`](#mova-mf-update)
 - [`mova start`](#mova-start)
 - [`mova build`](#mova-build)
-- [`mova deploy`](#mova-deploy)
 - [`mova info`](#mova-info)
 - [`mova doctor`](#mova-doctor)
 - [`mova update`](#mova-update)
@@ -224,13 +224,13 @@ mova build --production
 Consulta la guía de [remotos en producción](../docs/production-remotes.md)
 antes de desplegar la shell.
 
-### `mova deploy`
+### `mova mf deploy`
 
 Genera el artefacto de un MF local para que el CI de su proveedor lo publique.
 No elige CDN, hosting ni modifica la URL de producción de la aplicación.
 
 ```bash
-mova deploy home
+mova mf deploy home
 ```
 
 El comando compila el MF y deja el resultado en `mfs/home/dist/browser` junto

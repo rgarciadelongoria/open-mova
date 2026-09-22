@@ -15,6 +15,7 @@ import {
   createMicrofrontendUpdatePlan,
 } from '../application/microfrontend-update.js';
 import { buildLocalMicrofrontend } from '../application/microfrontend-build.js';
+import { writeMicrofrontendDeploymentDescriptor } from '../application/deployment-artifact.js';
 import { terminal } from '../ui/terminal.js';
 
 interface CreateMicrofrontendCommandOptions {
@@ -179,6 +180,24 @@ export function registerMicrofrontendCommands(program: Command): void {
       terminal.success(
         `Microfrontal "${build.configuration.name}" compilado en ${build.outputDirectory}.`,
       );
+    });
+
+  microfrontend
+    .command('deploy <name>')
+    .description('Genera un artefacto de MF para el CI del proveedor, sin publicarlo')
+    .action((name: string) => {
+      const applicationRoot = requireApplicationRoot(process.cwd());
+      const configuration = readApplicationConfiguration(applicationRoot);
+      const normalizedName = normalizeName(name, 'El nombre del microfrontal');
+      const build = buildLocalMicrofrontend(applicationRoot, configuration, normalizedName);
+      const descriptor = writeMicrofrontendDeploymentDescriptor(build);
+
+      terminal.heading('Artefacto de microfrontal');
+      terminal.success(`Listo en ${build.outputDirectory}.`);
+      terminal.info(
+        `Publica todo ese directorio y conserva ${descriptor.remoteEntry} y sus assets.`,
+      );
+      terminal.item('El CLI no realiza el despliegue ni selecciona el proveedor de hosting.');
     });
 }
 
