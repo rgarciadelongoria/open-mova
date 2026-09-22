@@ -29,13 +29,13 @@ try {
     await page.goto('http://localhost:4200/demo/inicio');
     await page
       .getByRole('heading', {
-        name: 'Una guía interactiva que también es un microfrontal.',
+        name: 'Explora el framework desde un microfrontal real.',
       })
       .waitFor();
 
     await page.goto('http://localhost:4200/demo/device');
     await page.getByRole('heading', { name: 'Device' }).waitFor();
-    await page.getByText('API COMPLETA').waitFor();
+    await page.getByRole('heading', { name: 'Leer información del dispositivo' }).waitFor();
 
     assert.deepEqual(runtimeErrors, [], runtimeErrors.join('\n'));
     console.log('La shell carga el MF, sus rutas y las capacidades por DI correctamente.');
