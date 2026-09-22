@@ -441,6 +441,135 @@ mova start
 
 Los microfrontales siempre se cargan remotamente mediante Native Federation. En producción, cada MF debe estar publicado en HTTPS y registrado con su `productionRemoteEntry`. Capacitor no copia los MFs al paquete nativo: la shell los carga desde sus URLs en ejecución.
 
+## Flujo para publicar
+
+> [!WARNING]
+> Este flujo prepara artefactos, pero el CLI no publica archivos por sí mismo
+> en GitHub Pages, un CDN o un hosting. Necesitas un proveedor de hosting y
+> debes publicar el contenido completo de cada directorio `dist/browser`.
+
+La publicación se hace en dos partes: primero se generan y publican los
+microfrontales, y después se genera y publica la shell con las URLs definitivas
+de esos remotos.
+
+### 1. Preparar la aplicación
+
+Desde la raíz de la aplicación:
+
+```bash
+mova doctor
+npm install
+npm --prefix mfs/home install
+```
+
+Ejecuta también `npm --prefix mfs/<nombre> install` para cada MF local. Los MFs
+que solo estén registrados mediante una URL remota no se compilan ni se
+publican desde esta aplicación.
+
+### 2. Generar cada microfrontal
+
+Para cada MF local, utiliza:
+
+```bash
+mova mf deploy home
+```
+
+El comando compila el MF y genera:
+
+```text
+mfs/home/dist/browser/
+├── remoteEntry.json
+├── open-mova-deployment.json
+└── ...assets y chunks...
+```
+
+El fichero `open-mova-deployment.json` describe el remoto, su ruta, el módulo
+expuesto y la versión compatible de Core. No debes publicar solo
+`remoteEntry.json`: también son necesarios todos los chunks y assets que ese
+fichero referencia.
+
+### 3. Publicar los microfrontales
+
+Publica el contenido de `mfs/home/dist/browser/` en una URL HTTPS estable y
+versionada, por ejemplo:
+
+```text
+https://cdn.example.com/mi-aplicacion/home/0.1.0/
+```
+
+El remoto deberá quedar accesible como:
+
+```text
+https://cdn.example.com/mi-aplicacion/home/0.1.0/remoteEntry.json
+```
+
+Comprueba que el hosting permite CORS para el dominio de la shell y que
+`open-mova.manifest.json`, `remoteEntry.json`, los chunks y sus mapas se sirven
+con las rutas correctas. No uses una URL de `localhost` en producción.
+
+> [!WARNING]
+> No sobrescribas una versión ya publicada. Las URLs versionadas permiten
+> mantener la caché, volver a una versión anterior y actualizar la shell sin
+> reconstruir los microfrontales.
+
+### 4. Registrar las URLs de producción
+
+Después de publicar cada MF, configura su URL final en `mova.config.json`:
+
+```json
+{
+  "microfrontends": [
+    {
+      "name": "home",
+      "productionRemoteEntry": "https://cdn.example.com/mi-aplicacion/home/0.1.0/remoteEntry.json"
+    }
+  ]
+}
+```
+
+La URL debe ser HTTPS y su origen debe estar incluido en los orígenes de
+confianza de la aplicación. Conserva la misma versión de Core que declara el
+MF; si el remoto requiere otra versión incompatible, la shell lo rechazará al
+cargarlo.
+
+### 5. Generar la shell de producción
+
+Cuando todas las URLs estén configuradas, ejecuta:
+
+```bash
+mova build --production
+```
+
+Este comando vuelve a compilar los MFs locales y la shell, valida las URLs y
+genera el manifiesto de producción en:
+
+```text
+dist/browser/
+└── assets/federation.manifest.json
+```
+
+La shell utilizará ese manifiesto para cargar los remotos desde sus URLs
+HTTPS. Publica todo el contenido de `dist/browser/`, conservando la estructura
+de directorios y los nombres de los assets.
+
+> [!WARNING]
+> Ejecuta `mova build --production` después de registrar o cambiar una URL de
+> producción. Si publicas una shell antigua, seguirá apuntando al manifiesto
+> anterior aunque los MFs ya estén disponibles.
+
+### Resumen
+
+```bash
+mova doctor
+npm install
+npm --prefix mfs/home install
+mova mf deploy home
+# Publicar mfs/home/dist/browser/ y obtener su URL HTTPS
+# Registrar productionRemoteEntry en mova.config.json
+mova build --production
+# Publicar dist/browser/ de la shell
+```
+
 ## Flujo para Android
 
 > [!WARNING]
