@@ -28,8 +28,8 @@ los microfrontales.
 Este directorio es la fuente de la shell que el CLI descarga desde los tags
 estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 
-> [!INFO]
-> Como norma general, no necesitas modificar la shell a mano. Configura la
+> [!Caution]
+> No necesitas modificar la shell a mano. Configura la
 > aplicación con `@open-mova/cli`: añade microfrontales, activa capacidades y
 > prepara los entornos de desarrollo o producción desde sus comandos. 
 > Solo en casos concretos tendrás que revisar `capacitor.config.ts` o ajustar los
