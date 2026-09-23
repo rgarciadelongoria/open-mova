@@ -14,7 +14,7 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 </p>
 
 <p align="center">
-  <video src="https://raw.githubusercontent.com//rgarciadelongoria/open-mova/refs/heads/main/assets/videos/demo.mp4" controls width="100%">
+  <video src="https://github.com/user-attachments/assets/765acaec-2eb3-4dc2-b5c0-bef2083aab80" controls width="100%">
     Tu navegador no soporta la reproducción de video.
   </video>
 </p>
