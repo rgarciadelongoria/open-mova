@@ -108,6 +108,13 @@ mova create mi-aplicacion --empty
 
 Sin `--shell-version` se usa el tag estable más reciente (`vMAJOR.MINOR.PATCH`). `--empty` omite el MF inicial.
 
+Al terminar, el CLI muestra los comandos siguientes y pregunta si quieres instalar
+las dependencias ahora. La opción por defecto es **No**: pulsa Enter para salir
+sin instalar nada. Si respondes Sí, ejecuta `npm install` en la aplicación y,
+salvo con `--empty`, también en `mfs/home`. En terminales no interactivos omite
+la pregunta y la instalación. Si falla una instalación, la aplicación queda
+creada y el CLI indica el comando para reanudarla manualmente.
+
 ### `mova config`
 
 Consulta la configuración efectiva de la aplicación sin editar los ficheros
@@ -433,6 +440,7 @@ Capacitor. También permite seleccionar capacidades mediante `list`, `enable`,
 ```bash
 mova create mi-aplicacion
 cd mi-aplicacion
+# Si aceptaste la instalación durante `mova create`, omite los dos comandos siguientes.
 npm install
 npm --prefix mfs/home install
 mova cap enable camera device

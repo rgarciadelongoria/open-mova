@@ -15,6 +15,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  cli-windows:
+    name: Verificar CLI en Windows
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: open-mova-cli/package-lock.json
+
+      - name: Instalar dependencias del CLI
+        run: npm ci
+        working-directory: open-mova-cli
+
+      - name: Comprobar tipos del CLI
+        run: npm run typecheck
+        working-directory: open-mova-cli
+
+      - name: Compilar y probar el CLI
+        run: npm test
+        working-directory: open-mova-cli
+
   validate:
     name: Validar monorepo
     runs-on: ubuntu-latest

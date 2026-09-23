@@ -28,6 +28,10 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   );
   assert.equal(create.status, 0, create.stderr);
   assert.equal(existsSync(join(applicationRoot, 'mfs', 'home')), true);
+  assert.match(create.stdout, /npm --prefix mfs\/home install/);
+  assert.doesNotMatch(create.stdout, /Instalando dependencias/);
+  assert.equal(existsSync(join(applicationRoot, 'node_modules')), false);
+  assert.equal(existsSync(join(applicationRoot, 'mfs', 'home', 'node_modules')), false);
 
   const initialConfiguration = readJson(join(applicationRoot, 'mova.config.json'));
   assert.equal(initialConfiguration.shell.version, 'v1.0.0');

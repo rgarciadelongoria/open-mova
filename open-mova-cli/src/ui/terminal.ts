@@ -76,8 +76,15 @@ export async function confirm(message: string): Promise<boolean> {
 
   try {
     const answer = await input.question(`${message} [y/N] `);
-    return ['y', 'yes', 's', 'si', 'sí'].includes(answer.trim().toLowerCase());
+    return isAffirmativeAnswer(answer);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ERR_USE_AFTER_CLOSE') return false;
+    throw error;
   } finally {
     input.close();
   }
+}
+
+export function isAffirmativeAnswer(answer: string): boolean {
+  return ['y', 'yes', 's', 'si', 'sí'].includes(answer.trim().toLowerCase());
 }
