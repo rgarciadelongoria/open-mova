@@ -32,17 +32,13 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 ## Proyectos
 
-<div align="center">
-
-| Proyecto                 | Versión  | npm                                                                                                                                                                                       |
-| ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@open-mova`             | `0.2.13` |                                                                                                                                                                                           |
-| `@open-mova/core`        | `0.2.3`  | <a href="https://www.npmjs.com/package/@open-mova/core" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a> |
-| `@open-mova/cli`         | `0.1.27` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  |
-| `@open-mova/shell`       | `0.2.5`  |                                                                                                                                                                                           |
-| `@open-mova/mf-template` | `0.2.6`  |                                                                                                                                                                                           |
-
-</div>
+| Proyecto                 | Versión  | npm                                                                                                                                                                                       | README                                                        |
+| ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `@open-mova`             | `0.2.13` |                                                                                                                                                                                           | [📄](README.md 'Leer el README de Open Mova')                 |
+| `@open-mova/core`        | `0.2.3`  | <a href="https://www.npmjs.com/package/@open-mova/core" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a> | [📄](open-mova-core/README.md 'Leer el README de Core')       |
+| `@open-mova/cli`         | `0.1.27` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  | [📄](open-mova-cli/README.md 'Leer el README del CLI')        |
+| `@open-mova/shell`       | `0.2.5`  |                                                                                                                                                                                           | [📄](open-mova-shell/README.md 'Leer el README de la Shell')  |
+| `@open-mova/mf-template` | `0.2.6`  |                                                                                                                                                                                           | [📄](open-mova-mf-template/README.md 'Leer el README del MF') |
 
 ```text
 open-mova/
