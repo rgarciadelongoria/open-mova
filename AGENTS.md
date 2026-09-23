@@ -51,6 +51,12 @@
 - Una versión de framework no obliga a publicar core ni CLI. Del mismo modo,
   no publicar una versión de npm vacía solo para igualarla al tag del
   workspace.
+- La publicación npm de Core y CLI se realiza mediante
+  `.github/workflows/publish-npm.yml` tras una CI correcta en `main`. Antes de
+  subir cambios distribuibles, incrementar solo las versiones de los paquetes
+  afectados y sus lockfiles; el workflow no decide incrementos ni crea tags.
+  La configuración manual de Trusted Publishers se describe en
+  `docs/npm-publishing.md`.
 
 ## Estilo y verificación
 

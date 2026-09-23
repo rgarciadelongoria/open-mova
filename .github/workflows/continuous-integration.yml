@@ -103,6 +103,9 @@ jobs:
       - name: Ejecutar pruebas automáticas
         run: npm run test:unit
 
+      - name: Probar decisiones de publicación npm
+        run: npm run test:release
+
       - name: Instalar navegador de pruebas
         run: npx playwright install --with-deps chromium
         working-directory: tooling

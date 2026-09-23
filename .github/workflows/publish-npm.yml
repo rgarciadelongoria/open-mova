@@ -1,0 +1,94 @@
+name: Publicar paquetes npm
+
+on:
+  workflow_run:
+    workflows:
+      - Integración continua
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: open-mova-npm-publish
+  cancel-in-progress: false
+
+jobs:
+  verify-source:
+    name: Verificar commit validado
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    outputs:
+      current: ${{ steps.source.outputs.current }}
+
+    steps:
+      - name: Descargar solo el commit validado por CI
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Verificar origen, CI y estado de main
+        id: source
+        run: node scripts/verify-publish-source.mjs
+
+  publish-core:
+    name: Publicar Core
+    needs: verify-source
+    if: needs.verify-source.outputs.current == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Descargar el commit validado
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Preparar Node.js y npm para OIDC
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Validar y publicar Core si hay versión nueva
+        run: node scripts/publish-npm-package.mjs open-mova-core
+
+  publish-cli:
+    name: Publicar CLI
+    needs:
+      - verify-source
+      - publish-core
+    if: needs.verify-source.outputs.current == 'true' && needs.publish-core.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Descargar el commit validado
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+
+      - name: Preparar Node.js y npm para OIDC
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Validar y publicar CLI si hay versión nueva
+        run: node scripts/publish-npm-package.mjs open-mova-cli

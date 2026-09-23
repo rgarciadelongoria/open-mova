@@ -75,6 +75,8 @@ npm link
 ```
 
 `npm link` enlaza la versión local del comando `mova`; no publica el paquete.
+La [guía de publicación npm](../docs/npm-publishing.md) explica la publicación
+automática tras una CI correcta en `main`.
 
 ## Comandos
 

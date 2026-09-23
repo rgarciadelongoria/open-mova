@@ -14,6 +14,7 @@
     "typecheck": "npm --prefix open-mova-core run typecheck && npm --prefix open-mova-shell run typecheck && npm --prefix open-mova-mf-template run typecheck && npm --prefix open-mova-cli run typecheck",
     "test": "npm run build:core && npm run build:cli && npm run test:unit",
     "test:unit": "npm --prefix open-mova-core run test:unit && npm --prefix open-mova-cli run test:unit",
+    "test:release": "node --test scripts/npm-release-plan.test.mjs",
     "pack:check": "npm run build:core && npm run build:cli && npm run pack:verify",
     "pack:verify": "node scripts/verify-packages.mjs",
     "lint": "node tooling/node_modules/eslint/bin/eslint.js --config tooling/eslint.config.mjs open-mova-core/src open-mova-core/test open-mova-cli/src open-mova-cli/test open-mova-shell/src open-mova-mf-template/src scripts tooling",
