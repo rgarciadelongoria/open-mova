@@ -13,6 +13,12 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
   <img src="assets/architecture/open-mova-architecture.png" alt="Arquitectura de Open Mova" width="960">
 </p>
 
+<p align="center">
+  <video src="assets/videos/demo.mp4" controls width="100%">
+    Tu navegador no soporta la reproducción de video.
+  </video>
+</p>
+
 ## Tecnologías
 
 <table>
