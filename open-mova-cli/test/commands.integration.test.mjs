@@ -116,7 +116,7 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   const update = runCli(['update', '--check', '--to', 'v1.1.0'], applicationRoot, environment);
   assert.equal(update.status, 0, update.stderr);
   assert.match(update.stdout, /Shell destino: v1\.1\.0/);
-  assert.match(update.stdout, /Actualizar src\/framework-update\.txt/);
+  assert.match(update.stdout, /Actualizar src[\\/]framework-update\.txt/);
 
   const updateMicrofrontend = runCli(
     ['mf', 'update', 'home', '--check', '--to', 'v1.1.0'],
