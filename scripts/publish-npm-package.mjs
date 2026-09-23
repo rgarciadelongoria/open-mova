@@ -64,7 +64,7 @@ function publishedVersions() {
 
 function pack(specifier, destination, cwd = packageDirectory) {
   const result = JSON.parse(
-    npm(['pack', specifier, '--json', '--pack-destination', destination], cwd),
+    npm(['pack', specifier, '--json', '--prefer-online', '--pack-destination', destination], cwd),
   );
   if (result.length !== 1 || !result[0].filename)
     throw new Error(`npm pack no devolvió un tarball para ${specifier}.`);
@@ -78,26 +78,28 @@ function extract(tarball, destination) {
 }
 
 async function verifyRegistryPublication() {
-  for (let attempt = 0; attempt < 6; attempt += 1) {
+  let lastResponse = '';
+  for (let attempt = 0; attempt < 24; attempt += 1) {
     const result = spawnSync(
       'npm',
-      ['view', `${packageName}@${manifest.version}`, 'version', '--json'],
+      ['view', `${packageName}@${manifest.version}`, 'version', '--json', '--prefer-online'],
       {
         cwd: packageDirectory,
         encoding: 'utf8',
         env: process.env,
       },
     );
+    lastResponse = result.status === 0 ? result.stdout.trim() : result.stderr.trim();
     if (result.status === 0 && JSON.parse(result.stdout) === manifest.version) return;
-    if (attempt < 5) await setTimeout(3000);
+    if (attempt < 23) await setTimeout(5000);
   }
   throw new Error(
-    `npm publish terminó, pero no se pudo verificar ${packageName}@${manifest.version} en el registro.`,
+    `npm publish terminó, pero no se pudo verificar ${packageName}@${manifest.version} en el registro tras dos minutos. Última respuesta: ${lastResponse}`,
   );
 }
 
 async function verifyPublishedArtifact(localTarball, registryDirectory, temporaryRoot) {
-  for (let attempt = 0; attempt < 6; attempt += 1) {
+  for (let attempt = 0; attempt < 24; attempt += 1) {
     try {
       const registryTarball = pack(`${packageName}@${manifest.version}`, registryDirectory);
       if (
@@ -112,8 +114,8 @@ async function verifyPublishedArtifact(localTarball, registryDirectory, temporar
       }
       return;
     } catch (error) {
-      if (attempt === 5 || /no coincide/.test(String(error))) throw error;
-      await setTimeout(3000);
+      if (attempt === 23 || /no coincide/.test(String(error))) throw error;
+      await setTimeout(5000);
     }
   }
 }
