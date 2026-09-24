@@ -28,14 +28,18 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   );
   assert.equal(create.status, 0, create.stderr);
   assert.equal(existsSync(join(applicationRoot, 'mfs', 'home')), true);
+  assert.equal(existsSync(join(applicationRoot, 'mfs', 'calculator')), true);
   assert.match(create.stdout, /npm --prefix mfs\/home install/);
+  assert.match(create.stdout, /npm --prefix mfs\/calculator install/);
   assert.doesNotMatch(create.stdout, /Instalando dependencias/);
   assert.equal(existsSync(join(applicationRoot, 'node_modules')), false);
   assert.equal(existsSync(join(applicationRoot, 'mfs', 'home', 'node_modules')), false);
 
   const initialConfiguration = readJson(join(applicationRoot, 'mova.config.json'));
   assert.equal(initialConfiguration.shell.version, 'v1.0.0');
-  assert.equal(initialConfiguration.microfrontends.length, 1);
+  assert.equal(initialConfiguration.microfrontends.length, 2);
+  assert.deepEqual(initialConfiguration.microfrontends[1].components, { main: './Calculator' });
+  assert.equal(initialConfiguration.microfrontends[1].route, undefined);
   assert.deepEqual(initialConfiguration.native.capabilities, []);
 
   const unattendedUpdate = runCli(['update', '--to', 'v1.1.0'], applicationRoot, environment);
@@ -48,7 +52,7 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
 
   const showConfiguration = runCli(['config', 'show'], applicationRoot, environment);
   assert.equal(showConfiguration.status, 0, showConfiguration.stderr);
-  assert.equal(JSON.parse(showConfiguration.stdout).schemaVersion, 4);
+  assert.equal(JSON.parse(showConfiguration.stdout).schemaVersion, 5);
 
   const enableCapability = runCli(['cap', 'enable', 'cookies'], applicationRoot, environment);
   assert.equal(enableCapability.status, 0, enableCapability.stderr);
@@ -96,14 +100,44 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   );
   assert.equal(addRemote.status, 0, addRemote.stderr);
 
+  const addComponent = runCli(
+    ['mf', 'component', 'add', 'account', 'widget', '--module', './Widget'],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(addComponent.status, 0, addComponent.stderr);
+
+  const addComponentOnly = runCli(
+    [
+      'mf',
+      'add',
+      '--name',
+      'utility',
+      '--remote',
+      'utility-microfrontend',
+      '--remote-entry',
+      'https://cdn.example.com/utility/remoteEntry.json',
+      '--core-version',
+      '^0.2.5',
+      '--component',
+      'main=./Widget',
+    ],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(addComponentOnly.status, 0, addComponentOnly.stderr);
+
   const configuration = readJson(join(applicationRoot, 'mova.config.json'));
   assert.deepEqual(
     configuration.microfrontends.map((microfrontend) => microfrontend.name),
-    ['home', 'catalog', 'account'],
+    ['home', 'calculator', 'catalog', 'account', 'utility'],
   );
+  assert.deepEqual(configuration.microfrontends[3].components, { widget: './Widget' });
+  assert.equal(configuration.microfrontends[4].route, undefined);
 
   const manifest = readJson(join(applicationRoot, 'src', 'assets', 'federation.manifest.json'));
-  assert.equal(manifest['catalog-microfrontend'], 'http://localhost:4400/remoteEntry.json');
+  assert.equal(manifest['calculator-microfrontend'], 'http://localhost:4400/remoteEntry.json');
+  assert.equal(manifest['catalog-microfrontend'], 'http://localhost:4500/remoteEntry.json');
   assert.equal(
     manifest['account-microfrontend'],
     'https://cdn.example.com/account/remoteEntry.json',
@@ -125,6 +159,14 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   );
   assert.equal(updateMicrofrontend.status, 0, updateMicrofrontend.stderr);
   assert.match(updateMicrofrontend.stdout, /Plantilla destino: v1\.1\.0/);
+
+  const updateCalculator = runCli(
+    ['mf', 'update', 'calculator', '--check', '--to', 'v1.1.0'],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(updateCalculator.status, 0, updateCalculator.stderr);
+  assert.match(updateCalculator.stdout, /Plantilla destino: v1\.1\.0/);
 
   const help = runCli(['--help'], applicationRoot, environment);
   assert.equal(help.status, 0, help.stderr);

@@ -27,7 +27,7 @@ test('una confirmación negativa no ejecuta npm', async () => {
   assert.deepEqual(calls, []);
 });
 
-test('Sí instala la aplicación y después el MF home', async () => {
+test('Sí instala la aplicación y ambos MF', async () => {
   const calls = [];
   await offerDependencyInstallation(
     '/app',
@@ -40,6 +40,7 @@ test('Sí instala la aplicación y después el MF home', async () => {
   assert.deepEqual(calls, [
     ['/app', 'la aplicación'],
     [join('/app', 'mfs', 'home'), 'el MF home'],
+    [join('/app', 'mfs', 'calculator'), 'el MF calculator'],
   ]);
 });
 

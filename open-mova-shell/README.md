@@ -40,7 +40,8 @@ estables del repositorio. No existe una segunda plantilla de shell en el CLI.
 - Inicializar Native Federation.
 - Leer el manifiesto de remotos.
 - Rechazar remotos cuyo origen no esté permitido por la aplicación.
-- Convertir la configuración de microfrontales en rutas Angular.
+- Convertir las exposiciones de rutas en rutas Angular y resolver los
+  componentes remotos por alias para los consumidores.
 - Implementar los plugins oficiales de Capacitor y proporcionarlos por
   inyección de dependencias.
 - Instalar y registrar únicamente las capacidades elegidas por cada
@@ -86,15 +87,24 @@ Hay dos ficheros de configuración con responsabilidades diferentes:
 
 En `application.config.ts`, `path` es el prefijo público de la aplicación,
 `remote` es el nombre utilizado en el manifiesto y `exposedModule` indica el
-módulo de rutas que expone el microfrontal:
+módulo de rutas que expone el microfrontal. `name` identifica al MF en la
+configuración; una misma entrada puede declarar también componentes:
 
 ```ts
 {
+  name: 'demo',
   path: 'demo',
   remote: 'demo-microfrontend',
   exposedModule: './Routes',
+  components: { widget: './Widget' },
 }
 ```
+
+Una entrada que solo declare `components`, sin `path`, no crea una ruta pública.
+El consumidor usa un alias como `demo.widget` en
+`<mova-remote-component>`. El provider del resolver vive en `app.config.ts` y
+valida el origen y la compatibilidad del remoto antes de cargarlo. La shell
+aporta infraestructura; los contratos de datos entre MFs pertenecen a la app.
 
 El manifiesto relaciona ese remoto con su servidor:
 
@@ -105,7 +115,7 @@ El manifiesto relaciona ese remoto con su servidor:
 ```
 
 La lógica de `app.routes.ts` recorre el registro y crea las rutas
-automáticamente. Si el MF expone `first-route` y se registra con `path: 'demo'`,
+automáticamente solo para los MF con `path`. Si el MF expone `first-route` y se registra con `path: 'demo'`,
 la URL resultante será `/demo/first-route`. Las rutas internas pertenecen al
 MF; la shell solo aporta el prefijo y lo monta en su `router-outlet`.
 
@@ -146,7 +156,7 @@ npm start
 
 El comando anterior es una comodidad del monorepo. En una aplicación creada
 con el CLI, `mova start` coordina la shell y los MFs declarados en su
-configuración.
+configuración, incluidos `home` y `calculator` en dos puertos distintos.
 
 ## Capacitor
 

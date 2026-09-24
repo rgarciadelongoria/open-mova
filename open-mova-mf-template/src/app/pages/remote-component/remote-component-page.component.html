@@ -1,0 +1,19 @@
+<p class="eyebrow">COMPONENTES REMOTOS</p>
+<h2>Dos microfrontales, una pantalla.</h2>
+<p>
+  Home aporta el estado; calculator devuelve el cálculo. Cada uno tiene su propio proyecto y
+  servidor.
+</p>
+<button class="action-button" type="button" [attr.aria-pressed]="enabled()" (click)="toggle()">
+  {{ enabled() ? 'Apagar calculadora' : 'Encender calculadora' }}
+</button>
+<div class="remote-example">
+  <mova-remote-component
+    name="calculator.main"
+    [inputs]="remoteInputs()"
+    (remoteEvent)="onRemoteEvent($event)"
+  >
+    Comprueba que el microfrontal calculator está disponible.
+  </mova-remote-component>
+</div>
+<p class="result" aria-live="polite">{{ lastCalculation() }}</p>

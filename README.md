@@ -38,11 +38,11 @@ monorepo Git, pero cada proyecto npm instala sus dependencias por separado.
 
 | Proyecto                 | Versión  | npm                                                                                                                                                                                       | Doc                                                                                                                                   |
 | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `@open-mova`             | `0.2.14` |                                                                                                                                                                                           | <a href="README.md"><img src="assets/icons/document.svg" alt="Documentación de Open Mova" width="18" height="18"></a>                 |
-| `@open-mova/core`        | `0.2.4`  | <a href="https://www.npmjs.com/package/@open-mova/core" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a> | <a href="open-mova-core/README.md"><img src="assets/icons/document.svg" alt="Documentación de Core" width="18" height="18"></a>       |
-| `@open-mova/cli`         | `0.1.28` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  | <a href="open-mova-cli/README.md"><img src="assets/icons/document.svg" alt="Documentación del CLI" width="18" height="18"></a>        |
-| `@open-mova/shell`       | `0.2.5`  |                                                                                                                                                                                           | <a href="open-mova-shell/README.md"><img src="assets/icons/document.svg" alt="Documentación de la Shell" width="18" height="18"></a>  |
-| `@open-mova/mf-template` | `0.2.6`  |                                                                                                                                                                                           | <a href="open-mova-mf-template/README.md"><img src="assets/icons/document.svg" alt="Documentación del MF" width="18" height="18"></a> |
+| `@open-mova`             | `0.2.15` |                                                                                                                                                                                           | <a href="README.md"><img src="assets/icons/document.svg" alt="Documentación de Open Mova" width="18" height="18"></a>                 |
+| `@open-mova/core`        | `0.2.6`  | <a href="https://www.npmjs.com/package/@open-mova/core" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a> | <a href="open-mova-core/README.md"><img src="assets/icons/document.svg" alt="Documentación de Core" width="18" height="18"></a>       |
+| `@open-mova/cli`         | `0.1.29` | <a href="https://www.npmjs.com/package/@open-mova/cli" target="_blank" rel="noopener noreferrer"><img src="https://cdn.simpleicons.org/npm/CB3837" alt="npm" width="20" height="20"></a>  | <a href="open-mova-cli/README.md"><img src="assets/icons/document.svg" alt="Documentación del CLI" width="18" height="18"></a>        |
+| `@open-mova/shell`       | `0.2.6`  |                                                                                                                                                                                           | <a href="open-mova-shell/README.md"><img src="assets/icons/document.svg" alt="Documentación de la Shell" width="18" height="18"></a>  |
+| `@open-mova/mf-template` | `0.2.7`  |                                                                                                                                                                                           | <a href="open-mova-mf-template/README.md"><img src="assets/icons/document.svg" alt="Documentación del MF" width="18" height="18"></a> |
 
 ```text
 open-mova/
@@ -59,7 +59,11 @@ open-mova/
 
 Cada tag `vX.Y.Z` publica el microfrontal demo en GitHub Pages. La URL estable
 es `https://rgarciadelongoria.github.io/open-mova/remoteEntry.json` y se usa
-como `productionRemoteEntry` del MF inicial creado por `mova create`. Sirve
+como `productionRemoteEntry` de `home`. La misma publicación incluye un segundo
+remoto de calculadora en
+`https://rgarciadelongoria.github.io/open-mova/calculator/remoteEntry.json`.
+`mova create` genera ambos MFs a partir de una única fuente y registra esas
+dos URLs. Sirven
 para pruebas rápidas y simuladores; una aplicación real debe sustituirla por
 la URL HTTPS y versionada de su propio microfrontal.
 

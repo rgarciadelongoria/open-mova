@@ -18,7 +18,10 @@
 
 CLI de terminal para crear y mantener aplicaciones Open Mova. Se ejecuta desde la raíz de cada aplicación con el comando `mova`.
 
-El CLI descarga la shell, el core y la plantilla de microfrontales desde tags estables del repositorio de Open Mova. No contiene copias de esas plantillas. Cada aplicación guarda en `mova.config.json` el tag y el commit con los que fue creada.
+El CLI descarga la shell y la plantilla de microfrontales desde tags estables
+del repositorio de Open Mova. Core se instala desde npm como dependencia de la
+shell y de cada MF. Cada aplicación guarda en `mova.config.json` el tag y el
+commit con los que fue creada.
 
 Las aplicaciones nuevas empiezan sin plugins específicos de Capacitor. Solo se
 instalan cuando se habilita explícitamente una capacidad con `mova cap enable`.
@@ -33,6 +36,7 @@ instalan cuando se habilita explícitamente una capacidad con `mova cap enable`.
 - [`mova mf`](#mova-mf)
 - [`mova mf create`](#mova-mf-create)
 - [`mova mf add`](#mova-mf-add)
+- [`mova mf component add`](#mova-mf-component-add)
 - [`mova mf build`](#mova-mf-build)
 - [`mova mf deploy`](#mova-mf-deploy)
 - [`mova mf update`](#mova-mf-update)
@@ -93,13 +97,14 @@ mova cap --help
 
 ### `mova create`
 
-Crea una aplicación completa. Descarga una shell versionada, el core y un MF
-inicial `home`. La aplicación se crea sin plugins específicos de Capacitor;
+Crea una aplicación completa. Descarga una shell versionada y genera dos MF
+desde la misma plantilla: `mfs/home` (rutas y ejemplos) y `mfs/calculator`
+(solo el componente de calculadora). La aplicación se crea sin plugins específicos de Capacitor;
 activa solo los que necesites con `mova cap enable`.
 
-Ese MF incluye por defecto el `productionRemoteEntry` de la demo oficial de
-Open Mova, para probar Capacitor sin desplegar un MF propio. Sustitúyelo antes
-de publicar la aplicación.
+Ambos MF incluyen por defecto la URL HTTPS de su demo oficial publicada en
+GitHub Pages. Esto permite probar la aplicación compilada sin desplegar los
+remotos propios. Sustituye esas URLs antes de publicar una aplicación real.
 
 ```bash
 mova create mi-aplicacion
@@ -108,12 +113,12 @@ mova create mi-aplicacion --shell-version v0.1.9
 mova create mi-aplicacion --empty
 ```
 
-Sin `--shell-version` se usa el tag estable más reciente (`vMAJOR.MINOR.PATCH`). `--empty` omite el MF inicial.
+Sin `--shell-version` se usa el tag estable más reciente (`vMAJOR.MINOR.PATCH`). `--empty` omite ambos MF.
 
 Al terminar, el CLI muestra los comandos siguientes y pregunta si quieres instalar
 las dependencias ahora. La opción por defecto es **No**: pulsa Enter para salir
 sin instalar nada. Si respondes Sí, ejecuta `npm install` en la aplicación y,
-salvo con `--empty`, también en `mfs/home`. En terminales no interactivos omite
+salvo con `--empty`, también en `mfs/home` y `mfs/calculator`. En terminales no interactivos omite
 la pregunta y la instalación. Si falla una instalación, la aplicación queda
 creada y el CLI indica el comando para reanudarla manualmente.
 
@@ -149,7 +154,7 @@ mova mf create catalog --directory ../provider-mf-catalog
 mova mf create catalog --demo
 ```
 
-Por defecto se crea en `mfs/catalog`, con perfil mínimo, ruta `/catalog` y un puerto libre desde `4300`. `--demo` añade ejemplos de Device y Camera. Se puede fijar la plantilla con `--template-version v0.1.9`.
+Por defecto se crea en `mfs/catalog`, con perfil mínimo, ruta `/catalog` y un puerto libre desde `4300`. `--demo` añade la demo de componentes y capacidades nativas. Se puede fijar la plantilla con `--template-version v0.1.9`.
 
 ### `mova mf add`
 
@@ -171,6 +176,19 @@ mova mf add --name catalog --route productos \
 
 El CLI actualiza `mova.config.json`, `src/assets/federation.manifest.json` y `src/app/application.config.ts`.
 
+Un remoto puede exponer rutas, componentes o ambas cosas. Para registrar un
+proveedor **solo de componentes**, omite `--route` y declara al menos un alias:
+
+```bash
+mova mf add ../provider-calculator --name calculator --component main=./Calculator
+mova mf add --name calculator --remote calculator-microfrontend \
+  --remote-entry https://cdn.example.com/calculator/remoteEntry.json \
+  --core-version '^0.2.6' --component main=./Calculator
+```
+
+Para conservar además una ruta, añade `--route <ruta>`. El MF debe exponer
+efectivamente cada módulo indicado en su `federation.config.js`.
+
 Para un MF remoto que no tenga un proyecto local, declara explícitamente su
 rango de Core:
 
@@ -180,6 +198,18 @@ mova mf add --name catalog --route catalog \
   --remote-entry https://cdn.example.com/catalog/remoteEntry.json \
   --core-version '^0.2.2'
 ```
+
+### `mova mf component add`
+
+Añade un alias de componente a un MF ya registrado, sin registrar otro remoto:
+
+```bash
+mova mf component add catalog ficha --module ./ProductCard
+```
+
+El consumidor usará `catalog.ficha`; el módulo debe estar expuesto por el MF.
+Los datos de negocio que intercambian los componentes pertenecen a tu app, no
+a Core.
 
 ### `mova mf update`
 
@@ -193,7 +223,7 @@ mova mf update home --check
 mova mf update home --to v0.2.2
 ```
 
-El comando conserva el nombre, la ruta, el puerto, el perfil y las
+El comando conserva el nombre, la ruta (si existe), el puerto, el perfil y las
 dependencias propias del proveedor. Si cambia `package.json`, elimina el
 lockfile para que ejecutes `npm install` en el MF.
 
@@ -204,6 +234,7 @@ Compila únicamente un MF local y comprueba que Native Federation haya generado
 
 ```bash
 mova mf build home
+mova mf build calculator
 ```
 
 No compila la shell. Es útil para validar o preparar el artefacto de un
@@ -240,9 +271,10 @@ No elige CDN, hosting ni modifica la URL de producción de la aplicación.
 
 ```bash
 mova mf deploy home
+mova mf deploy calculator
 ```
 
-El comando compila el MF y deja el resultado en `mfs/home/dist/browser` junto
+El comando compila cada MF y deja el resultado en `mfs/<nombre>/dist/browser` junto
 con `open-mova-deployment.json`. El pipeline debe publicar **todo** ese
 directorio, conservando los nombres de los assets y de `remoteEntry.json`.
 Después se registra la URL HTTPS versionada resultante como
@@ -442,9 +474,10 @@ Capacitor. También permite seleccionar capacidades mediante `list`, `enable`,
 ```bash
 mova create mi-aplicacion
 cd mi-aplicacion
-# Si aceptaste la instalación durante `mova create`, omite los dos comandos siguientes.
+# Si aceptaste la instalación durante `mova create`, omite los tres comandos siguientes.
 npm install
 npm --prefix mfs/home install
+npm --prefix mfs/calculator install
 mova cap enable camera device
 mova start
 ```
@@ -470,6 +503,7 @@ Desde la raíz de la aplicación:
 mova doctor
 npm install
 npm --prefix mfs/home install
+npm --prefix mfs/calculator install
 ```
 
 Ejecuta también `npm --prefix mfs/<nombre> install` para cada MF local. Los MFs
@@ -482,6 +516,7 @@ Para cada MF local, utiliza:
 
 ```bash
 mova mf deploy home
+mova mf deploy calculator
 ```
 
 El comando compila el MF y genera:
@@ -493,14 +528,14 @@ mfs/home/dist/browser/
 └── ...assets y chunks...
 ```
 
-El fichero `open-mova-deployment.json` describe el remoto, su ruta, el módulo
-expuesto y la versión compatible de Core. No debes publicar solo
+El fichero `open-mova-deployment.json` describe el remoto, sus rutas o
+componentes expuestos y la versión compatible de Core. No debes publicar solo
 `remoteEntry.json`: también son necesarios todos los chunks y assets que ese
 fichero referencia.
 
 ### 3. Publicar los microfrontales
 
-Publica el contenido de `mfs/home/dist/browser/` en una URL HTTPS estable y
+Publica el contenido de cada `mfs/<nombre>/dist/browser/` en una URL HTTPS estable y
 versionada, por ejemplo:
 
 ```text
@@ -532,6 +567,10 @@ Después de publicar cada MF, configura su URL final en `mova.config.json`:
     {
       "name": "home",
       "productionRemoteEntry": "https://cdn.example.com/mi-aplicacion/home/0.1.0/remoteEntry.json"
+    },
+    {
+      "name": "calculator",
+      "productionRemoteEntry": "https://cdn.example.com/mi-aplicacion/calculator/0.1.0/remoteEntry.json"
     }
   ]
 }
@@ -573,9 +612,10 @@ de directorios y los nombres de los assets.
 mova doctor
 npm install
 npm --prefix mfs/home install
+npm --prefix mfs/calculator install
 mova mf deploy home
-# Publicar mfs/home/dist/browser/ y obtener su URL HTTPS
-# Registrar productionRemoteEntry en mova.config.json
+mova mf deploy calculator
+# Publicar ambos dist/browser/ y registrar sus productionRemoteEntry
 mova build --production
 # Publicar dist/browser/ de la shell
 ```
@@ -595,6 +635,7 @@ mova create mi-aplicacion
 cd mi-aplicacion
 npm install
 npm --prefix mfs/home install
+npm --prefix mfs/calculator install
 ```
 
 Comprueba que cada microfrontal tiene un `productionRemoteEntry` HTTPS en
@@ -656,6 +697,7 @@ mova create mi-aplicacion
 cd mi-aplicacion
 npm install
 npm --prefix mfs/home install
+npm --prefix mfs/calculator install
 ```
 
 Comprueba que cada microfrontal tiene un `productionRemoteEntry` HTTPS en

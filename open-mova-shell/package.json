@@ -1,7 +1,7 @@
 {
   "name": "@open-mova/shell",
   "private": true,
-  "version": "0.2.5",
+  "version": "0.2.6",
   "scripts": {
     "start": "ng serve shell",
     "build": "ng build shell",
@@ -16,7 +16,7 @@
     "@capacitor/android": "^8.5.2",
     "@capacitor/core": "^8.5.2",
     "@capacitor/ios": "^8.5.2",
-    "@open-mova/core": "^0.2.2",
+    "@open-mova/core": "^0.2.6",
     "@softarc/native-federation-node": "^3.3.4",
     "es-module-shims": "^1.5.12",
     "rxjs": "^7.8.2",

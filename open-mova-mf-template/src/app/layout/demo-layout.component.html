@@ -12,6 +12,7 @@
     <a routerLink="inicio" routerLinkActive="is-active" [routerLinkActiveOptions]="{ exact: true }">
       Inicio
     </a>
+    <a routerLink="componentes" routerLinkActive="is-active">Componentes remotos</a>
     @for (capability of capabilities; track capability.id) {
       <a [routerLink]="capability.id" routerLinkActive="is-active">{{ capability.label }}</a>
     }

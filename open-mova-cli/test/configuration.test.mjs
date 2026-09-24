@@ -47,7 +47,10 @@ test('encuentra y valida una aplicación desde uno de sus subdirectorios', (cont
   mkdirSync(nestedDirectory, { recursive: true });
 
   assert.equal(findApplicationRoot(nestedDirectory), fixture.root);
-  assert.deepEqual(readApplicationConfiguration(fixture.root), fixture.configuration);
+  assert.deepEqual(readApplicationConfiguration(fixture.root), {
+    ...fixture.configuration,
+    schemaVersion: 5,
+  });
 });
 
 test('migra configuraciones antiguas en memoria sin sobrescribirlas', (context) => {
@@ -58,8 +61,8 @@ test('migra configuraciones antiguas en memoria sin sobrescribirlas', (context) 
   writeFileSync(join(fixture.root, 'mova.config.json'), `${JSON.stringify(legacy, null, 2)}\n`);
 
   const document = readApplicationConfigurationDocument(fixture.root);
-  assert.equal(document.configuration.schemaVersion, 4);
-  assert.equal(document.migrations.length, 3);
+  assert.equal(document.configuration.schemaVersion, 5);
+  assert.equal(document.migrations.length, 4);
 });
 
 test('rechaza un módulo federado que no expone las rutas esperadas', (context) => {
@@ -72,7 +75,10 @@ test('rechaza un módulo federado que no expone las rutas esperadas', (context) 
     `${JSON.stringify(fixture.configuration, null, 2)}\n`,
   );
 
-  assert.throws(() => readApplicationConfiguration(fixture.root), /solo admite "\.\/Routes"/);
+  assert.throws(
+    () => readApplicationConfiguration(fixture.root),
+    /debe asociar cada ruta de MF con "\.\/Routes"/,
+  );
 });
 
 test('impide registrar rutas o nombres de remoto duplicados', () => {
@@ -108,4 +114,29 @@ test('registra el origen HTTPS de un remoto como origen de confianza', () => {
 
   assert.deepEqual(configuration.security.trustedRemoteOrigins, ['https://cdn.example.com']);
   rmSync(fixture.root, { recursive: true, force: true });
+});
+
+test('admite un MF solo de componentes y otro con rutas y componentes', (context) => {
+  const fixture = createApplicationFixture();
+  context.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  const withComponents = addMicrofrontend(fixture.configuration, {
+    name: 'calculator',
+    remoteName: 'calculator-microfrontend',
+    components: { main: './Calculator' },
+    developmentRemoteEntry: 'http://localhost:4400/remoteEntry.json',
+    compatibility: { requiredCoreVersion: '^0.2.5' },
+  });
+  const both = {
+    ...withComponents,
+    schemaVersion: 5,
+    microfrontends: withComponents.microfrontends.map((entry) =>
+      entry.name === 'home' ? { ...entry, components: { widget: './Widget' } } : entry,
+    ),
+  };
+  writeFileSync(join(fixture.root, 'mova.config.json'), `${JSON.stringify(both, null, 2)}\n`);
+  const read = readApplicationConfiguration(fixture.root);
+  assert.equal(read.microfrontends[0].route, 'home');
+  assert.deepEqual(read.microfrontends[0].components, { widget: './Widget' });
+  assert.equal(read.microfrontends[1].route, undefined);
+  assert.deepEqual(read.microfrontends[1].components, { main: './Calculator' });
 });

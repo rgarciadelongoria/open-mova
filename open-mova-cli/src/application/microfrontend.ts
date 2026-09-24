@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, rmSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
 import type { MicrofrontendConfiguration, OpenMovaApplicationConfiguration } from '../types.js';
 import { normalizeName, toRemoteName } from '../utils/names.js';
@@ -17,6 +17,10 @@ export interface CreateMicrofrontendOptions {
   readonly productionRemoteEntry?: string;
   readonly profile?: MicrofrontendProfile;
   readonly templateVersion?: string;
+  readonly templateSource?: {
+    readonly path: string;
+    readonly version: ShellVersion;
+  };
 }
 
 export interface ExistingMicrofrontendOptions {
@@ -28,6 +32,7 @@ export interface ExistingMicrofrontendOptions {
   readonly productionRemoteEntry?: string;
   readonly port?: number;
   readonly coreVersion?: string;
+  readonly components?: Readonly<Record<string, string>>;
 }
 
 export function createMicrofrontend(
@@ -36,7 +41,7 @@ export function createMicrofrontend(
   options: CreateMicrofrontendOptions,
 ): MicrofrontendConfiguration {
   const name = normalizeName(options.name, 'El nombre del microfrontal');
-  const route = normalizeName(options.route ?? name, 'La ruta del microfrontal');
+  const route = profileRoute(options.profile, options.route, name);
   const destination = resolve(applicationRoot, options.directory);
 
   if (existsSync(destination)) {
@@ -48,9 +53,19 @@ export function createMicrofrontend(
 
   const profile = options.profile ?? 'minimal';
   let template: ShellVersion;
+  let exposures: { readonly components?: Readonly<Record<string, string>> };
   try {
-    template = downloadTaggedProject('open-mova-mf-template', destination, options.templateVersion);
-    configureDownloadedMicrofrontend(destination, name, port, profile);
+    if (options.templateSource) {
+      cpSync(options.templateSource.path, destination, { recursive: true });
+      template = options.templateSource.version;
+    } else {
+      template = downloadTaggedProject(
+        'open-mova-mf-template',
+        destination,
+        options.templateVersion,
+      );
+    }
+    exposures = configureDownloadedMicrofrontend(destination, name, port, profile);
   } catch (error) {
     rmSync(destination, { recursive: true, force: true });
     throw error;
@@ -58,9 +73,9 @@ export function createMicrofrontend(
 
   return {
     name,
-    route,
+    ...(route ? { route, exposedModule: './Routes' as const } : {}),
     remoteName: toRemoteName(name),
-    exposedModule: './Routes',
+    ...exposures,
     developmentRemoteEntry: `http://localhost:${port}/remoteEntry.json`,
     ...(options.productionRemoteEntry
       ? { productionRemoteEntry: options.productionRemoteEntry }
@@ -71,6 +86,16 @@ export function createMicrofrontend(
     },
     template: { ...template, project: 'open-mova-mf-template', profile },
   };
+}
+
+function profileRoute(
+  profile: MicrofrontendProfile | undefined,
+  route: string | undefined,
+  name: string,
+): string | undefined {
+  return profile === 'calculator'
+    ? undefined
+    : normalizeName(route ?? name, 'La ruta del microfrontal');
 }
 
 export function inspectExistingMicrofrontend(
@@ -92,7 +117,10 @@ export function inspectExistingMicrofrontend(
   const remoteName = options.remoteName ?? discovered.remoteName;
   const inferredName = remoteName?.replace(/-microfrontend$/, '');
   const name = normalizeName(options.name ?? inferredName ?? '', 'El nombre del microfrontal');
-  const route = normalizeName(options.route ?? name, 'La ruta del microfrontal');
+  const route =
+    options.components && options.route === undefined
+      ? undefined
+      : normalizeName(options.route ?? name, 'La ruta del microfrontal');
   const resolvedRemoteName = remoteName ?? toRemoteName(name);
   const port = options.port ?? discovered.port;
 
@@ -120,9 +148,9 @@ export function inspectExistingMicrofrontend(
 
   return {
     name,
-    route,
+    ...(route ? { route, exposedModule: './Routes' as const } : {}),
     remoteName: resolvedRemoteName,
-    exposedModule: './Routes',
+    ...(options.components ? { components: options.components } : {}),
     developmentRemoteEntry: remoteEntry,
     ...(options.productionRemoteEntry
       ? { productionRemoteEntry: options.productionRemoteEntry }

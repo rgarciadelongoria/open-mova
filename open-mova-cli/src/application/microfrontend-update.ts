@@ -23,6 +23,7 @@ export interface MicrofrontendUpdatePlan {
   readonly currentVersion: string;
   readonly target: ShellVersion;
   readonly targetCoreVersion: string;
+  readonly targetComponents?: Readonly<Record<string, string>>;
   readonly changes: readonly string[];
   readonly conflicts: readonly string[];
   readonly fileChanges: readonly FileChange[];
@@ -76,7 +77,7 @@ export function createMicrofrontendUpdatePlan(
       port,
       microfrontend.template.profile,
     );
-    configureDownloadedMicrofrontend(
+    const targetExposures = configureDownloadedMicrofrontend(
       targetDirectory,
       microfrontend.name,
       port,
@@ -98,6 +99,7 @@ export function createMicrofrontendUpdatePlan(
       conflicts,
     );
     const targetCoreVersion = readRequiredCoreVersion(targetDirectory);
+    const targetComponents = targetExposures.components;
     const changes = [
       ...fileChanges.map(
         (change) => `${change.content ? 'Actualizar' : 'Eliminar'} ${change.path}`,
@@ -109,6 +111,10 @@ export function createMicrofrontendUpdatePlan(
       ...(targetCoreVersion === microfrontend.compatibility.requiredCoreVersion
         ? []
         : [`Actualizar compatibilidad de Core a ${targetCoreVersion}`]),
+      ...(microfrontend.template.profile === 'calculator' &&
+      JSON.stringify(targetComponents) !== JSON.stringify(microfrontend.components)
+        ? ['Actualizar exposiciones de componentes']
+        : []),
     ];
 
     return {
@@ -117,6 +123,7 @@ export function createMicrofrontendUpdatePlan(
       currentVersion: microfrontend.template.version,
       target,
       targetCoreVersion,
+      ...(targetComponents ? { targetComponents } : {}),
       changes,
       conflicts,
       fileChanges,
@@ -157,6 +164,9 @@ export function applyMicrofrontendUpdate(
       entry.name === plan.microfrontend.name
         ? {
             ...entry,
+            ...(plan.microfrontend.template?.profile === 'calculator'
+              ? { components: plan.targetComponents }
+              : {}),
             compatibility: { requiredCoreVersion: plan.targetCoreVersion },
             template: {
               ...plan.target,

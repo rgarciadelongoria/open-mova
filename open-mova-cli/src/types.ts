@@ -1,5 +1,5 @@
 export interface OpenMovaApplicationConfiguration {
-  readonly schemaVersion: 4;
+  readonly schemaVersion: 5;
   readonly name: string;
   readonly shell?: {
     readonly repository: string;
@@ -29,9 +29,10 @@ export interface NativeConfiguration {
 
 export interface MicrofrontendConfiguration {
   readonly name: string;
-  readonly route: string;
+  readonly route?: string;
   readonly remoteName: string;
-  readonly exposedModule: './Routes';
+  readonly exposedModule?: './Routes';
+  readonly components?: Readonly<Record<string, string>>;
   readonly developmentRemoteEntry: string;
   readonly productionRemoteEntry?: string;
   readonly sourcePath?: string;
@@ -44,6 +45,6 @@ export interface MicrofrontendConfiguration {
     readonly version: string;
     readonly commit: string;
     readonly project: 'open-mova-mf-template';
-    readonly profile: 'minimal' | 'demo';
+    readonly profile: 'minimal' | 'demo' | 'calculator';
   };
 }

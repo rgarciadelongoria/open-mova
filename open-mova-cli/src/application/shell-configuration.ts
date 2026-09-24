@@ -123,9 +123,11 @@ function renderApplicationConfiguration(configuration: OpenMovaApplicationConfig
   const entries = configuration.microfrontends
     .map(
       (microfrontend) => `  {
-    path: ${JSON.stringify(microfrontend.route)},
+    name: ${JSON.stringify(microfrontend.name)},
+    ${microfrontend.route ? `path: ${JSON.stringify(microfrontend.route)},` : ''}
     remote: ${JSON.stringify(microfrontend.remoteName)},
-    exposedModule: './Routes',
+    ${microfrontend.route ? "exposedModule: './Routes'," : ''}
+    ${microfrontend.components ? `components: ${JSON.stringify(microfrontend.components)},` : ''}
     requiredCoreVersion: ${JSON.stringify(microfrontend.compatibility.requiredCoreVersion)},
     allowedOrigins: ${JSON.stringify(allowedRemoteOrigins(microfrontend, configuration))},
   },`,
@@ -133,9 +135,11 @@ function renderApplicationConfiguration(configuration: OpenMovaApplicationConfig
     .join('\n');
 
   return `export interface MicrofrontendDefinition {
-  readonly path: string;
+  readonly name: string;
+  readonly path?: string;
   readonly remote: string;
-  readonly exposedModule: './Routes';
+  readonly exposedModule?: './Routes';
+  readonly components?: Readonly<Record<string, string>>;
   readonly requiredCoreVersion: string;
   readonly allowedOrigins: readonly string[];
 }

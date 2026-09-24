@@ -9,6 +9,8 @@ export const SHELL_REPOSITORY =
 // El demo publicado permite probar una aplicación recién creada sin desplegar un MF propio.
 export const DEMO_MICROFRONTEND_REMOTE_ENTRY =
   'https://rgarciadelongoria.github.io/open-mova/remoteEntry.json';
+export const DEMO_CALCULATOR_REMOTE_ENTRY =
+  'https://rgarciadelongoria.github.io/open-mova/calculator/remoteEntry.json';
 
 const VERSION_PATTERN = /^v(\d+)\.(\d+)\.(\d+)$/;
 const EXCLUDED_ENTRIES = new Set([
@@ -144,9 +146,12 @@ export function configureDownloadedShell(
   }
   writeFileSync(join(destination, '.nvmrc'), '22\n');
   const installSteps =
-    'npm install\n' + (includesStarterMicrofrontend ? 'npm --prefix mfs/home install\n' : '');
+    'npm install\n' +
+    (includesStarterMicrofrontend
+      ? 'npm --prefix mfs/home install\nnpm --prefix mfs/calculator install\n'
+      : '');
   const runSteps = includesStarterMicrofrontend
-    ? 'Inicia `npm --prefix mfs/home start` y `npm start` en dos terminales. Abre `http://localhost:4200/home/inicio`.\n'
+    ? 'Ejecuta `mova start` para iniciar la shell y los dos MF. Abre `http://localhost:4200/home/inicio` y visita Componentes remotos.\n'
     : 'Registra primero un MF con `mova mf create nombre` y después ejecuta `mova start`.\n';
   writeFileSync(
     join(destination, 'README.md'),

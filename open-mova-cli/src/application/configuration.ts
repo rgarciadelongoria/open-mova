@@ -78,7 +78,7 @@ export function addMicrofrontend(
   microfrontend: MicrofrontendConfiguration,
 ): OpenMovaApplicationConfiguration {
   const routeInUse = configuration.microfrontends.some(
-    (entry) => entry.route === microfrontend.route,
+    (entry) => microfrontend.route !== undefined && entry.route === microfrontend.route,
   );
   const nameInUse = configuration.microfrontends.some((entry) => entry.name === microfrontend.name);
   const remoteInUse = configuration.microfrontends.some(
@@ -217,22 +217,41 @@ function validateMicrofrontend(
     throw new Error(`${configurationPath} contiene un microfrontal no válido.`);
   }
 
-  const requiredStrings = [
-    value.name,
-    value.route,
-    value.remoteName,
-    value.exposedModule,
-    value.developmentRemoteEntry,
-  ];
+  const requiredStrings = [value.name, value.remoteName, value.developmentRemoteEntry];
 
   if (requiredStrings.some((entry) => typeof entry !== 'string')) {
     throw new Error(`${configurationPath} contiene un microfrontal incompleto.`);
   }
 
-  if (value.exposedModule !== './Routes') {
-    throw new Error(
-      `${configurationPath} solo admite "./Routes" como módulo expuesto por el momento.`,
-    );
+  if (value.route !== undefined && (typeof value.route !== 'string' || !value.route)) {
+    throw new Error(`${configurationPath} contiene una ruta de MF no válida.`);
+  }
+  if (
+    value.route === undefined
+      ? value.exposedModule !== undefined
+      : value.exposedModule !== './Routes'
+  ) {
+    throw new Error(`${configurationPath} debe asociar cada ruta de MF con "./Routes".`);
+  }
+  let components: Record<string, string> | undefined;
+  if (value.components !== undefined) {
+    if (!isRecord(value.components) || Array.isArray(value.components)) {
+      throw new Error(`${configurationPath} contiene componentes remotos no válidos.`);
+    }
+    components = {};
+    for (const [alias, module] of Object.entries(value.components)) {
+      if (
+        !/^[a-z][a-z0-9-]*$/.test(alias) ||
+        typeof module !== 'string' ||
+        !/^\.\/[A-Za-z][A-Za-z0-9/_-]*$/.test(module)
+      ) {
+        throw new Error(`${configurationPath} contiene un alias o módulo de componente no válido.`);
+      }
+      components[alias] = module;
+    }
+  }
+  if (value.route === undefined && !Object.keys(components ?? {}).length) {
+    throw new Error(`${configurationPath} contiene un MF sin rutas ni componentes.`);
   }
 
   if (value.sourcePath !== undefined && typeof value.sourcePath !== 'string') {
@@ -263,16 +282,19 @@ function validateMicrofrontend(
       typeof value.template.version !== 'string' ||
       typeof value.template.commit !== 'string' ||
       value.template.project !== 'open-mova-mf-template' ||
-      (value.template.profile !== 'minimal' && value.template.profile !== 'demo'))
+      (value.template.profile !== 'minimal' &&
+        value.template.profile !== 'demo' &&
+        value.template.profile !== 'calculator'))
   ) {
     throw new Error(`${configurationPath} contiene una plantilla de microfrontal no válida.`);
   }
 
   return {
     name: value.name as string,
-    route: value.route as string,
+    ...(value.route === undefined ? {} : { route: value.route as string }),
     remoteName: value.remoteName as string,
-    exposedModule: './Routes',
+    ...(value.route === undefined ? {} : { exposedModule: './Routes' as const }),
+    ...(components ? { components } : {}),
     developmentRemoteEntry: value.developmentRemoteEntry as string,
     ...(value.productionRemoteEntry === undefined
       ? {}

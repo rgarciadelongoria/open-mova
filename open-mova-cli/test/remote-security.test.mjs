@@ -17,7 +17,7 @@ const remote = {
 
 test('genera un manifiesto de producción solo para orígenes HTTPS de confianza', () => {
   const configuration = {
-    schemaVersion: 4,
+    schemaVersion: 5,
     name: 'demo-app',
     security: { trustedRemoteOrigins: ['https://cdn.example.com'] },
     microfrontends: [remote],
@@ -34,7 +34,7 @@ test('genera un manifiesto de producción solo para orígenes HTTPS de confianza
 
 test('rechaza una URL de producción cuyo origen no está declarado', () => {
   const configuration = {
-    schemaVersion: 4,
+    schemaVersion: 5,
     name: 'demo-app',
     security: { trustedRemoteOrigins: ['https://cdn.example.com'] },
     microfrontends: [
@@ -46,4 +46,28 @@ test('rechaza una URL de producción cuyo origen no está declarado', () => {
   };
 
   assert.throws(() => createProductionRemoteManifest(configuration), /no está en security/);
+});
+
+test('incluye también un MF solo de componentes en producción', () => {
+  const configuration = {
+    schemaVersion: 5,
+    name: 'demo-app',
+    security: { trustedRemoteOrigins: ['https://cdn.example.com'] },
+    microfrontends: [
+      remote,
+      {
+        name: 'calculator',
+        remoteName: 'calculator-microfrontend',
+        components: { main: './Calculator' },
+        developmentRemoteEntry: 'http://localhost:4400/remoteEntry.json',
+        productionRemoteEntry: 'https://cdn.example.com/calculator/1.0.0/remoteEntry.json',
+        compatibility: { requiredCoreVersion: '^0.2.6' },
+      },
+    ],
+  };
+
+  assert.deepEqual(createProductionRemoteManifest(configuration), {
+    'catalog-microfrontend': 'https://cdn.example.com/catalog/1.4.0/remoteEntry.json',
+    'calculator-microfrontend': 'https://cdn.example.com/calculator/1.0.0/remoteEntry.json',
+  });
 });

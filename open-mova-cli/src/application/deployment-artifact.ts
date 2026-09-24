@@ -3,11 +3,12 @@ import { join } from 'node:path';
 import type { BuiltMicrofrontend } from './microfrontend-build.js';
 
 export interface MicrofrontendDeploymentDescriptor {
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly remoteName: string;
   readonly remoteEntry: 'remoteEntry.json';
-  readonly exposedModule: './Routes';
-  readonly route: string;
+  readonly exposedModule?: './Routes';
+  readonly route?: string;
+  readonly components?: Readonly<Record<string, string>>;
   readonly requiredCoreVersion: string;
 }
 
@@ -20,11 +21,13 @@ export function writeMicrofrontendDeploymentDescriptor(
   build: BuiltMicrofrontend,
 ): MicrofrontendDeploymentDescriptor {
   const descriptor: MicrofrontendDeploymentDescriptor = {
-    schemaVersion: 1,
+    schemaVersion: 2,
     remoteName: build.configuration.remoteName,
     remoteEntry: 'remoteEntry.json',
-    exposedModule: build.configuration.exposedModule,
-    route: build.configuration.route,
+    ...(build.configuration.route
+      ? { exposedModule: './Routes' as const, route: build.configuration.route }
+      : {}),
+    ...(build.configuration.components ? { components: build.configuration.components } : {}),
     requiredCoreVersion: build.configuration.compatibility.requiredCoreVersion,
   };
 

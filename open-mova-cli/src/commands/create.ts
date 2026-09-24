@@ -3,11 +3,13 @@ import { spawnSync } from 'node:child_process';
 import { dirname, join, resolve } from 'node:path';
 import type { Command } from 'commander';
 import { createMicrofrontend } from '../application/microfrontend.js';
+import { downloadTaggedProject } from '../application/shell-repository.js';
 import { addMicrofrontend, writeApplicationConfiguration } from '../application/configuration.js';
 import { synchronizeShellConfiguration } from '../application/shell-configuration.js';
 import {
   configureDownloadedShell,
   DEMO_MICROFRONTEND_REMOTE_ENTRY,
+  DEMO_CALCULATOR_REMOTE_ENTRY,
   downloadShell,
 } from '../application/shell-repository.js';
 import type { OpenMovaApplicationConfiguration } from '../types.js';
@@ -24,9 +26,9 @@ interface CreateCommandOptions {
 export function registerCreateCommand(program: Command): void {
   program
     .command('create <name>')
-    .description('Crea una aplicación Open Mova con una shell y un microfrontal inicial')
+    .description('Crea una aplicación Open Mova con shell y dos microfrontales demo')
     .option('-d, --directory <path>', 'directorio donde crear la aplicación')
-    .option('--empty', 'no crear el microfrontal inicial')
+    .option('--empty', 'crear solo la shell, sin microfrontales demo')
     .option('--shell-version <tag>', 'tag de la shell, por ejemplo v0.1.4')
     .action(async (name: string, options: CreateCommandOptions) => {
       const applicationName = normalizeName(name, 'El nombre de la aplicación');
@@ -47,7 +49,7 @@ export function registerCreateCommand(program: Command): void {
         configureDownloadedShell(temporaryApplication, applicationName, !options.empty);
 
         let configuration: OpenMovaApplicationConfiguration = {
-          schemaVersion: 4,
+          schemaVersion: 5,
           name: applicationName,
           shell,
           native: { capabilities: [] },
@@ -60,15 +62,32 @@ export function registerCreateCommand(program: Command): void {
         };
 
         if (!options.empty) {
+          const sourcePath = join(temporaryApplication, '.mova-template-source');
+          const template = downloadTaggedProject(
+            'open-mova-mf-template',
+            sourcePath,
+            shell.version,
+          );
+          const templateSource = { path: sourcePath, version: template };
           const starterMicrofrontend = createMicrofrontend(temporaryApplication, configuration, {
             name: 'home',
             directory: join('mfs', 'home'),
             profile: 'demo',
             templateVersion: shell.version,
             productionRemoteEntry: DEMO_MICROFRONTEND_REMOTE_ENTRY,
+            templateSource,
           });
 
           configuration = addMicrofrontend(configuration, starterMicrofrontend);
+          const calculator = createMicrofrontend(temporaryApplication, configuration, {
+            name: 'calculator',
+            directory: join('mfs', 'calculator'),
+            profile: 'calculator',
+            templateSource,
+            productionRemoteEntry: DEMO_CALCULATOR_REMOTE_ENTRY,
+          });
+          configuration = addMicrofrontend(configuration, calculator);
+          rmSync(sourcePath, { recursive: true, force: true });
         }
 
         writeApplicationConfiguration(temporaryApplication, configuration);
@@ -85,7 +104,7 @@ export function registerCreateCommand(program: Command): void {
         'Aplicación creada',
         options.empty
           ? 'La shell está preparada.'
-          : 'La shell y el microfrontal inicial están preparados.',
+          : 'La shell y los microfrontales home y calculator están preparados.',
       );
       terminal.success(`Creada en ${applicationRoot} con shell ${shellVersion}.`);
       terminal.section('Siguientes pasos');
@@ -93,6 +112,7 @@ export function registerCreateCommand(program: Command): void {
       terminal.command('npm install');
       if (!options.empty) {
         terminal.command('npm --prefix mfs/home install');
+        terminal.command('npm --prefix mfs/calculator install');
       }
 
       await offerDependencyInstallation(applicationRoot, !options.empty);
@@ -116,6 +136,11 @@ export async function offerDependencyInstallation(
             directory: join(applicationRoot, 'mfs', 'home'),
             label: 'el MF home',
             command: 'npm --prefix mfs/home install',
+          },
+          {
+            directory: join(applicationRoot, 'mfs', 'calculator'),
+            label: 'el MF calculator',
+            command: 'npm --prefix mfs/calculator install',
           },
         ]
       : []),

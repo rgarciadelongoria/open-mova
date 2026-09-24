@@ -3,6 +3,7 @@ import { CAPABILITY_CATALOG } from './capabilities/capability-catalog';
 import { DemoLayoutComponent } from './layout/demo-layout.component';
 import { CapabilityPageComponent } from './pages/capability/capability-page.component';
 import { HomeComponent } from './pages/home/home.component';
+import { RemoteComponentPageComponent } from './pages/remote-component/remote-component-page.component';
 
 // Las rutas solo conectan URLs con componentes; cada pantalla vive en su propio fichero.
 export const routes: Routes = [
@@ -12,6 +13,7 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'inicio', pathMatch: 'full' },
       { path: 'inicio', component: HomeComponent },
+      { path: 'componentes', component: RemoteComponentPageComponent },
       ...CAPABILITY_CATALOG.map((capability) => ({
         path: capability.id,
         component: CapabilityPageComponent,

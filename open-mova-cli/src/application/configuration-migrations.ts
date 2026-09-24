@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-export const LATEST_CONFIGURATION_SCHEMA_VERSION = 4;
+export const LATEST_CONFIGURATION_SCHEMA_VERSION = 5;
 
 export interface ConfigurationMigrationResult {
   readonly value: unknown;
@@ -38,6 +38,11 @@ export function migrateConfiguration(
   if (migrated.schemaVersion === 3) {
     migrated = migrateVersionThree(migrated);
     migrations.push('3 → 4: declarar los orígenes de remotos de confianza');
+  }
+
+  if (migrated.schemaVersion === 4) {
+    migrated = { ...migrated, schemaVersion: 5 };
+    migrations.push('4 → 5: admitir componentes remotos además de rutas');
   }
 
   return { value: migrated, migrations };

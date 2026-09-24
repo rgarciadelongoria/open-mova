@@ -1,4 +1,5 @@
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
 import type { Command } from 'commander';
 import { createMicrofrontend, inspectExistingMicrofrontend } from '../application/microfrontend.js';
 import {
@@ -35,6 +36,7 @@ interface AddMicrofrontendCommandOptions {
   readonly port?: number;
   readonly productionRemoteEntry?: string;
   readonly coreVersion?: string;
+  readonly component?: readonly string[];
 }
 
 interface UpdateMicrofrontendCommandOptions {
@@ -105,6 +107,12 @@ export function registerMicrofrontendCommands(program: Command): void {
     .option('--port <number>', 'puerto de desarrollo para un proyecto local', parsePort)
     .option('--production-remote-entry <url>', 'URL HTTPS del remoto publicado')
     .option('--core-version <range>', 'rango requerido de @open-mova/core')
+    .option(
+      '--component <alias=module>',
+      'componente expuesto; se puede repetir',
+      collectComponent,
+      [],
+    )
     .action((sourcePath: string | undefined, options: AddMicrofrontendCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
@@ -117,7 +125,17 @@ export function registerMicrofrontendCommands(program: Command): void {
         port: options.port,
         productionRemoteEntry: options.productionRemoteEntry,
         coreVersion: options.coreVersion,
+        ...(options.component?.length ? { components: parseComponents(options.component) } : {}),
       });
+      if (microfrontendConfiguration.sourcePath) {
+        const projectRoot = resolve(applicationRoot, microfrontendConfiguration.sourcePath);
+        for (const module of [
+          ...(microfrontendConfiguration.route ? ['./Routes'] : []),
+          ...Object.values(microfrontendConfiguration.components ?? {}),
+        ]) {
+          assertLocalExposure(projectRoot, module);
+        }
+      }
       const updatedConfiguration = addMicrofrontend(configuration, microfrontendConfiguration);
 
       writeApplicationConfiguration(applicationRoot, updatedConfiguration);
@@ -125,7 +143,43 @@ export function registerMicrofrontendCommands(program: Command): void {
 
       terminal.heading('Microfrontal registrado');
       terminal.success(`"${microfrontendConfiguration.name}" está disponible en la aplicación.`);
-      terminal.keyValue('Ruta pública', `/${microfrontendConfiguration.route}`);
+      if (microfrontendConfiguration.route) {
+        terminal.keyValue('Ruta pública', `/${microfrontendConfiguration.route}`);
+      } else {
+        terminal.keyValue(
+          'Componentes',
+          Object.keys(microfrontendConfiguration.components ?? {}).join(', '),
+        );
+      }
+    });
+
+  const component = microfrontend.command('component').description('Registra componentes de un MF');
+  component
+    .command('add <mf> <alias>')
+    .requiredOption('--module <module>', 'módulo expuesto en federation.config.js')
+    .description('Añade un componente expuesto a un MF ya registrado')
+    .action((name: string, alias: string, options: { module: string }) => {
+      parseComponent(`${alias}=${options.module}`);
+      const applicationRoot = requireApplicationRoot(process.cwd());
+      const configuration = readApplicationConfiguration(applicationRoot);
+      const index = configuration.microfrontends.findIndex((entry) => entry.name === name);
+      if (index < 0) throw new Error(`No existe un MF llamado "${name}".`);
+      const current = configuration.microfrontends[index]!;
+      if (current.components?.[alias]) {
+        throw new Error(`El MF ${name} ya registra el componente ${alias}.`);
+      }
+      if (current.sourcePath) {
+        assertLocalExposure(resolve(applicationRoot, current.sourcePath), options.module);
+      }
+      const microfrontends = [...configuration.microfrontends];
+      microfrontends[index] = {
+        ...current,
+        components: { ...current.components, [alias]: options.module },
+      };
+      const updated = { ...configuration, microfrontends };
+      writeApplicationConfiguration(applicationRoot, updated);
+      synchronizeShellConfiguration(applicationRoot, updated);
+      terminal.success(`Componente "${name}.${alias}" registrado.`);
     });
 
   microfrontend
@@ -199,6 +253,41 @@ export function registerMicrofrontendCommands(program: Command): void {
       );
       terminal.item('El CLI no realiza el despliegue ni selecciona el proveedor de hosting.');
     });
+}
+
+function collectComponent(value: string, previous: readonly string[]): readonly string[] {
+  return [...previous, value];
+}
+
+function parseComponents(values: readonly string[]): Record<string, string> {
+  const components: Record<string, string> = {};
+  for (const value of values) {
+    const [alias, module] = parseComponent(value);
+    if (alias in components) throw new Error(`El alias ${alias} está duplicado.`);
+    components[alias] = module;
+  }
+  return components;
+}
+
+function parseComponent(value: string): readonly [string, string] {
+  const index = value.indexOf('=');
+  const alias = value.slice(0, index);
+  const module = value.slice(index + 1);
+  if (
+    index < 1 ||
+    !/^[a-z][a-z0-9-]*$/.test(alias) ||
+    !/^\.\/[A-Za-z][A-Za-z0-9/_-]*$/.test(module)
+  ) {
+    throw new Error('Usa --component alias=./Modulo con un alias y módulo válidos.');
+  }
+  return [alias, module];
+}
+
+function assertLocalExposure(directory: string, module: string): void {
+  const source = readFileSync(join(directory, 'federation.config.js'), 'utf8');
+  if (!source.includes(`'${module}':`) && !source.includes(`"${module}":`)) {
+    throw new Error(`El proyecto ${directory} no expone ${module} en federation.config.js.`);
+  }
 }
 
 function parsePort(value: string): number {

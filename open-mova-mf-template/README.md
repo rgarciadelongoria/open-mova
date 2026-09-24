@@ -11,7 +11,7 @@
 | Angular           | `^21.2.23`                                       |
 | Native Federation | `^21.2.6`                                        |
 | Capacitor         | No depende directamente; lo proporciona la shell |
-| `@open-mova/core` | `^0.2.2`                                         |
+| `@open-mova/core` | `^0.2.6`                                         |
 | TypeScript        | `^5.9.3`                                         |
 
 </div>
@@ -22,7 +22,8 @@ Este es el único proyecto fuente de microfrontal que utiliza el CLI. Se publica
 junto con la release del framework en los tags `vX.Y.Z` del monorepo. La shell
 de desarrollo lo carga como remoto en `/demo` desde el puerto `4300`.
 
-El perfil **demo** es una guía interactiva pequeña de tres capacidades nativas:
+El proyecto fuente expone `./Routes` y `./Calculator` desde un solo
+`remoteEntry.json`. El perfil **demo** es una guía interactiva pequeña de tres capacidades nativas:
 Device, Camera y Share. Cada una tiene su propia URL y pruebas ejecutables; el
 resultado aparece junto al botón que ha lanzado la prueba. Los ejemplos usan
 `injectNativeCapabilities()`; la implementación de Capacitor sigue viviendo en
@@ -42,8 +43,17 @@ abrirlo a través de una shell.
 El CLI descarga este proyecto sin mantener una copia propia de la plantilla.
 Con `mova create`, lo copia como `mfs/home` con el perfil **demo**. Con
 `mova mf create`, usa el mismo proyecto con el perfil **minimal**: sustituye
-las rutas de demostración por una única ruta inicial y elimina la dependencia
-de Core si el microfrontal no necesita capacidades nativas.
+las rutas de demostración por una única ruta inicial y elimina el ejemplo de
+calculadora.
+
+Al crear una aplicación, `mova create` usa este mismo código y tag para
+producir dos proyectos independientes: `mfs/home` conserva las rutas de la demo
+y muestra una página «Componentes remotos»; `mfs/calculator` expone únicamente
+el componente Angular de calculadora en el puerto 4400, sin ruta pública en la
+shell. `home` no incluye esa implementación: la carga desde el segundo MF.
+La entrada `enabled` y la salida `calculated` muestran cómo intercambiar datos
+sin añadir un contrato de negocio a Core. En una aplicación real, esos
+contratos pertenecen a los MFs o a una librería propia.
 
 También puedes crear un microfrontal con la demo explícitamente:
 
@@ -66,6 +76,8 @@ Después inicia la shell y abre `http://localhost:4200/demo/inicio`. Las demás
 rutas se generan a partir de `capability-catalog.ts`; por ejemplo,
 `http://localhost:4200/demo/camera` o `http://localhost:4200/demo/share`.
 Para verificar este proyecto: `npm run typecheck` y `npm run build`.
+Para probar la comunicación entre dos MF en una app generada, ejecuta
+`mova start` desde esa aplicación y abre `/home/componentes`.
 
 ## Estructura del código
 
@@ -75,6 +87,7 @@ su componente. La implementación está separada por responsabilidad:
 ```text
 src/app/
 ├── app.routes.ts
+├── components/calculator/      # Componente standalone expuesto por el remoto
 ├── capabilities/
 │   └── capability-catalog.ts
 ├── layout/
@@ -89,6 +102,7 @@ src/app/
     │   ├── capability-page.component.ts
     │   ├── capability-page.component.html
     │   └── capability-page.component.css
+    └── remote-component/        # Página que consume calculator.main
 ```
 
 `capability-catalog.ts` contiene los textos, ejemplos ejecutables, orden del

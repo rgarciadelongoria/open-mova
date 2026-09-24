@@ -24,12 +24,16 @@ export function writeMicrofrontendManifest(
   name: string,
   remoteName: string,
   requiredCoreVersion: string,
+  routes?: string,
+  components?: Readonly<Record<string, string>>,
 ): void {
   const manifest = {
     schemaVersion: 1,
     name,
     remoteName,
     core: { requiredVersion: requiredCoreVersion },
+    ...(routes ? { routes } : {}),
+    ...(components ? { components } : {}),
   };
 
   writeFileSync(

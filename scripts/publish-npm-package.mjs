@@ -20,6 +20,7 @@ if (!Object.hasOwn(projects, project)) {
 const packageDirectory = join(repositoryRoot, project);
 const manifest = JSON.parse(readFileSync(join(packageDirectory, 'package.json'), 'utf8'));
 const packageName = projects[project];
+const registryVerificationAttempts = 120;
 
 if (manifest.name !== packageName) throw new Error(`Nombre npm inesperado en ${project}.`);
 
@@ -79,7 +80,7 @@ function extract(tarball, destination) {
 
 async function verifyRegistryPublication() {
   let lastResponse = '';
-  for (let attempt = 0; attempt < 24; attempt += 1) {
+  for (let attempt = 0; attempt < registryVerificationAttempts; attempt += 1) {
     const result = spawnSync(
       'npm',
       ['view', `${packageName}@${manifest.version}`, 'version', '--json', '--prefer-online'],
@@ -91,15 +92,15 @@ async function verifyRegistryPublication() {
     );
     lastResponse = result.status === 0 ? result.stdout.trim() : result.stderr.trim();
     if (result.status === 0 && JSON.parse(result.stdout) === manifest.version) return;
-    if (attempt < 23) await setTimeout(5000);
+    if (attempt < registryVerificationAttempts - 1) await setTimeout(5000);
   }
   throw new Error(
-    `npm publish terminó, pero no se pudo verificar ${packageName}@${manifest.version} en el registro tras dos minutos. Última respuesta: ${lastResponse}`,
+    `npm publish terminó, pero no se pudo verificar ${packageName}@${manifest.version} en el registro tras diez minutos. Última respuesta: ${lastResponse}`,
   );
 }
 
 async function verifyPublishedArtifact(localTarball, registryDirectory, temporaryRoot) {
-  for (let attempt = 0; attempt < 24; attempt += 1) {
+  for (let attempt = 0; attempt < registryVerificationAttempts; attempt += 1) {
     try {
       const registryTarball = pack(`${packageName}@${manifest.version}`, registryDirectory);
       if (
@@ -114,7 +115,8 @@ async function verifyPublishedArtifact(localTarball, registryDirectory, temporar
       }
       return;
     } catch (error) {
-      if (attempt === 23 || /no coincide/.test(String(error))) throw error;
+      if (attempt === registryVerificationAttempts - 1 || /no coincide/.test(String(error)))
+        throw error;
       await setTimeout(5000);
     }
   }

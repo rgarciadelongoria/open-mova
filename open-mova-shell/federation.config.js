@@ -14,6 +14,11 @@ module.exports = withNativeFederation({
       strictVersion: true,
       requiredVersion: 'auto',
     },
+    '@open-mova/core/remote-components': {
+      singleton: true,
+      strictVersion: true,
+      requiredVersion: 'auto',
+    },
   },
 
   skip: [

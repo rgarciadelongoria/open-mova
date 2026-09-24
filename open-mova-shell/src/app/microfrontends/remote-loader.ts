@@ -1,21 +1,54 @@
 import { loadRemoteModule } from '@angular-architects/native-federation';
+import { reflectComponentType, type Type } from '@angular/core';
 import type { Routes } from '@angular/router';
 import {
   checkCoreCompatibility,
   OPEN_MOVA_CORE_VERSION,
   parseMicrofrontendManifest,
 } from '@open-mova/core';
-import type { MicrofrontendDefinition } from '../application.config';
-
-interface RemoteRoutesModule {
-  readonly routes: Routes;
-}
+import { microfrontends, type MicrofrontendDefinition } from '../application.config';
 
 let federationManifest: Promise<Record<string, string>> | undefined;
 
 export async function loadCompatibleRemoteRoutes(
   microfrontend: MicrofrontendDefinition,
 ): Promise<Routes> {
+  if (!microfrontend.exposedModule) {
+    throw new Error(`El MF ${microfrontend.remote} no expone rutas.`);
+  }
+  const remoteModule = await loadCompatibleRemoteModule(microfrontend, microfrontend.exposedModule);
+  if (!Array.isArray(remoteModule['routes'])) {
+    throw new Error(`El MF ${microfrontend.remote} no expone una lista de rutas válida.`);
+  }
+  return remoteModule['routes'] as Routes;
+}
+
+export async function loadCompatibleRemoteComponent(name: string): Promise<Type<unknown>> {
+  const separator = name.indexOf('.');
+  const remoteName = name.slice(0, separator);
+  const alias = name.slice(separator + 1);
+  const microfrontend = microfrontends.find((entry) => entry.name === remoteName);
+  const exposedModule = microfrontend?.components?.[alias];
+  if (!microfrontend || !exposedModule || separator < 1) {
+    throw new Error(`El componente remoto ${name} no está registrado en esta aplicación.`);
+  }
+  const remoteModule = await loadCompatibleRemoteModule(microfrontend, exposedModule);
+  const candidates = Object.values(remoteModule).filter(
+    (value): value is Type<unknown> =>
+      typeof value === 'function' && reflectComponentType(value as Type<unknown>) !== null,
+  );
+  if (candidates.length !== 1) {
+    throw new Error(
+      `La exposición ${exposedModule} de ${microfrontend.remote} debe exportar un único componente Angular.`,
+    );
+  }
+  return candidates[0];
+}
+
+async function loadCompatibleRemoteModule(
+  microfrontend: MicrofrontendDefinition,
+  exposedModule: string,
+): Promise<Record<string, unknown>> {
   const remoteEntry = await findRemoteEntry(microfrontend.remote);
   assertAllowedRemoteOrigin(remoteEntry, microfrontend);
   const manifestUrl = new URL('assets/open-mova.manifest.json', remoteEntry).toString();
@@ -48,14 +81,7 @@ export async function loadCompatibleRemoteRoutes(
     throw new Error(compatibility.reason);
   }
 
-  const remoteModule = (await loadRemoteModule(
-    microfrontend.remote,
-    microfrontend.exposedModule,
-  )) as RemoteRoutesModule;
-  if (!Array.isArray(remoteModule.routes)) {
-    throw new Error(`El MF ${microfrontend.remote} no expone una lista de rutas válida.`);
-  }
-  return remoteModule.routes;
+  return (await loadRemoteModule(microfrontend.remote, exposedModule)) as Record<string, unknown>;
 }
 
 function assertAllowedRemoteOrigin(

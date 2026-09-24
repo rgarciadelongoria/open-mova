@@ -1,3 +1,4 @@
 {
-  "demo-microfrontend": "http://localhost:4300/remoteEntry.json"
+  "demo-microfrontend": "http://localhost:4300/remoteEntry.json",
+  "calculator-microfrontend": "http://localhost:4400/remoteEntry.json"
 }

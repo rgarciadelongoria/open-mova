@@ -3,6 +3,10 @@
   "name": "demo",
   "remoteName": "demo-microfrontend",
   "core": {
-    "requiredVersion": "^0.2.2"
+    "requiredVersion": "^0.2.6"
+  },
+  "routes": "./Routes",
+  "components": {
+    "main": "./Calculator"
   }
 }

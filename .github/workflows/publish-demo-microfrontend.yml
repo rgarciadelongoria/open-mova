@@ -33,6 +33,11 @@ jobs:
         run: npm ci --include=optional
         working-directory: open-mova-mf-template
 
+      - name: Preparar el CLI para aplicar el perfil calculator
+        run: |
+          npm ci --prefix open-mova-cli
+          npm --prefix open-mova-cli run build
+
       - name: Reinstalar binarios nativos de Linux
         # npm puede omitir dependencias opcionales de otra plataforma del lockfile.
         # El script común evita duplicar aquí la lista y las versiones de los bindings.
@@ -51,8 +56,14 @@ jobs:
         run: npm run build
         working-directory: open-mova-mf-template
 
+      - name: Compilar el segundo remoto desde el mismo template
+        run: node scripts/build-demo-calculator.mjs
+
       - name: Comprobar el artefacto federado
-        run: test -f dist/browser/remoteEntry.json
+        run: |
+          test -f dist/browser/remoteEntry.json
+          test -f dist/browser/calculator/remoteEntry.json
+          test -f dist/browser/calculator/assets/open-mova.manifest.json
         working-directory: open-mova-mf-template
 
       - name: Preparar GitHub Pages

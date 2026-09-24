@@ -1,0 +1,26 @@
+<div class="calculator">
+  <h3>Calculadora remota</h3>
+  <p>Este componente pertenece a otro microfrontal.</p>
+  <div class="numbers">
+    <label
+      >Primer número
+      <input type="number" [value]="first" [disabled]="!enabled" (input)="setFirst($event)"
+    /></label>
+    <label
+      >Segundo número
+      <input type="number" [value]="second" [disabled]="!enabled" (input)="setSecond($event)"
+    /></label>
+  </div>
+  <div class="operations" aria-label="Operaciones">
+    <button type="button" [disabled]="!enabled" (click)="calculate('+')">Sumar</button>
+    <button type="button" [disabled]="!enabled" (click)="calculate('-')">Restar</button>
+    <button type="button" [disabled]="!enabled" (click)="calculate('×')">Multiplicar</button>
+    <button type="button" [disabled]="!enabled" (click)="calculate('÷')">Dividir</button>
+  </div>
+  @if (!enabled) {
+    <p role="status">La calculadora está apagada.</p>
+  }
+  @if (error) {
+    <p role="alert">{{ error }}</p>
+  }
+</div>

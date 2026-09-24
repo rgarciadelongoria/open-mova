@@ -1,0 +1,47 @@
+.calculator {
+  padding: 20px;
+  border: 1px solid #3b6384;
+  border-radius: 14px;
+  color: #e8eef8;
+  background: #17263c;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+
+.calculator h3 {
+  margin: 0 0 8px;
+}
+.calculator p {
+  color: #b7c4d8;
+}
+.numbers,
+.operations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.numbers label {
+  display: grid;
+  gap: 5px;
+  flex: 1 1 150px;
+}
+.numbers input {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid #8298b5;
+  border-radius: 7px;
+  font: inherit;
+}
+.operations button {
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: #72e0c2;
+  color: #10251f;
+  cursor: pointer;
+  font: inherit;
+}
+.operations button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
