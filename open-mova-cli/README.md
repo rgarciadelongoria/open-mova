@@ -95,6 +95,12 @@ mova mf --help
 mova cap --help
 ```
 
+#### Parámetros
+
+- `--help`: muestra los comandos y opciones disponibles. También puede usarse
+  en un grupo, por ejemplo `mova mf --help`.
+- `--version`: muestra la versión instalada del CLI.
+
 ### `mova create`
 
 Crea una aplicación completa. Descarga una shell versionada y genera dos MF
@@ -113,7 +119,16 @@ mova create mi-aplicacion --shell-version v0.1.9
 mova create mi-aplicacion --empty
 ```
 
-Sin `--shell-version` se usa el tag estable más reciente (`vMAJOR.MINOR.PATCH`). `--empty` omite ambos MF.
+#### Parámetros
+
+- `<name>`: nombre de la aplicación nueva. Se usa para identificarla y, por
+  defecto, también como nombre del directorio que se crea.
+- `-d, --directory <path>`: ubicación donde crearla. Puede ser una ruta
+  relativa al directorio actual o una ruta absoluta; el directorio de destino
+  no debe existir ya.
+- `--shell-version <tag>`: tag estable de la shell que se descargará, por
+  ejemplo `v0.2.19`. Si se omite, se elige el tag estable más reciente.
+- `--empty`: crea solo la shell, sin los MF `home` y `calculator` de ejemplo.
 
 Al terminar, el CLI muestra los comandos siguientes y pregunta si quieres instalar
 las dependencias ahora. La opción por defecto es **No**: pulsa Enter para salir
@@ -137,10 +152,21 @@ mova config validate
 el esquema que utiliza el CLI e informa de las migraciones que se aplicarían al
 ejecutar `mova update`, sin modificar archivos.
 
+#### Parámetros
+
+`mova config`, `mova config show` y `mova config validate` no reciben
+parámetros. `show` y `validate` son subcomandos; se pueden consultar con
+`mova config --help`.
+
 ### `mova mf`
 
 Es el grupo de comandos para crear y registrar microfrontales en la aplicación.
 Usa `mova mf --help` para consultar sus subcomandos.
+
+#### Parámetros
+
+No recibe parámetros propios; elige un subcomando como `create`, `add`,
+`component add`, `update`, `build` o `deploy`.
 
 ### `mova mf create`
 
@@ -156,6 +182,30 @@ mova mf create catalog --component-name ficha
 mova mf create catalog --directory ../provider-mf-catalog
 mova mf create catalog --demo
 ```
+
+#### Parámetros
+
+- `<name>`: nombre del MF que se creará y registrará en la aplicación.
+- `-d, --directory <path>`: carpeta de destino relativa a la raíz de la
+  aplicación. Por defecto es `mfs/<name>`.
+- `--route <path>`: ruta pública para cargar las rutas del MF desde la shell.
+  Si se omite en el perfil mínimo, se usa el nombre del MF.
+- `--port <number>`: puerto de desarrollo del MF local. Si se omite, el CLI
+  selecciona uno libre a partir del puerto `4300`.
+- `--production-remote-entry <url>`: URL HTTPS de `remoteEntry.json` que se
+  usará como remoto de producción.
+- `--template-version <tag>`: tag del framework del que descargar la plantilla
+  del MF. Si se omite, se selecciona el tag estable más reciente; con `--demo`
+  se usa por defecto la versión de la shell de esta aplicación.
+- `--demo`: crea el perfil de demostración en vez del perfil mínimo. Debe usar
+  el mismo tag que la shell y no se combina con las opciones de perfil mínimo.
+- `--routes-only`: crea únicamente la exposición de rutas; no se combina con
+  `--component-only` ni con `--component-name`.
+- `--component-only`: crea únicamente un componente, sin ruta pública. No se
+  combina con `--routes-only` ni con `--route`.
+- `--component-name <name>`: nombre del componente de inicio y su alias en el
+  MF. Por ejemplo, `ficha` genera el alias `catalog.ficha` y la exposición
+  `./Ficha`; solo se aplica al perfil mínimo que incluye componentes.
 
 Por defecto se crea en `mfs/catalog`, con una ruta `/catalog` y un componente
 Angular mínimo `catalog.main`, en un puerto libre desde `4300`.
@@ -181,6 +231,28 @@ proveedor local o publicado, regístralo con `mova mf add`.
 ### `mova mf add`
 
 Registra un microfrontal existente, sin crearlo de nuevo.
+
+#### Parámetros
+
+- `[source-path]`: ruta a un MF local ya creado, relativa a la raíz de la
+  aplicación (o absoluta). Omítela cuando registres un MF publicado por URL.
+- `--name <name>`: nombre con el que se registra en `mova.config.json`. Es
+  necesario si no se puede inferir de `source-path`.
+- `--route <path>`: ruta que la shell usará para cargar las rutas expuestas. Se
+  omite para registrar un MF solo de componentes.
+- `--remote <name>`: nombre del remoto tal como aparece en
+  `federation.config.js` del proveedor.
+- `--remote-entry <url>`: URL de `remoteEntry.json`; úsala para un proveedor
+  remoto sin proyecto local.
+- `--port <number>`: puerto donde se ejecuta el proyecto local durante
+  `mova start`.
+- `--production-remote-entry <url>`: URL HTTPS de producción que se usa al
+  compilar con `mova build --production`.
+- `--core-version <range>`: rango semver de `@open-mova/core` que necesita un
+  remoto sin proyecto local. En un MF local el CLI lo obtiene del proyecto.
+- `--component <alias=module>`: registra un módulo de componente expuesto por
+  el proveedor, por ejemplo `ficha=./ProductCard`. Se puede repetir para
+  registrar varios componentes.
 
 ```bash
 mova mf add ../provider-mf-catalog
@@ -255,6 +327,15 @@ El consumidor usará `catalog.ficha`; el módulo debe estar expuesto por el MF.
 Los datos de negocio que intercambian los componentes pertenecen a tu app, no
 a Core.
 
+#### Parámetros
+
+- `<mf>`: nombre del MF que ya está registrado en la aplicación.
+- `<alias>`: nombre local para referirse al componente; el consumidor lo usa
+  como `<mf>.<alias>`.
+- `--module <module>`: exposición del componente en el proveedor, por ejemplo
+  `./ProductCard`. Debe coincidir con un módulo expuesto por su
+  `federation.config.js`.
+
 ### `mova mf update`
 
 Actualiza un MF local que fue creado desde una plantilla de Open Mova. Compara
@@ -266,6 +347,14 @@ para revisión.
 mova mf update home --check
 mova mf update home --to v0.2.2
 ```
+
+#### Parámetros
+
+- `<name>`: nombre del MF local que se va a actualizar.
+- `--check`: calcula y muestra el plan y los posibles conflictos, pero no
+  modifica archivos.
+- `--to <tag>`: versión concreta de la plantilla a la que actualizar. Si se
+  omite, el CLI elige la versión estable más reciente.
 
 El comando conserva el nombre, la ruta (si existe), el puerto, el perfil y las
 dependencias propias del proveedor. Si cambia `package.json`, elimina el
@@ -281,6 +370,10 @@ mova mf build home
 mova mf build calculator
 ```
 
+#### Parámetros
+
+- `<name>`: nombre del MF local registrado que se compilará.
+
 No compila la shell. Es útil para validar o preparar el artefacto de un
 proveedor de forma independiente. Un MF registrado solo por URL remota no se
 puede compilar desde la aplicación.
@@ -294,6 +387,12 @@ mova start
 mova start --shell-only
 ```
 
+#### Parámetros
+
+- `--shell-only`: inicia únicamente la shell. Sin esta opción, `mova start`
+  inicia también todos los MF registrados que tengan un directorio local; los
+  remotos registrados solo mediante URL no se arrancan.
+
 ### `mova build`
 
 Compila los microfrontales locales y la shell. Con `--production`, exige URLs
@@ -304,6 +403,12 @@ en `dist/browser`.
 mova build
 mova build --production
 ```
+
+#### Parámetros
+
+- `--production`: además de compilar los MF locales y la shell, escribe en el
+  artefacto final el manifiesto con las URLs HTTPS de producción y valida los
+  orígenes de confianza. Sin esta opción, usa la configuración de desarrollo.
 
 Consulta la guía de [remotos en producción](../docs/production-remotes.md)
 antes de desplegar la shell.
@@ -317,6 +422,10 @@ No elige CDN, hosting ni modifica la URL de producción de la aplicación.
 mova mf deploy home
 mova mf deploy calculator
 ```
+
+#### Parámetros
+
+- `<name>`: nombre del MF local que se compilará y preparará para publicar.
 
 El comando compila cada MF y deja el resultado en `mfs/<nombre>/dist/browser` junto
 con `open-mova-deployment.json`. El pipeline debe publicar **todo** ese
@@ -332,6 +441,11 @@ Muestra la aplicación detectada, la versión de shell y sus microfrontales. Tam
 mova info
 ```
 
+#### Parámetros
+
+No recibe parámetros. Busca la aplicación desde el directorio actual y también
+puede ejecutarse desde un subdirectorio de la aplicación.
+
 ### `mova doctor`
 
 Diagnostica el entorno de desarrollo y la aplicación encontrada desde el
@@ -346,6 +460,11 @@ Xcode, CocoaPods, claves y descripciones de permisos.
 ```bash
 mova doctor
 ```
+
+#### Parámetros
+
+No recibe parámetros. El diagnóstico se basa en el entorno y la aplicación que
+encuentra desde el directorio actual.
 
 Los avisos informan de elementos opcionales o todavía no configurados. Los
 errores hacen que el comando termine con un código distinto de cero, por lo
@@ -364,6 +483,15 @@ mova update --to v0.2.0
 mova update --yes
 ```
 
+#### Parámetros
+
+- `--check`: muestra el plan, migraciones y conflictos sin escribir archivos.
+- `--to <tag>`: selecciona el tag estable de shell al que actualizar. Si se
+  omite, se usa el último tag disponible.
+- `-y, --yes`: aplica el plan sin pedir confirmación interactiva. Resérvalo
+  para automatizaciones controladas; no evita la comprobación de conflictos ni
+  el requisito de Git limpio.
+
 `--check` solo muestra el plan. Para aplicar cambios, el proyecto debe estar en
 un repositorio Git limpio. Si cambia `package.json`, el CLI elimina el lockfile
 obsoleto y pide ejecutar `npm install`; después se debe comprobar con
@@ -379,10 +507,20 @@ Lista los tags estables disponibles para crear aplicaciones.
 mova shell versions
 ```
 
+#### Parámetros
+
+No recibe parámetros. Lista los tags estables que el CLI puede usar para crear
+o actualizar una aplicación.
+
 ### `mova shell`
 
 Es el grupo de comandos relacionado con las versiones de la shell. Actualmente
 su subcomando disponible es `mova shell versions`.
+
+#### Parámetros
+
+No recibe parámetros propios; usa el subcomando `versions` para consultar los
+tags estables.
 
 ### `mova cap add`
 
@@ -395,6 +533,11 @@ mova cap add android
 mova cap add ios
 ```
 
+#### Parámetros
+
+- `<platform>`: plataforma nativa que se creará. Valores admitidos: `android`
+  o `ios`.
+
 ### `mova cap list`
 
 Muestra el catálogo de capacidades nativas. `✓` indica que la capacidad está
@@ -403,6 +546,11 @@ habilitada y `○` que está disponible pero no instalada.
 ```bash
 mova cap list
 ```
+
+#### Parámetros
+
+No recibe parámetros. El estado se obtiene de `mova.config.json` y de las
+dependencias instaladas.
 
 ### `mova cap enable`
 
@@ -413,6 +561,12 @@ plataformas nativas que ya existan.
 ```bash
 mova cap enable camera device geolocation
 ```
+
+#### Parámetros
+
+- `<capabilities...>`: uno o varios nombres del catálogo de capacidades
+  oficiales. El comando instala solo los plugins necesarios, guarda la
+  selección y sincroniza las plataformas nativas que ya estén añadidas.
 
 La configuración activa queda registrada en `mova.config.json`:
 
@@ -439,6 +593,12 @@ habilitar la capacidad.
 mova cap disable geolocation
 ```
 
+#### Parámetros
+
+- `<capabilities...>`: una o varias capacidades habilitadas que se quieren
+  desactivar. Se eliminan los plugins que ya no sean necesarios para ninguna
+  otra capacidad activa.
+
 ### `mova cap doctor`
 
 Muestra plataformas compatibles, permisos, SDK mínimo y configuración manual
@@ -449,6 +609,11 @@ mova cap doctor
 mova cap doctor android
 mova cap doctor ios
 ```
+
+#### Parámetros
+
+- `[platform]`: filtro opcional de plataforma. Valores admitidos: `android` o
+  `ios`. Si se omite, muestra requisitos de ambas plataformas.
 
 ### `mova cap permissions`
 
@@ -462,6 +627,12 @@ mova cap permissions android
 mova cap permissions ios
 ```
 
+#### Parámetros
+
+- `[platform]`: filtro opcional para mostrar solo requisitos de `android` o
+  `ios`. Si se omite, muestra los permisos y credenciales declarados para
+  todas las plataformas.
+
 El comando no modifica permisos ni instala plugins; sirve para revisar la
 configuración antes de `mova cap sync` y abrir el proyecto nativo.
 
@@ -473,6 +644,11 @@ Sincroniza la shell compilada, los recursos y los plugins con la plataforma. Sin
 mova cap sync android
 mova cap sync
 ```
+
+#### Parámetros
+
+- `[platform]`: plataforma que se sincronizará (`android` o `ios`). Si se
+  omite, sincroniza todas las plataformas nativas añadidas al proyecto.
 
 En Android, el CLI aplica los requisitos declarados por las capacidades
 activas: permisos, SDK mínimo, el repositorio AAR de Background Runner y la
@@ -506,12 +682,22 @@ mova cap open android
 mova cap open ios
 ```
 
+#### Parámetros
+
+- `<platform>`: proyecto nativo que se abrirá. Valores admitidos: `android`
+  (Android Studio) o `ios` (Xcode).
+
 ### `mova cap`
 
 Es el grupo de comandos para preparar y abrir los proyectos nativos de
 Capacitor. También permite seleccionar capacidades mediante `list`, `enable`,
 `disable`, `doctor` y `permissions`. Consulta todos sus comandos con
 `mova cap --help`.
+
+#### Parámetros
+
+No recibe parámetros propios; utiliza uno de los subcomandos descritos arriba,
+como `list`, `enable`, `sync` u `open`.
 
 ## Flujo habitual
 
