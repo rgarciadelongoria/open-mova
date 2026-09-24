@@ -34,10 +34,10 @@
   documentación aunque no publique ningún paquete npm.
 - No sincronizar mecánicamente las versiones de todos los proyectos con la
   versión del workspace.
-- `@open-mova/core` tiene versión propia y solo se incrementa y publica en npm
-  cuando cambia su API, contrato o comportamiento distribuido.
-- `@open-mova/cli` tiene versión propia y solo se incrementa y publica en npm
-  cuando cambia el comportamiento de la herramienta de terminal.
+- `@open-mova/core` tiene versión propia y solo se incrementa cuando cambia su
+  API, contrato o comportamiento distribuido.
+- `@open-mova/cli` tiene versión propia y solo se incrementa cuando cambia el
+  comportamiento de la herramienta de terminal.
 - Los `package.json` de shell y template se incrementan únicamente cuando
   cambia su propio proyecto; no se publican en npm.
 - Antes de una release, identificar los proyectos afectados y elegir para cada
@@ -48,15 +48,12 @@
   proyectos que hayan cambiado. La tabla del README raíz debe reflejar siempre
   las versiones actuales del framework y de cada proyecto, sin incrementar
   versiones de proyectos que no hayan sido afectados.
-- Una versión de framework no obliga a publicar core ni CLI. Del mismo modo,
-  no publicar una versión de npm vacía solo para igualarla al tag del
-  workspace.
-- La publicación npm de Core y CLI se realiza mediante
-  `.github/workflows/publish-npm.yml` tras una CI correcta en `main`. Antes de
+- Una versión de framework no obliga a incrementar Core ni CLI. Tampoco se
+  debe crear una versión de paquete vacía para igualarla al tag del workspace.
+- La publicación npm de Core y CLI se realiza exclusivamente mediante
+  `.github/workflows/publish-npm.yml`, tras una CI correcta en `main`. Antes de
   subir cambios distribuibles, incrementar solo las versiones de los paquetes
   afectados y sus lockfiles; el workflow no decide incrementos ni crea tags.
-  La configuración manual de Trusted Publishers se describe en
-  `docs/npm-publishing.md`.
 
 ## Estilo y verificación
 
@@ -75,5 +72,5 @@
 ## Gestión de issues
 
 - Cuando se solicite implementar una issue, leer primero su descripción y comentarios en GitHub.
-- Tras implementar, verificar y subir la solución, comentar la issue con un resumen, el commit y el tag o publicación npm cuando corresponda.
+- Tras implementar, verificar y subir la solución, comentar la issue con un resumen, el commit y el tag o el estado de la publicación automática cuando corresponda.
 - Cerrar la issue después de publicar la solución. Si queda bloqueada o requiere una decisión del usuario, mantenerla abierta y explicar el motivo.
