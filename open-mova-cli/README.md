@@ -154,7 +154,19 @@ mova mf create catalog --directory ../provider-mf-catalog
 mova mf create catalog --demo
 ```
 
-Por defecto se crea en `mfs/catalog`, con perfil mínimo, ruta `/catalog` y un puerto libre desde `4300`. `--demo` añade la demo de componentes y capacidades nativas. Se puede fijar la plantilla con `--template-version v0.1.9`.
+Por defecto se crea en `mfs/catalog`, como MF de rutas con perfil mínimo,
+ruta `/catalog` y un puerto libre desde `4300`. `--demo` usa las páginas de
+demostración de capacidades nativas y el ejemplo anfitrión de componente
+remoto; para que este último cargue, la aplicación debe tener registrado el MF
+que expone el alias `calculator.main` (por ejemplo, el que genera `mova create`).
+`--template-version v0.1.9` permite elegir la versión de la plantilla.
+
+`mova mf create` no tiene un selector de tipo: crea una carpeta de proyecto
+partiendo del perfil mínimo o demo. Si quieres añadir una exposición de
+componente a ese proyecto, implementa y expón el componente en
+`federation.config.js` y regístralo con `mova mf component add`. Si ya tienes un
+proveedor local o publicado, puedes registrarlo directamente como remoto de
+componentes con `mova mf add`.
 
 ### `mova mf add`
 
@@ -176,8 +188,9 @@ mova mf add --name catalog --route productos \
 
 El CLI actualiza `mova.config.json`, `src/assets/federation.manifest.json` y `src/app/application.config.ts`.
 
-Un remoto puede exponer rutas, componentes o ambas cosas. Para registrar un
-proveedor **solo de componentes**, omite `--route` y declara al menos un alias:
+Un remoto puede exponer rutas, componentes o ambas cosas; no son tipos
+excluyentes. Para registrar un proveedor **solo de componentes**, omite
+`--route` y declara al menos un alias:
 
 ```bash
 mova mf add ../provider-calculator --name calculator --component main=./Calculator
@@ -186,8 +199,29 @@ mova mf add --name calculator --remote calculator-microfrontend \
   --core-version '^0.2.6' --component main=./Calculator
 ```
 
-Para conservar además una ruta, añade `--route <ruta>`. El MF debe exponer
-efectivamente cada módulo indicado en su `federation.config.js`.
+Para registrar un remoto **con rutas y componentes**, añade `--route <ruta>`
+al comando y declara uno o más alias `--component`. El MF debe exponer
+efectivamente `./Routes` y cada módulo indicado en su `federation.config.js`.
+
+```bash
+mova mf add ../provider-catalog --name catalog --route productos \
+  --component ficha=./ProductCard
+```
+
+En el código Angular anfitrión, importa `MovaRemoteComponent` desde
+`@open-mova/core/remote-components` y úsalo en una plantilla, por ejemplo:
+
+```html
+<mova-remote-component
+  name="catalog.ficha"
+  [inputs]="{ productId: 'sku-123' }"
+  (remoteEvent)="onRemoteEvent($event)"
+/>
+```
+
+El anfitrión recibe los outputs del componente como eventos `{ name, value }`.
+Core proporciona el contenedor y su contrato; el formato y significado de los
+datos intercambiados siguen siendo responsabilidad de la aplicación.
 
 Para un MF remoto que no tenga un proyecto local, declara explícitamente su
 rango de Core:

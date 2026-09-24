@@ -60,6 +60,41 @@ carga el remoto. El componente contenedor admite entradas, emite sus salidas y
 muestra estados de carga y error. Core no conoce el significado de esos datos:
 los contratos de negocio pertenecen a cada aplicación.
 
+Importa el componente desde la entrada Angular específica y colócalo en la
+plantilla del anfitrión:
+
+```ts
+import { Component } from '@angular/core';
+import {
+  MovaRemoteComponent,
+  type RemoteComponentEvent,
+} from '@open-mova/core/remote-components';
+
+@Component({
+  standalone: true,
+  imports: [MovaRemoteComponent],
+  template: `
+    <mova-remote-component
+      name="catalog.ficha"
+      [inputs]="{ productId: 'sku-123' }"
+      (remoteEvent)="onRemoteEvent($event)"
+    />
+  `,
+})
+export class CatalogPage {
+  onRemoteEvent(event: RemoteComponentEvent): void {
+    // El formato y significado del evento los acuerdan los proyectos de la app.
+  }
+}
+```
+
+`name` combina el nombre del MF registrado y el alias del componente. `inputs`
+se asigna a los inputs Angular del componente remoto; sus outputs se reenvían
+como `{ name, value }` por `remoteEvent`. El anfitrión registra previamente el
+remoto y el alias con `mova mf add` o `mova mf component add`. La shell aporta
+el resolver; no se importa código de Capacitor ni se define un contrato de
+negocio en Core.
+
 ## Capacidades nativas
 
 Cada plugin oficial se representa como una capacidad con tres operaciones
