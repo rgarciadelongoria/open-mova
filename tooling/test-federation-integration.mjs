@@ -60,20 +60,29 @@ try {
 
     await page.goto('http://localhost:4200/demo/componentes');
     await page.getByRole('heading', { name: 'Calculadora remota' }).waitFor();
-    await page.getByLabel('Primer número').fill('8');
-    await page.getByLabel('Segundo número').fill('3');
+    await page.getByRole('button', { name: '8', exact: true }).click();
     await page.getByRole('button', { name: 'Multiplicar' }).click();
+    await page.getByRole('button', { name: '3', exact: true }).click();
+    await page.getByRole('button', { name: 'Igual' }).click();
     await page.getByText('8 × 3 = 24').waitFor();
     await page.getByRole('button', { name: 'Apagar calculadora' }).click();
     await page.getByText('La calculadora está apagada.').waitFor();
+    await page.getByText('La lista se ha limpiado al apagar la calculadora.').waitFor();
     await assert.equal(await page.getByRole('button', { name: 'Sumar' }).isDisabled(), true);
     await page.getByRole('button', { name: 'Encender calculadora' }).click();
     await page.getByText('La calculadora está apagada.').waitFor({ state: 'hidden' });
     await assert.equal(await page.getByRole('button', { name: 'Sumar' }).isEnabled(), true);
+
+    await page.getByRole('button', { name: '8', exact: true }).click();
     await page.getByRole('button', { name: 'Dividir' }).click();
+    await page.getByRole('button', { name: '3', exact: true }).click();
+    await page.getByRole('button', { name: 'Igual' }).click();
     await page.getByText('8 ÷ 3 = 2.6666666666666665').waitFor();
-    await page.getByLabel('Segundo número').fill('0');
+
+    await page.getByRole('button', { name: '8', exact: true }).click();
     await page.getByRole('button', { name: 'Dividir' }).click();
+    await page.getByRole('button', { name: '0', exact: true }).click();
+    await page.getByRole('button', { name: 'Igual' }).click();
     await page.getByRole('alert').getByText('No se puede dividir entre cero.').waitFor();
     await page.getByRole('link', { name: 'Inicio' }).click();
     await page.getByRole('link', { name: 'Componentes remotos' }).click();
