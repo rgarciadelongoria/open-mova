@@ -1,20 +1,20 @@
 import {
-  AfterViewInit,
   ChangeDetectorRef,
   Component,
-  ComponentRef,
   EnvironmentInjector,
   EventEmitter,
   inject,
   InjectionToken,
   Input,
-  OnChanges,
-  OnDestroy,
   Output,
   reflectComponentType,
-  Type,
   ViewChild,
   ViewContainerRef,
+  type AfterViewInit,
+  type ComponentRef,
+  type OnChanges,
+  type OnDestroy,
+  type Type,
 } from '@angular/core';
 
 export interface RemoteComponentResolver {
