@@ -449,26 +449,36 @@ puede ejecutarse desde un subdirectorio de la aplicación.
 ### `mova doctor`
 
 Diagnostica el entorno de desarrollo y la aplicación encontrada desde el
-directorio actual. Comprueba las herramientas básicas, las dependencias, la
-configuración de la shell y los microfrontales, las URLs de producción y la
-compatibilidad de Core.
+directorio actual. Comprueba las herramientas básicas, Node, npm, Capacitor,
+lockfiles y dependencias, la configuración de la shell y los microfrontales,
+las URLs de producción y la compatibilidad de Core.
 
-Si la aplicación contiene plataformas Capacitor, también revisa los
-requisitos disponibles de Android o iOS, como el SDK, `adb`, emuladores,
-Xcode, CocoaPods, claves y descripciones de permisos.
+Para Android cruza las capacidades habilitadas con el SDK, `adb`, JDK, Gradle,
+Android Gradle Plugin, `minSdk`, permisos, Build Tools y requisitos especiales
+como Background Runner o Google Maps. Para iOS comprueba macOS, Xcode,
+Command Line Tools, CocoaPods, Pods, versión mínima, `Info.plist` y
+entitlements. Nunca instala, sincroniza ni muestra secretos.
 
 ```bash
 mova doctor
+mova doctor android
+mova doctor ios
 ```
 
 #### Parámetros
 
-No recibe parámetros. El diagnóstico se basa en el entorno y la aplicación que
-encuentra desde el directorio actual.
+- `[platform]`: opcionalmente limita las comprobaciones nativas a `android` o
+  `ios`. Las comprobaciones comunes de la aplicación se mantienen. Sin este
+  parámetro revisa ambas plataformas cuando existan.
 
 Los avisos informan de elementos opcionales o todavía no configurados. Los
 errores hacen que el comando termine con un código distinto de cero, por lo
 que también puede utilizarse en scripts de validación.
+
+Si falta un requisito, cada error indica la acción correctiva. Las correcciones
+habituales son instalar el SDK, JDK, Xcode o CocoaPods, ejecutar `mova cap sync
+android` o `mova cap sync ios` después de cambiar capacidades y completar los
+permisos, entitlements o claves en el proyecto nativo.
 
 ### `mova update`
 

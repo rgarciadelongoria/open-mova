@@ -1,15 +1,24 @@
 import type { Command } from 'commander';
-import { inspectDevelopmentEnvironment, type DoctorCheckStatus } from '../application/doctor.js';
+import {
+  inspectDevelopmentEnvironment,
+  type DoctorCheckStatus,
+  type DoctorPlatform,
+} from '../application/doctor.js';
 import { terminal } from '../ui/terminal.js';
 
 export function registerDoctorCommand(program: Command): void {
   program
-    .command('doctor')
+    .command('doctor [platform]')
     .description('Comprueba el entorno y la configuración de una aplicación Open Mova')
-    .action(() => {
-      const report = inspectDevelopmentEnvironment(process.cwd());
+    .action((platform?: string) => {
+      const report = inspectDevelopmentEnvironment(process.cwd(), {
+        ...(platform ? { platform: parsePlatform(platform) } : {}),
+      });
 
-      terminal.heading('Diagnóstico', 'Comprobación del entorno y de la aplicación actual.');
+      terminal.heading(
+        'Diagnóstico',
+        `Comprobación del entorno y de la aplicación actual${platform ? ` para ${platform}` : ''}.`,
+      );
       for (const check of report.checks) {
         printCheck(check.status, check.message);
         if (check.detail) terminal.item(check.detail);
@@ -24,6 +33,11 @@ export function registerDoctorCommand(program: Command): void {
 
       if (errors > 0) process.exitCode = 1;
     });
+}
+
+function parsePlatform(value: string): DoctorPlatform {
+  if (value === 'android' || value === 'ios') return value;
+  throw new Error('La plataforma debe ser android o ios.');
 }
 
 function printCheck(status: DoctorCheckStatus, message: string): void {

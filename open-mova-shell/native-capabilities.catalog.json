@@ -196,6 +196,9 @@
       "package": "@capacitor/health-fitness",
       "version": "^1.0.1",
       "platforms": ["android", "ios"],
+      "entitlements": {
+        "ios": ["com.apple.developer.healthkit"]
+      },
       "notes": [
         "Requiere declarar los tipos de datos de salud usados y sus permisos por plataforma."
       ]
@@ -284,6 +287,9 @@
       "package": "@capacitor/push-notifications",
       "version": "^8.1.2",
       "platforms": ["android", "ios"],
+      "entitlements": {
+        "ios": ["aps-environment"]
+      },
       "permissions": { "android": ["android.permission.POST_NOTIFICATIONS"] },
       "notes": ["Requiere configurar Firebase en Android y notificaciones push en iOS."]
     },

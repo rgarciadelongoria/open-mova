@@ -11,8 +11,12 @@ export interface NativeCapabilityDefinition {
   readonly version?: string;
   readonly platforms: readonly ('android' | 'ios' | 'web')[];
   readonly minimumAndroidSdk?: number;
+  readonly minimumIosVersion?: string;
   readonly permissions?: {
     readonly android?: readonly string[];
+    readonly ios?: readonly string[];
+  };
+  readonly entitlements?: {
     readonly ios?: readonly string[];
   };
   readonly credentials?: {
