@@ -1,6 +1,6 @@
 {
   "name": "@open-mova/core",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Contratos y utilidades Angular compartidas de Open Mova",
   "license": "MIT",
   "author": "Open Mova contributors",
@@ -38,11 +38,15 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./remote-components": {
+      "types": "./dist/remote-components.d.ts",
+      "import": "./dist/remote-components.js"
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "ngc -p tsconfig.json",
+    "typecheck": "ngc -p tsconfig.json --noEmit",
     "test": "npm run build && npm run test:unit",
     "test:unit": "node --test test/*.test.mjs"
   },
@@ -50,6 +54,7 @@
     "@angular/core": "^21.2.23"
   },
   "devDependencies": {
+    "@angular/compiler-cli": "21.2.23",
     "@angular/core": "^21.2.23",
     "typescript": "^5.9.3"
   }

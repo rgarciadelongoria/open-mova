@@ -47,8 +47,18 @@ npm run typecheck
 npm run build
 ```
 
-El paquete se identifica como `@open-mova/core`. Cuando se añada una pieza
-pública, debe exportarse desde `src/index.ts`.
+El paquete se identifica como `@open-mova/core`. Los contratos generales se
+exportan desde `src/index.ts`. Los componentes Angular de carga remota tienen
+una entrada independiente (`@open-mova/core/remote-components`) para mantener
+los contratos utilizables también en herramientas Node sin compilación Angular.
+
+## Componentes remotos
+
+`MovaRemoteComponent` muestra un componente expuesto por un microfrontal remoto.
+La shell proporciona mediante DI el `REMOTE_COMPONENT_RESOLVER`, que valida y
+carga el remoto. El componente contenedor admite entradas, emite sus salidas y
+muestra estados de carga y error. Core no conoce el significado de esos datos:
+los contratos de negocio pertenecen a cada aplicación.
 
 ## Capacidades nativas
 

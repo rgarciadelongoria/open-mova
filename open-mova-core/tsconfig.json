@@ -9,5 +9,9 @@
     "strict": true,
     "target": "ES2022"
   },
+  "angularCompilerOptions": {
+    "compilationMode": "partial",
+    "strictTemplates": true
+  },
   "include": ["src/**/*.ts"]
 }
