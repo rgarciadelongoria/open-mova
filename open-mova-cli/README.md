@@ -127,7 +127,7 @@ mova create mi-aplicacion --empty
   relativa al directorio actual o una ruta absoluta; el directorio de destino
   no debe existir ya.
 - `--shell-version <tag>`: tag estable de la shell que se descargará, por
-  ejemplo `v0.2.19`. Si se omite, se elige el tag estable más reciente.
+  ejemplo `v0.2.20`. Si se omite, se elige el tag estable más reciente.
 - `--empty`: crea solo la shell, sin los MF `home` y `calculator` de ejemplo.
 
 Al terminar, el CLI muestra los comandos siguientes y pregunta si quieres instalar
