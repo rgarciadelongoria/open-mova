@@ -26,6 +26,9 @@ interface CreateMicrofrontendCommandOptions {
   readonly productionRemoteEntry?: string;
   readonly templateVersion?: string;
   readonly demo?: boolean;
+  readonly routesOnly?: boolean;
+  readonly componentOnly?: boolean;
+  readonly componentName?: string;
 }
 
 interface AddMicrofrontendCommandOptions {
@@ -58,7 +61,22 @@ export function registerMicrofrontendCommands(program: Command): void {
     .option('--production-remote-entry <url>', 'URL HTTPS del remoto publicado')
     .option('--template-version <tag>', 'tag del proyecto de microfrontal')
     .option('--demo', 'usar el perfil con ejemplos en vez del mínimo')
+    .option('--routes-only', 'generar únicamente rutas')
+    .option('--component-only', 'generar únicamente un componente')
+    .option('--component-name <name>', 'nombre y alias del componente generado (por defecto: main)')
     .action((name: string, options: CreateMicrofrontendCommandOptions) => {
+      if (options.routesOnly && options.componentOnly) {
+        throw new Error('Elige --routes-only o --component-only, no ambos.');
+      }
+      if (options.componentOnly && options.route) {
+        throw new Error('--route no se puede usar con --component-only.');
+      }
+      if (options.routesOnly && options.componentName) {
+        throw new Error('--component-name requiere generar un componente.');
+      }
+      if (options.demo && (options.routesOnly || options.componentOnly || options.componentName)) {
+        throw new Error('--demo no se puede combinar con las opciones del perfil mínimo.');
+      }
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
       const normalizedName = normalizeName(name, 'El nombre del microfrontal');
@@ -81,7 +99,14 @@ export function registerMicrofrontendCommands(program: Command): void {
         port: options.port,
         productionRemoteEntry: options.productionRemoteEntry,
         templateVersion,
-        profile: options.demo ? 'demo' : 'minimal',
+        profile: options.demo
+          ? 'demo'
+          : options.routesOnly
+            ? 'starter-routes'
+            : options.componentOnly
+              ? 'starter-component'
+              : 'starter-both',
+        componentName: options.componentName,
       });
       const updatedConfiguration = addMicrofrontend(configuration, microfrontendConfiguration);
 
@@ -90,7 +115,17 @@ export function registerMicrofrontendCommands(program: Command): void {
 
       terminal.heading('Microfrontal creado');
       terminal.success(`"${microfrontendConfiguration.name}" está registrado en la aplicación.`);
-      terminal.keyValue('Ruta pública', `/${microfrontendConfiguration.route}`);
+      if (microfrontendConfiguration.route) {
+        terminal.keyValue('Ruta pública', `/${microfrontendConfiguration.route}`);
+      }
+      if (microfrontendConfiguration.components) {
+        terminal.keyValue(
+          'Componentes',
+          Object.keys(microfrontendConfiguration.components)
+            .map((alias) => `${microfrontendConfiguration.name}.${alias}`)
+            .join(', '),
+        );
+      }
       terminal.keyValue(
         'Directorio',
         microfrontendConfiguration.sourcePath ?? 'sin directorio local',

@@ -150,23 +150,33 @@ Crea un microfrontal local, lo registra y actualiza la configuración de federac
 cd mi-aplicacion
 mova mf create catalog
 mova mf create catalog --route productos --port 4500
+mova mf create catalog --routes-only --route productos
+mova mf create catalog --component-only --component-name ficha
+mova mf create catalog --component-name ficha
 mova mf create catalog --directory ../provider-mf-catalog
 mova mf create catalog --demo
 ```
 
-Por defecto se crea en `mfs/catalog`, como MF de rutas con perfil mínimo,
-ruta `/catalog` y un puerto libre desde `4300`. `--demo` usa las páginas de
+Por defecto se crea en `mfs/catalog`, con una ruta `/catalog` y un componente
+Angular mínimo `catalog.main`, en un puerto libre desde `4300`.
+`--routes-only` genera únicamente rutas; `--component-only` genera únicamente
+el componente, sin ruta pública. `--route` cambia el nombre de la ruta cuando
+existe; `--component-name` cambia el nombre, alias y módulo del componente
+(por ejemplo, `ficha` produce `catalog.ficha` y `./Ficha`). No combines
+`--route` con `--component-only` ni `--component-name` con `--routes-only`.
+
+`--demo` usa las páginas de
 demostración de capacidades nativas y el ejemplo anfitrión de componente
 remoto; para que este último cargue, la aplicación debe tener registrado el MF
 que expone el alias `calculator.main` (por ejemplo, el que genera `mova create`).
-`--template-version v0.1.9` permite elegir la versión de la plantilla.
+El perfil demo no se combina con `--routes-only`, `--component-only` ni
+`--component-name`.
+`--template-version <tag>` permite elegir una versión de la plantilla que
+incluya el perfil solicitado; los tags antiguos solo admiten `--routes-only`.
 
-`mova mf create` no tiene un selector de tipo: crea una carpeta de proyecto
-partiendo del perfil mínimo o demo. Si quieres añadir una exposición de
-componente a ese proyecto, implementa y expón el componente en
-`federation.config.js` y regístralo con `mova mf component add`. Si ya tienes un
-proveedor local o publicado, puedes registrarlo directamente como remoto de
-componentes con `mova mf add`.
+Los ejemplos mínimos no contienen lógica de negocio. Puedes añadir otras
+exposiciones más adelante con `mova mf component add`. Si ya tienes un
+proveedor local o publicado, regístralo con `mova mf add`.
 
 ### `mova mf add`
 

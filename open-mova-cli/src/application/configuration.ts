@@ -284,7 +284,13 @@ function validateMicrofrontend(
       value.template.project !== 'open-mova-mf-template' ||
       (value.template.profile !== 'minimal' &&
         value.template.profile !== 'demo' &&
-        value.template.profile !== 'calculator'))
+        value.template.profile !== 'calculator' &&
+        value.template.profile !== 'starter-both' &&
+        value.template.profile !== 'starter-routes' &&
+        value.template.profile !== 'starter-component') ||
+      (value.template.componentName !== undefined &&
+        (typeof value.template.componentName !== 'string' ||
+          !/^[a-z][a-z0-9-]*$/.test(value.template.componentName))))
   ) {
     throw new Error(`${configurationPath} contiene una plantilla de microfrontal no válida.`);
   }

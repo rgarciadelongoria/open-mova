@@ -16,6 +16,7 @@ export interface CreateMicrofrontendOptions {
   readonly port?: number;
   readonly productionRemoteEntry?: string;
   readonly profile?: MicrofrontendProfile;
+  readonly componentName?: string;
   readonly templateVersion?: string;
   readonly templateSource?: {
     readonly path: string;
@@ -51,7 +52,7 @@ export function createMicrofrontend(
   const port = options.port ?? findAvailablePort(configuration);
   validatePort(port);
 
-  const profile = options.profile ?? 'minimal';
+  const profile = options.profile ?? 'starter-both';
   let template: ShellVersion;
   let exposures: { readonly components?: Readonly<Record<string, string>> };
   try {
@@ -65,7 +66,13 @@ export function createMicrofrontend(
         options.templateVersion,
       );
     }
-    exposures = configureDownloadedMicrofrontend(destination, name, port, profile);
+    exposures = configureDownloadedMicrofrontend(
+      destination,
+      name,
+      port,
+      profile,
+      options.componentName,
+    );
   } catch (error) {
     rmSync(destination, { recursive: true, force: true });
     throw error;
@@ -84,7 +91,19 @@ export function createMicrofrontend(
     compatibility: {
       requiredCoreVersion: readRequiredCoreVersion(destination),
     },
-    template: { ...template, project: 'open-mova-mf-template', profile },
+    template: {
+      ...template,
+      project: 'open-mova-mf-template',
+      profile,
+      ...(profile === 'starter-both' || profile === 'starter-component'
+        ? {
+            componentName: normalizeName(
+              options.componentName ?? 'main',
+              'El nombre del componente',
+            ),
+          }
+        : {}),
+    },
   };
 }
 
@@ -93,7 +112,7 @@ function profileRoute(
   route: string | undefined,
   name: string,
 ): string | undefined {
-  return profile === 'calculator'
+  return profile === 'calculator' || profile === 'starter-component'
     ? undefined
     : normalizeName(route ?? name, 'La ruta del microfrontal');
 }

@@ -65,10 +65,7 @@ plantilla del anfitrión:
 
 ```ts
 import { Component } from '@angular/core';
-import {
-  MovaRemoteComponent,
-  type RemoteComponentEvent,
-} from '@open-mova/core/remote-components';
+import { MovaRemoteComponent, type RemoteComponentEvent } from '@open-mova/core/remote-components';
 
 @Component({
   standalone: true,

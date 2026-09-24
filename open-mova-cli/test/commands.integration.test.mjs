@@ -81,6 +81,112 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
     environment,
   );
   assert.equal(createMicrofrontend.status, 0, createMicrofrontend.stderr);
+  assert.match(createMicrofrontend.stdout, /catalog\.main/);
+  const catalogRoot = join(applicationRoot, 'mfs', 'catalog');
+  const catalogFederation = readFileSync(join(catalogRoot, 'federation.config.js'), 'utf8');
+  assert.match(catalogFederation, /'\.\/Routes'/);
+  assert.match(catalogFederation, /'\.\/Main'/);
+  assert.deepEqual(readJson(join(catalogRoot, 'src/assets/open-mova.manifest.json')).components, {
+    main: './Main',
+  });
+  assert.match(
+    readFileSync(join(catalogRoot, 'src/app/components/main/main.component.ts'), 'utf8'),
+    /export class MainComponent/,
+  );
+
+  const routesOnly = runCli(
+    [
+      'mf',
+      'create',
+      'reports',
+      '--routes-only',
+      '--route',
+      'informes',
+      '--template-version',
+      'v1.0.0',
+    ],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(routesOnly.status, 0, routesOnly.stderr);
+  const reportsRoot = join(applicationRoot, 'mfs', 'reports');
+  assert.equal(existsSync(join(reportsRoot, 'src/app/components/starter')), false);
+  assert.equal(existsSync(join(reportsRoot, 'src/app/layout')), false);
+  assert.equal(existsSync(join(reportsRoot, 'src/app/pages')), false);
+  assert.deepEqual(
+    readJson(join(reportsRoot, 'src/assets/open-mova.manifest.json')).routes,
+    './Routes',
+  );
+  assert.doesNotMatch(
+    readFileSync(join(reportsRoot, 'federation.config.js'), 'utf8'),
+    /'\.\/Main'/,
+  );
+
+  const componentOnly = runCli(
+    [
+      'mf',
+      'create',
+      'widget',
+      '--component-only',
+      '--component-name',
+      'status-card',
+      '--template-version',
+      'v1.0.0',
+    ],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(componentOnly.status, 0, componentOnly.stderr);
+  assert.doesNotMatch(componentOnly.stdout, /Ruta pública/);
+  const widgetRoot = join(applicationRoot, 'mfs', 'widget');
+  assert.equal(existsSync(join(widgetRoot, 'src/app/app.routes.ts')), false);
+  const widgetManifest = readJson(join(widgetRoot, 'src/assets/open-mova.manifest.json'));
+  assert.equal(widgetManifest.routes, undefined);
+  assert.deepEqual(widgetManifest.components, { 'status-card': './StatusCard' });
+  assert.match(readFileSync(join(widgetRoot, 'src/app/app.ts'), 'utf8'), /StatusCardComponent/);
+  assert.doesNotMatch(
+    readFileSync(join(widgetRoot, 'federation.config.js'), 'utf8'),
+    /'\.\/Routes'/,
+  );
+
+  const bothNamed = runCli(
+    [
+      'mf',
+      'create',
+      'combo',
+      '--route',
+      'productos',
+      '--component-name',
+      'product-card',
+      '--template-version',
+      'v1.0.0',
+    ],
+    applicationRoot,
+    environment,
+  );
+  assert.equal(bothNamed.status, 0, bothNamed.stderr);
+  const comboManifest = readJson(
+    join(applicationRoot, 'mfs/combo/src/assets/open-mova.manifest.json'),
+  );
+  assert.equal(comboManifest.routes, './Routes');
+  assert.deepEqual(comboManifest.components, { 'product-card': './ProductCard' });
+
+  for (const invalidOptions of [
+    ['--routes-only', '--component-only'],
+    ['--component-only', '--route', 'widget'],
+    ['--routes-only', '--component-name', 'widget'],
+    ['--component-name', 'routes'],
+    ['--component-name', '123'],
+    ['--demo', '--component-only'],
+  ]) {
+    const invalid = runCli(
+      ['mf', 'create', 'invalid', ...invalidOptions, '--template-version', 'v1.0.0'],
+      applicationRoot,
+      environment,
+    );
+    assert.notEqual(invalid.status, 0, invalidOptions.join(' '));
+    assert.equal(existsSync(join(applicationRoot, 'mfs', 'invalid')), false);
+  }
 
   const addRemote = runCli(
     [
@@ -130,14 +236,29 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   const configuration = readJson(join(applicationRoot, 'mova.config.json'));
   assert.deepEqual(
     configuration.microfrontends.map((microfrontend) => microfrontend.name),
-    ['home', 'calculator', 'catalog', 'account', 'utility'],
+    ['home', 'calculator', 'catalog', 'reports', 'widget', 'combo', 'account', 'utility'],
   );
-  assert.deepEqual(configuration.microfrontends[3].components, { widget: './Widget' });
-  assert.equal(configuration.microfrontends[4].route, undefined);
+  const byName = Object.fromEntries(
+    configuration.microfrontends.map((entry) => [entry.name, entry]),
+  );
+  assert.deepEqual(byName.catalog.components, { main: './Main' });
+  assert.equal(byName.catalog.template.profile, 'starter-both');
+  assert.equal(byName.catalog.template.componentName, 'main');
+  assert.equal(byName.reports.route, 'informes');
+  assert.equal(byName.reports.template.profile, 'starter-routes');
+  assert.equal(byName.reports.components, undefined);
+  assert.equal(byName.widget.route, undefined);
+  assert.deepEqual(byName.widget.components, { 'status-card': './StatusCard' });
+  assert.equal(byName.widget.template.componentName, 'status-card');
+  assert.equal(byName.combo.route, 'productos');
+  assert.deepEqual(byName.combo.components, { 'product-card': './ProductCard' });
+  assert.deepEqual(byName.account.components, { widget: './Widget' });
+  assert.equal(byName.utility.route, undefined);
 
   const manifest = readJson(join(applicationRoot, 'src', 'assets', 'federation.manifest.json'));
   assert.equal(manifest['calculator-microfrontend'], 'http://localhost:4400/remoteEntry.json');
   assert.equal(manifest['catalog-microfrontend'], 'http://localhost:4500/remoteEntry.json');
+  assert.equal(manifest['widget-microfrontend'], 'http://localhost:4700/remoteEntry.json');
   assert.equal(
     manifest['account-microfrontend'],
     'https://cdn.example.com/account/remoteEntry.json',
@@ -145,6 +266,9 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
 
   const routes = readFileSync(join(applicationRoot, 'src', 'app', 'application.config.ts'), 'utf8');
   assert.match(routes, /path: "catalog"/);
+  assert.match(routes, /path: "informes"/);
+  assert.match(routes, /components: \{"status-card":"\.\/StatusCard"\}/);
+  assert.equal((routes.match(/remote: "widget-microfrontend"/g) ?? []).length, 1);
   assert.match(routes, /remote: "account-microfrontend"/);
 
   const update = runCli(['update', '--check', '--to', 'v1.1.0'], applicationRoot, environment);
@@ -167,6 +291,60 @@ test('crea una aplicación, registra MFs y calcula una actualización', (context
   );
   assert.equal(updateCalculator.status, 0, updateCalculator.stderr);
   assert.match(updateCalculator.stdout, /Plantilla destino: v1\.1\.0/);
+
+  for (const name of ['catalog', 'reports', 'widget', 'combo']) {
+    const updateStarter = runCli(
+      ['mf', 'update', name, '--check', '--to', 'v1.1.0'],
+      applicationRoot,
+      environment,
+    );
+    assert.equal(updateStarter.status, 0, `${name}: ${updateStarter.stderr}`);
+    assert.doesNotMatch(updateStarter.stdout, /Conflictos/);
+  }
+
+  runGit(applicationRoot, ['init', '--initial-branch=main']);
+  runGit(applicationRoot, ['add', '.']);
+  runGit(applicationRoot, [
+    '-c',
+    'user.name=Open Mova Test',
+    '-c',
+    'user.email=test@open-mova.local',
+    'commit',
+    '--quiet',
+    '-m',
+    'Initial generated application',
+  ]);
+  for (const name of ['widget', 'combo']) {
+    const applyUpdate = runCli(
+      ['mf', 'update', name, '--to', 'v1.1.0'],
+      applicationRoot,
+      environment,
+    );
+    assert.equal(applyUpdate.status, 0, `${name}: ${applyUpdate.stderr}`);
+    const updated = readJson(join(applicationRoot, 'mova.config.json')).microfrontends.find(
+      (entry) => entry.name === name,
+    );
+    assert.equal(updated.template.version, 'v1.1.0');
+    assert.equal(
+      updated.template.componentName,
+      name === 'widget' ? 'status-card' : 'product-card',
+    );
+    assert.deepEqual(
+      updated.components,
+      name === 'widget' ? { 'status-card': './StatusCard' } : { 'product-card': './ProductCard' },
+    );
+    runGit(applicationRoot, ['add', '.']);
+    runGit(applicationRoot, [
+      '-c',
+      'user.name=Open Mova Test',
+      '-c',
+      'user.email=test@open-mova.local',
+      'commit',
+      '--quiet',
+      '-m',
+      `Update ${name}`,
+    ]);
+  }
 
   const help = runCli(['--help'], applicationRoot, environment);
   assert.equal(help.status, 0, help.stderr);

@@ -76,12 +76,14 @@ export function createMicrofrontendUpdatePlan(
       microfrontend.name,
       port,
       microfrontend.template.profile,
+      microfrontend.template.componentName,
     );
     const targetExposures = configureDownloadedMicrofrontend(
       targetDirectory,
       microfrontend.name,
       port,
       microfrontend.template.profile,
+      microfrontend.template.componentName,
     );
 
     const conflicts: string[] = [];
@@ -111,7 +113,9 @@ export function createMicrofrontendUpdatePlan(
       ...(targetCoreVersion === microfrontend.compatibility.requiredCoreVersion
         ? []
         : [`Actualizar compatibilidad de Core a ${targetCoreVersion}`]),
-      ...(microfrontend.template.profile === 'calculator' &&
+      ...((microfrontend.template.profile === 'calculator' ||
+        microfrontend.template.profile === 'starter-both' ||
+        microfrontend.template.profile === 'starter-component') &&
       JSON.stringify(targetComponents) !== JSON.stringify(microfrontend.components)
         ? ['Actualizar exposiciones de componentes']
         : []),
@@ -164,14 +168,19 @@ export function applyMicrofrontendUpdate(
       entry.name === plan.microfrontend.name
         ? {
             ...entry,
-            ...(plan.microfrontend.template?.profile === 'calculator'
-              ? { components: plan.targetComponents }
+            ...(plan.microfrontend.template?.profile === 'calculator' ||
+            plan.microfrontend.template?.profile === 'starter-both' ||
+            plan.microfrontend.template?.profile === 'starter-component'
+              ? { components: { ...entry.components, ...plan.targetComponents } }
               : {}),
             compatibility: { requiredCoreVersion: plan.targetCoreVersion },
             template: {
               ...plan.target,
               project: 'open-mova-mf-template',
               profile: plan.microfrontend.template!.profile,
+              ...(plan.microfrontend.template!.componentName
+                ? { componentName: plan.microfrontend.template!.componentName }
+                : {}),
             },
           }
         : entry,

@@ -45,6 +45,8 @@ export interface MicrofrontendConfiguration {
     readonly version: string;
     readonly commit: string;
     readonly project: 'open-mova-mf-template';
-    readonly profile: 'minimal' | 'demo' | 'calculator';
+    readonly profile:
+      'minimal' | 'demo' | 'calculator' | 'starter-both' | 'starter-routes' | 'starter-component';
+    readonly componentName?: string;
   };
 }

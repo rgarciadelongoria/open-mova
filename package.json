@@ -1,7 +1,7 @@
 {
   "name": "open-mova",
   "private": true,
-  "version": "0.2.15",
+  "version": "0.2.16",
   "scripts": {
     "start": "npm --prefix open-mova-shell run start",
     "start:demo": "npm --prefix open-mova-mf-template run start",
@@ -20,6 +20,6 @@
     "lint": "node tooling/node_modules/eslint/bin/eslint.js --config tooling/eslint.config.mjs open-mova-core/src open-mova-core/test open-mova-cli/src open-mova-cli/test open-mova-shell/src open-mova-mf-template/src scripts tooling",
     "format": "node tooling/node_modules/prettier/bin/prettier.cjs --config prettier.config.mjs --ignore-path .prettierignore --write .",
     "format:check": "node tooling/node_modules/prettier/bin/prettier.cjs --config prettier.config.mjs --ignore-path .prettierignore --check .",
-    "test:e2e": "node tooling/test-federation-integration.mjs"
+    "test:e2e": "node tooling/test-generated-mf-profiles.mjs && node tooling/test-federation-integration.mjs && node tooling/test-generated-mf-integration.mjs"
   }
 }

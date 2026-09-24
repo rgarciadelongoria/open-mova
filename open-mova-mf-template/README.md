@@ -62,8 +62,12 @@ mova mf create catalog --demo
 ```
 
 El perfil demo debe usar el mismo tag que la shell de la aplicación. El perfil
-minimal está pensado para empezar desde una base vacía y añadir las rutas y la
-lógica del proveedor.
+mínimo de `mova mf create` genera por defecto una ruta y un componente Angular
+genérico. `--routes-only` conserva solo la ruta y `--component-only` conserva
+solo el componente con una previsualización local. El nombre del componente se
+personaliza con `--component-name`; el de la ruta, con `--route`. El componente
+genérico vive en `src/app/components/starter/` en esta fuente y el CLI lo
+renombra al crear el MF. Ningún perfil mínimo incorpora la calculadora demo.
 
 ## Desarrollo local
 
@@ -88,6 +92,7 @@ su componente. La implementación está separada por responsabilidad:
 src/app/
 ├── app.routes.ts
 ├── components/calculator/      # Componente standalone expuesto por el remoto
+├── components/starter/         # Componente genérico que el CLI adapta en perfiles mínimos
 ├── capabilities/
 │   └── capability-catalog.ts
 ├── layout/
