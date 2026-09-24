@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { offerDependencyInstallation } from '../dist/commands/create.js';
-import { isAffirmativeAnswer } from '../dist/ui/terminal.js';
+import { isAffirmativeAnswer, terminal } from '../dist/ui/terminal.js';
 
 test('la confirmación acepta Sí y trata Enter o No como opción negativa', () => {
   assert.equal(isAffirmativeAnswer('Sí'), true);
@@ -12,6 +12,31 @@ test('la confirmación acepta Sí y trata Enter o No como opción negativa', () 
   assert.equal(isAffirmativeAnswer(''), false);
   assert.equal(isAffirmativeAnswer('  '), false);
   assert.equal(isAffirmativeAnswer('no'), false);
+});
+
+test('la tabla de terminal alinea las direcciones locales', () => {
+  const output = [];
+  const originalLog = console.log;
+  console.log = (line) => output.push(line);
+
+  try {
+    terminal.table(
+      ['Proyecto', 'URL'],
+      [
+        ['MF home', 'http://localhost:4300'],
+        ['Shell', 'http://localhost:4200'],
+      ],
+    );
+  } finally {
+    console.log = originalLog;
+  }
+
+  assert.deepEqual(output, [
+    'Proyecto  URL',
+    '────────  ─────────────────────',
+    'MF home   http://localhost:4300',
+    'Shell     http://localhost:4200',
+  ]);
 });
 
 test('una confirmación negativa no ejecuta npm', async () => {

@@ -60,6 +60,21 @@ export const terminal = {
     console.log(`${style(`${label}:`, 'muted')} ${value}`);
   },
 
+  table(headers: readonly string[], rows: readonly (readonly string[])[]): void {
+    const columnWidths = headers.map((header, column) =>
+      Math.max(header.length, ...rows.map((row) => (row[column] ?? '').length)),
+    );
+    const formatRow = (row: readonly string[]): string =>
+      row
+        .map((value, column) => (value ?? '').padEnd(columnWidths[column] ?? 0))
+        .join('  ')
+        .trimEnd();
+
+    console.log(style(formatRow(headers), 'bold'));
+    console.log(columnWidths.map((width) => style('─'.repeat(width), 'muted')).join('  '));
+    for (const row of rows) console.log(formatRow(row));
+  },
+
   command(command: string): void {
     console.log(`  ${style('$', 'accent')} ${command}`);
   },

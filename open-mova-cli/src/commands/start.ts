@@ -13,6 +13,12 @@ interface StartCommandOptions {
   readonly shellOnly?: boolean;
 }
 
+interface DevelopmentProject {
+  readonly directory: string;
+  readonly label: string;
+  readonly url: string;
+}
+
 export function registerStartCommand(program: Command): void {
   program
     .command('start')
@@ -21,7 +27,7 @@ export function registerStartCommand(program: Command): void {
     .action(async (options: StartCommandOptions) => {
       const applicationRoot = requireApplicationRoot(process.cwd());
       const configuration = readApplicationConfiguration(applicationRoot);
-      const projects: Array<{ readonly directory: string; readonly label: string }> = [];
+      const projects: DevelopmentProject[] = [];
 
       if (!options.shellOnly) {
         for (const microfrontend of configuration.microfrontends) {
@@ -40,31 +46,37 @@ export function registerStartCommand(program: Command): void {
           projects.push({
             directory: projectDirectory,
             label: `MF ${microfrontend.name}`,
+            url: new URL(microfrontend.developmentRemoteEntry).origin,
           });
         }
       }
 
-      projects.push({ directory: applicationRoot, label: 'Shell' });
+      projects.push({ directory: applicationRoot, label: 'Shell', url: 'http://localhost:4200' });
 
-      terminal.heading('Servidores de desarrollo', 'Pulsa Ctrl+C para detenerlos.');
+      terminal.heading('Servidores de desarrollo');
       await startProjects(projects);
     });
 }
 
-async function startProjects(
-  projects: readonly { readonly directory: string; readonly label: string }[],
-): Promise<void> {
-  const children = projects.map(({ directory, label }) => {
-    terminal.item(`${label}: ${directory}`, 'accent');
-    return spawn(npmCommand(), ['run', 'start'], {
+async function startProjects(projects: readonly DevelopmentProject[]): Promise<void> {
+  const children = projects.map(({ directory }) => {
+    const child = spawn(npmCommand(), ['run', 'start'], {
       cwd: directory,
       stdio: 'inherit',
       shell: useCommandShell(),
     });
+    return { child, exit: waitForExit(child) };
   });
 
+  terminal.section('Direcciones locales');
+  terminal.table(
+    ['Proyecto', 'URL'],
+    projects.map(({ label, url }) => [label, url]),
+  );
+  terminal.info('Pulsa Ctrl+C para detener todos los servidores.');
+
   const stopChildren = (): void => {
-    for (const child of children) {
+    for (const { child } of children) {
       child.kill('SIGTERM');
     }
   };
@@ -77,7 +89,7 @@ async function startProjects(
   process.once('SIGTERM', stopOnSignal);
 
   try {
-    const result = await Promise.race(children.map(waitForExit));
+    const result = await Promise.race(children.map(({ exit }) => exit));
 
     if (result.code !== 0 && result.signal === null) {
       throw new Error('Uno de los servidores de desarrollo ha terminado con error.');

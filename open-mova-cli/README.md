@@ -380,7 +380,7 @@ puede compilar desde la aplicación.
 
 ### `mova start`
 
-Arranca los MFs locales registrados y después la shell. Los MFs configurados solo con una URL remota no se arrancan localmente.
+Arranca los MFs locales registrados y después la shell. Los MFs configurados solo con una URL remota no se arrancan localmente. Al lanzarlos muestra una tabla con sus URLs locales y deja la shell en la última fila, seguida de la indicación para detener todos los servidores.
 
 ```bash
 mova start
