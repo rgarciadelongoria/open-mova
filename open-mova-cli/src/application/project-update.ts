@@ -15,10 +15,11 @@ export function compareManagedFiles(
   ignoredPaths: ReadonlySet<string>,
 ): FileChange[] {
   const paths = new Set([...listFiles(currentDirectory), ...listFiles(targetDirectory)]);
+  const normalizedIgnoredPaths = new Set([...ignoredPaths].map(normalizeProjectPath));
   const changes: FileChange[] = [];
 
   for (const path of [...paths].sort()) {
-    if (ignoredPaths.has(path)) continue;
+    if (normalizedIgnoredPaths.has(path)) continue;
 
     const currentContent = readOptionalFile(join(currentDirectory, path));
     const targetContent = readOptionalFile(join(targetDirectory, path));
@@ -111,12 +112,17 @@ function listFiles(directory: string): string[] {
     for (const entry of readdirSync(currentDirectory, { withFileTypes: true })) {
       const absolutePath = join(currentDirectory, entry.name);
       if (entry.isDirectory()) visit(absolutePath);
-      else if (entry.isFile()) files.push(relative(directory, absolutePath));
+      else if (entry.isFile()) files.push(normalizeProjectPath(relative(directory, absolutePath)));
     }
   };
 
   visit(directory);
   return files;
+}
+
+/** La configuración gestionada usa rutas POSIX también cuando el CLI se ejecuta en Windows. */
+function normalizeProjectPath(path: string): string {
+  return path.replaceAll('\\', '/');
 }
 
 function readOptionalFile(path: string): Buffer | undefined {

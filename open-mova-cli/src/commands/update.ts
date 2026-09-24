@@ -34,7 +34,7 @@ export function registerUpdateCommand(program: Command): void {
 
       if (plan.conflicts.length > 0) {
         throw new Error(
-          'Se han detectado archivos modificados. Resuelve los conflictos antes de actualizar.',
+          'La actualización tiene conflictos con la infraestructura actual. Revisa la lista anterior: Git limpio no resuelve estos conflictos por sí solo.',
         );
       }
       if (plan.changes.length === 0 && document.migrations.length === 0) {
@@ -86,7 +86,7 @@ function printPlan(plan: ReturnType<typeof createShellUpdatePlan>): void {
     for (const change of plan.changes) terminal.item(change, 'accent');
   }
   if (plan.conflicts.length > 0) {
-    terminal.section('Conflictos que no se sobrescribirán');
+    terminal.section('Conflictos que requieren una decisión');
     for (const conflict of plan.conflicts) terminal.item(conflict, 'warning');
   }
 }
