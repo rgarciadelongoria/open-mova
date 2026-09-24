@@ -1,5 +1,5 @@
 /** Versión del paquete que implementa este contrato en tiempo de ejecución. */
-export const OPEN_MOVA_CORE_VERSION = '0.2.5';
+export const OPEN_MOVA_CORE_VERSION = '0.2.6';
 
 /** Versión del formato del manifiesto publicado por cada microfrontal. */
 export const MICROFRONTEND_MANIFEST_SCHEMA_VERSION = 1;

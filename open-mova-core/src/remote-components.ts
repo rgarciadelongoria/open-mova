@@ -63,17 +63,18 @@ export class MovaRemoteComponent implements AfterViewInit, OnChanges, OnDestroy 
   private component?: ComponentRef<unknown>;
   private subscriptions: Array<{ unsubscribe(): void }> = [];
   private generation = 0;
+  private loadScheduled = false;
   private destroyed = false;
   private loadedName = '';
 
   ngAfterViewInit(): void {
-    void this.load();
+    this.scheduleLoad();
   }
 
   ngOnChanges(): void {
     if (!this.outlet) return;
     if (this.name !== this.loadedName) {
-      void this.load();
+      this.scheduleLoad();
     } else {
       this.applyInputs();
     }
@@ -84,6 +85,16 @@ export class MovaRemoteComponent implements AfterViewInit, OnChanges, OnDestroy 
     this.generation += 1;
     this.clear();
     this.remoteEvent.complete();
+  }
+
+  private scheduleLoad(): void {
+    if (this.loadScheduled || this.destroyed) return;
+    this.loadScheduled = true;
+    this.generation += 1;
+    queueMicrotask(() => {
+      this.loadScheduled = false;
+      if (!this.destroyed) void this.load();
+    });
   }
 
   private async load(): Promise<void> {
