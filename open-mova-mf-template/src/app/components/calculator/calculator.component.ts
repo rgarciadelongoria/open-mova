@@ -14,41 +14,147 @@ export interface Calculation {
   styleUrl: './calculator.component.css',
 })
 export class CalculatorComponent {
-  @Input() enabled = true;
+  private isEnabled = true;
+
+  @Input()
+  get enabled(): boolean {
+    return this.isEnabled;
+  }
+
+  set enabled(value: boolean) {
+    this.isEnabled = value;
+    if (!value) this.clear();
+  }
+
   @Output() readonly calculated = new EventEmitter<Calculation>();
 
-  first = 0;
-  second = 0;
+  display = '0';
+  expression = '';
   error = '';
+  private storedOperand?: number;
+  private pendingOperation?: Calculation['operation'];
+  private replaceDisplay = true;
 
-  setFirst(event: Event): void {
-    this.first = Number((event.target as HTMLInputElement).value);
-  }
-
-  setSecond(event: Event): void {
-    this.second = Number((event.target as HTMLInputElement).value);
-  }
-
-  calculate(operation: Calculation['operation']): void {
-    if (!this.enabled) return;
+  pressDigit(digit: string): void {
+    if (!this.enabled || !/^\d$/.test(digit)) return;
     this.error = '';
-    if (!Number.isFinite(this.first) || !Number.isFinite(this.second)) {
-      this.error = 'Introduce dos números válidos.';
+    if (this.replaceDisplay) {
+      this.display = digit;
+      this.replaceDisplay = false;
+      this.expression = this.pendingOperation
+        ? `${this.format(this.storedOperand ?? 0)} ${this.pendingOperation}`
+        : '';
       return;
     }
-    if (operation === '÷' && this.second === 0) {
+
+    if (this.display.replace('-', '').replace(',', '').length >= 12) return;
+    this.display = this.display === '0' ? digit : `${this.display}${digit}`;
+  }
+
+  pressDecimal(): void {
+    if (!this.enabled || this.display.includes(',')) return;
+    if (this.replaceDisplay) {
+      this.display = '0,';
+      this.replaceDisplay = false;
+      this.expression = this.pendingOperation
+        ? `${this.format(this.storedOperand ?? 0)} ${this.pendingOperation}`
+        : '';
+    } else {
+      this.display += ',';
+    }
+    this.error = '';
+  }
+
+  toggleSign(): void {
+    if (!this.enabled) return;
+    this.display = this.display.startsWith('-') ? this.display.slice(1) : `-${this.display}`;
+    this.replaceDisplay = false;
+    this.error = '';
+  }
+
+  percent(): void {
+    if (!this.enabled) return;
+    this.display = this.format(this.value / 100);
+    this.replaceDisplay = true;
+    this.error = '';
+  }
+
+  clear(): void {
+    this.display = '0';
+    this.expression = '';
+    this.error = '';
+    this.storedOperand = undefined;
+    this.pendingOperation = undefined;
+    this.replaceDisplay = true;
+  }
+
+  chooseOperation(operation: Calculation['operation']): void {
+    if (!this.enabled) return;
+    this.error = '';
+
+    if (this.pendingOperation && this.storedOperand !== undefined && !this.replaceDisplay) {
+      const result = this.compute(this.storedOperand, this.value, this.pendingOperation);
+      if (result === undefined) return;
+      this.display = this.format(result);
+      this.storedOperand = result;
+    } else {
+      this.storedOperand = this.value;
+    }
+
+    this.pendingOperation = operation;
+    this.expression = `${this.format(this.storedOperand)} ${operation}`;
+    this.replaceDisplay = true;
+  }
+
+  calculate(): void {
+    if (!this.enabled || !this.pendingOperation || this.storedOperand === undefined) return;
+    this.error = '';
+    const first = this.storedOperand;
+    const second = this.replaceDisplay ? first : this.value;
+    const operation = this.pendingOperation;
+    const result = this.compute(first, second, operation);
+    if (result === undefined) return;
+
+    this.expression = `${this.format(first)} ${operation} ${this.format(second)} =`;
+    this.display = this.format(result);
+    this.storedOperand = undefined;
+    this.pendingOperation = undefined;
+    this.replaceDisplay = true;
+    this.calculated.emit({ first, second, operation, result });
+  }
+
+  private get value(): number {
+    return Number(this.display.replace(',', '.'));
+  }
+
+  private compute(
+    first: number,
+    second: number,
+    operation: Calculation['operation'],
+  ): number | undefined {
+    if (operation === '÷' && second === 0) {
       this.error = 'No se puede dividir entre cero.';
-      return;
+      return undefined;
     }
 
     const result =
       operation === '+'
-        ? this.first + this.second
+        ? first + second
         : operation === '-'
-          ? this.first - this.second
+          ? first - second
           : operation === '×'
-            ? this.first * this.second
-            : this.first / this.second;
-    this.calculated.emit({ first: this.first, second: this.second, operation, result });
+            ? first * second
+            : first / second;
+    if (!Number.isFinite(result)) {
+      this.error = 'El resultado está fuera del rango permitido.';
+      return undefined;
+    }
+    return result;
+  }
+
+  private format(value: number): string {
+    return new Intl.NumberFormat('es-ES', { maximumFractionDigits: 8, useGrouping: false }).format(
+      Object.is(value, -0) ? 0 : value,
+    );
   }
 }

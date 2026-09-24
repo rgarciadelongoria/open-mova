@@ -1,22 +1,99 @@
 <div class="calculator">
-  <h3>Calculadora remota</h3>
-  <p>Este componente pertenece a otro microfrontal.</p>
-  <div class="numbers">
-    <label
-      >Primer número
-      <input type="number" [value]="first" [disabled]="!enabled" (input)="setFirst($event)"
-    /></label>
-    <label
-      >Segundo número
-      <input type="number" [value]="second" [disabled]="!enabled" (input)="setSecond($event)"
-    /></label>
+  <div class="calculator-heading">
+    <h3>Calculadora remota</h3>
+    <span>COMPONENTE REMOTO</span>
   </div>
-  <div class="operations" aria-label="Operaciones">
-    <button type="button" [disabled]="!enabled" (click)="calculate('+')">Sumar</button>
-    <button type="button" [disabled]="!enabled" (click)="calculate('-')">Restar</button>
-    <button type="button" [disabled]="!enabled" (click)="calculate('×')">Multiplicar</button>
-    <button type="button" [disabled]="!enabled" (click)="calculate('÷')">Dividir</button>
+  <p class="description">Este componente pertenece a otro microfrontal.</p>
+
+  <div class="display" aria-live="polite" aria-atomic="true">
+    <span class="expression">{{ expression || 'Introduce una operación' }}</span>
+    <output class="value" aria-label="Visor de la calculadora">{{ display }}</output>
   </div>
+
+  <div class="keypad" role="group" aria-label="Teclado de la calculadora">
+    <button class="utility" type="button" [disabled]="!enabled" (click)="clear()">AC</button>
+    <button
+      class="utility"
+      type="button"
+      aria-label="Cambiar signo"
+      [disabled]="!enabled"
+      (click)="toggleSign()"
+    >
+      ±
+    </button>
+    <button
+      class="utility"
+      type="button"
+      aria-label="Porcentaje"
+      [disabled]="!enabled"
+      (click)="percent()"
+    >
+      %
+    </button>
+    <button
+      class="operator"
+      type="button"
+      aria-label="Dividir"
+      [disabled]="!enabled"
+      (click)="chooseOperation('÷')"
+    >
+      ÷
+    </button>
+
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('7')">7</button>
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('8')">8</button>
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('9')">9</button>
+    <button
+      class="operator"
+      type="button"
+      aria-label="Multiplicar"
+      [disabled]="!enabled"
+      (click)="chooseOperation('×')"
+    >
+      ×
+    </button>
+
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('4')">4</button>
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('5')">5</button>
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('6')">6</button>
+    <button
+      class="operator"
+      type="button"
+      aria-label="Restar"
+      [disabled]="!enabled"
+      (click)="chooseOperation('-')"
+    >
+      −
+    </button>
+
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('1')">1</button>
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('2')">2</button>
+    <button type="button" [disabled]="!enabled" (click)="pressDigit('3')">3</button>
+    <button
+      class="operator"
+      type="button"
+      aria-label="Sumar"
+      [disabled]="!enabled"
+      (click)="chooseOperation('+')"
+    >
+      +
+    </button>
+
+    <button class="zero" type="button" [disabled]="!enabled" (click)="pressDigit('0')">0</button>
+    <button type="button" aria-label="Decimal" [disabled]="!enabled" (click)="pressDecimal()">
+      ,
+    </button>
+    <button
+      class="operator equals"
+      type="button"
+      aria-label="Igual"
+      [disabled]="!enabled"
+      (click)="calculate()"
+    >
+      =
+    </button>
+  </div>
+
   @if (!enabled) {
     <p role="status">La calculadora está apagada.</p>
   }

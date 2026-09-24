@@ -1,47 +1,133 @@
 .calculator {
+  width: min(100%, 360px);
+  margin-inline: auto;
   padding: 20px;
-  border: 1px solid #3b6384;
-  border-radius: 14px;
+  border: 1px dashed #54718f;
+  border-radius: 18px;
   color: #e8eef8;
-  background: #17263c;
+  background: #101d32;
   font-family: 'DM Sans', system-ui, sans-serif;
 }
 
-.calculator h3 {
-  margin: 0 0 8px;
-}
-.calculator p {
-  color: #b7c4d8;
-}
-.numbers,
-.operations {
+.calculator-heading {
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-top: 16px;
 }
-.numbers label {
+
+.calculator-heading h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.calculator-heading span {
+  color: #72e0c2;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.description {
+  margin: 5px 0 0;
+  color: #b7c4d8;
+  font-size: 0.8rem;
+}
+
+.display {
   display: grid;
-  gap: 5px;
-  flex: 1 1 150px;
+  justify-items: end;
+  gap: 7px;
+  min-height: 100px;
+  padding: 20px 4px 12px;
 }
-.numbers input {
+
+.expression {
+  min-height: 1.25rem;
+  color: #9bacc4;
+  font-size: 0.85rem;
+}
+
+.value {
+  max-width: 100%;
+  overflow: hidden;
+  color: #fff;
+  font-size: clamp(2.5rem, 12vw, 3.5rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-overflow: ellipsis;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.keypad button {
   min-width: 0;
-  padding: 9px;
-  border: 1px solid #8298b5;
-  border-radius: 7px;
-  font: inherit;
-}
-.operations button {
-  padding: 9px 12px;
-  border: 0;
-  border-radius: 8px;
-  background: #72e0c2;
-  color: #10251f;
+  min-height: 56px;
+  border: 1px solid #31435d;
+  border-radius: 999px;
+  background: #263751;
+  color: #f5f7fb;
   cursor: pointer;
   font: inherit;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition:
+    background-color 120ms ease,
+    transform 120ms ease;
 }
-.operations button:disabled {
+
+.keypad button:hover:not(:disabled) {
+  background: #354965;
+}
+
+.keypad button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.keypad button:focus-visible {
+  outline: 3px solid #72e0c2;
+  outline-offset: 3px;
+}
+
+.keypad .utility {
+  background: #607087;
+  color: #102033;
+}
+
+.keypad .operator {
+  border-color: #72e0c2;
+  background: #72e0c2;
+  color: #10251f;
+}
+
+.keypad .operator:hover:not(:disabled) {
+  background: #91ecd3;
+}
+
+.keypad .zero {
+  grid-column: span 2;
+  padding-inline: 24px;
+  text-align: left;
+}
+
+.keypad button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.calculator [role='alert'],
+.calculator [role='status'] {
+  margin: 12px 0 0;
+  color: #ffd2c6;
+  font-size: 0.85rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keypad button {
+    transition: none;
+  }
 }

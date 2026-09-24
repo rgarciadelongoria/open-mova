@@ -16,4 +16,21 @@
     Comprueba que el microfrontal calculator está disponible.
   </mova-remote-component>
 </div>
-<p class="result" aria-live="polite">{{ lastCalculation() }}</p>
+
+<section class="results-panel" aria-labelledby="results-title">
+  <h3 id="results-title">Resultados</h3>
+  <p>Estos resultados se reciben en la Shell a través de un evento del microfrontal externo.</p>
+  @if (results().length) {
+    <ol aria-label="Operaciones recibidas, de la más nueva a la más antigua">
+      @for (result of results(); track result.id) {
+        <li>{{ formatResult(result) }}</li>
+      }
+    </ol>
+  } @else {
+    <p class="empty-results" aria-live="polite">
+      {{
+        enabled() ? 'Aún no hay resultados.' : 'La lista se ha limpiado al apagar la calculadora.'
+      }}
+    </p>
+  }
+</section>

@@ -2,6 +2,7 @@ import { Component, computed, signal } from '@angular/core';
 import { MovaRemoteComponent, type RemoteComponentEvent } from '@open-mova/core/remote-components';
 
 interface Calculation {
+  readonly id: number;
   readonly first: number;
   readonly second: number;
   readonly operation: '+' | '-' | '×' | '÷';
@@ -17,16 +18,25 @@ interface Calculation {
 export class RemoteComponentPageComponent {
   readonly enabled = signal(true);
   readonly remoteInputs = computed(() => ({ enabled: this.enabled() }));
-  readonly lastCalculation = signal('Todavía no se ha realizado ninguna operación.');
+  readonly results = signal<Calculation[]>([]);
+  private nextCalculationId = 0;
 
   toggle(): void {
+    if (this.enabled()) this.results.set([]);
     this.enabled.update((value) => !value);
   }
 
   onRemoteEvent(event: RemoteComponentEvent): void {
     if (event.name !== 'calculated' || !isCalculation(event.value)) return;
     const { first, second, operation, result } = event.value;
-    this.lastCalculation.set(`${first} ${operation} ${second} = ${result}`);
+    this.results.update((results) => [
+      { id: this.nextCalculationId++, first, second, operation, result },
+      ...results,
+    ]);
+  }
+
+  formatResult(calculation: Calculation): string {
+    return `${calculation.first} ${calculation.operation} ${calculation.second} = ${calculation.result}`;
   }
 }
 

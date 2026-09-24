@@ -1,7 +1,43 @@
 .remote-example {
   margin-top: 24px;
 }
-.result {
-  margin-top: 20px;
+
+.results-panel {
+  margin-top: 24px;
+  padding: 20px;
+  border: 1px solid #263f61;
+  border-radius: 14px;
+  background: #111e32;
+}
+
+.results-panel h3 {
+  margin: 0;
+  color: #f5f7fb;
+}
+
+.results-panel > p {
+  margin: 8px 0 0;
+  color: #b7c4d8;
+}
+
+.results-panel ol {
+  display: grid;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.results-panel li {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #1a2a43;
+  color: #72e0c2;
+  font-variant-numeric: tabular-nums;
   font-weight: 700;
+}
+
+.results-panel .empty-results {
+  color: #8294ae;
+  font-size: 0.9rem;
 }

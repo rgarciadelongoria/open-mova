@@ -50,10 +50,13 @@ Al crear una aplicación, `mova create` usa este mismo código y tag para
 producir dos proyectos independientes: `mfs/home` conserva las rutas de la demo
 y muestra una página «Componentes remotos»; `mfs/calculator` expone únicamente
 el componente Angular de calculadora en el puerto 4400, sin ruta pública en la
-shell. `home` no incluye esa implementación: la carga desde el segundo MF.
-La entrada `enabled` y la salida `calculated` muestran cómo intercambiar datos
-sin añadir un contrato de negocio a Core. En una aplicación real, esos
-contratos pertenecen a los MFs o a una librería propia.
+shell. `home` no incluye esa implementación: la carga desde el segundo MF. La
+calculadora presenta un teclado visual de estilo iOS con operaciones
+aritméticas básicas. La entrada `enabled` y la salida `calculated` muestran
+cómo intercambiar datos sin añadir un contrato de negocio a Core. El MF que la
+consume muestra los resultados recibidos en orden cronológico inverso y borra
+la lista al apagarla. En una aplicación real, esos contratos pertenecen a los
+MFs o a una librería propia.
 
 También puedes crear un microfrontal con la demo explícitamente:
 
